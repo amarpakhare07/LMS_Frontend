@@ -1,0 +1,15 @@
+<h2>Login</h2>
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+  <div>
+    <label for="email">Email:</label>
+    <input id="email" type="email" formControlName="email" />
+  </div>
+  <div>
+    <label for="password">Password:</label>
+    <input id="password" type="password" formControlName="password" />
+  </div>
+  <button type="submit" [disabled]="!loginForm.valid">Log In</button>
+  <div *ngIf="errorMessage" style="color: red">{{ errorMessage }}</div>
+</form>
+
+<p>Don't have an account? <a routerLink="/register">Register here</a></p>
