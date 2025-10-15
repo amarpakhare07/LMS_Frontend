@@ -4,7 +4,11 @@ import { Home } from './pages/home/home';
 import { authGuard } from './services/auth-guard';
 import { AdminDashboard } from './pages/admin-dashboard/admin-dashboard';
 import { Register } from './components/auth/register/register';
-import { RegisterInstructor } from './register-instructor/register-instructor';
+import { ManageCourses } from './components/admin/manage-courses/manage-courses';
+import { ManageUsers } from './components/admin/manage-users/manage-users';
+import { Profile } from './components/admin/profile/profile';
+import { Layout } from './components/admin/layout/layout';
+import { RegisterInstructor } from './components/auth/register-instructor/register-instructor';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -17,11 +21,18 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    component: AdminDashboard,
+    component: Layout,
     canActivate: [authGuard], // Apply the same guard
     data: {
       expectedRole: 'Admin', // ✨ Add the required role here
     },
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Default admin route
+      { path: 'dashboard', component: AdminDashboard },
+      { path: 'users', component: ManageUsers },
+      { path: 'courses', component: ManageCourses },
+      { path: 'profile', component: Profile }
+    ]
   },
   // Redirect to home by default if logged in, otherwise guard will redirect to login
   { path: '', redirectTo: '/home', pathMatch: 'full' },

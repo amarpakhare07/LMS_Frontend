@@ -1,4 +1,4 @@
-/* Apply to both Login and Register pages */
+/* General page styling */
 body {
   font-family: 'Segoe UI', Tahoma, sans-serif;
   background: #f4f6f9;
@@ -9,21 +9,13 @@ body {
   margin: 0;
 }
 
-/* Optional wrapper for flexibility */
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
-
-/* Form styling (same for login & register) */
+/* Form container */
 form {
   background: #ffffff;
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 350px;
+  width: 380px;
 }
 
 /* Heading */
@@ -63,7 +55,7 @@ input:focus {
 button[type="submit"] {
   width: 100%;
   padding: 0.75rem;
-  background: #3498db;
+  background: #27ae60;
   color: #fff;
   font-size: 16px;
   font-weight: 600;
@@ -74,7 +66,7 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-  background: #2980b9;
+  background: #1e8449;
 }
 
 button[disabled] {
@@ -82,7 +74,13 @@ button[disabled] {
   cursor: not-allowed;
 }
 
-/* Links */
+/* Error message */
+div[style*="color: red"] {
+  margin-top: 0.5rem;
+  font-size: 14px;
+}
+
+/* Links section */
 p {
   text-align: center;
   margin-top: 1rem;
@@ -97,4 +95,11 @@ a {
 
 a:hover {
   text-decoration: underline;
+}
+
+/* Extra link for instructor registration */
+p:last-child {
+  margin-top: 0.5rem;
+  font-size: 13px;
+  color: #555;
 }

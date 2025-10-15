@@ -1,0 +1,16 @@
+
+<div class="admin-layout">
+      <nav class="sidebar">
+        <h2 class="sidebar-title">Admin Menu</h2>
+        <ul>
+          <li><a routerLink="dashboard" routerLinkActive="active">Dashboard</a></li>
+          <li><a routerLink="users" routerLinkActive="active">Manage Users</a></li>
+          <li><a routerLink="courses" routerLinkActive="active">Manage Courses</a></li>
+          <li><a routerLink="profile" routerLinkActive="active">My Profile</a></li>
+        </ul>
+        <button (click)="logout()" class="logout-btn">Logout</button>
+      </nav>
+      <main class="content">
+        <router-outlet></router-outlet>
+      </main>
+    </div>

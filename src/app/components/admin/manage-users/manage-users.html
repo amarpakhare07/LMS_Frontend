@@ -1,0 +1,68 @@
+<h1>Manage Users</h1>
+<p>Search, filter, and manage user account status.</p>
+
+<div class="toolbar">
+  <div class="search-container">
+    <input 
+      type="text" 
+      class="search-input"
+      placeholder="Search by name or email..."
+      [(ngModel)]="searchTerm"
+      (input)="applyFilters()">
+  </div>
+  <div class="filter-container">
+    <label for="status">Filter by status:</label>
+    <select id="status" [(ngModel)]="statusFilter" (change)="applyFilters()">
+      <option value="all">All</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+    </select>
+  </div>
+</div>
+
+<div *ngIf="isLoading" class="loading-container">
+  <div class="spinner"></div>
+  <p>Loading users...</p>
+</div>
+
+<div *ngIf="!isLoading">
+  <div *ngIf="filteredUsers.length > 0; else noUsers" class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers">
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <span class="status" [ngClass]="user.isActive ? 'active' : 'inactive'">
+              {{ user.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td>
+            <button 
+              class="action-btn"
+              [class.deactivate-btn]="user.isActive"
+              [class.activate-btn]="!user.isActive"
+              (click)="toggleUserStatus(user)">
+              {{ user.isActive ? 'Deactivate' : 'Activate' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #noUsers>
+    <div class="empty-state">
+      <h2>No Users Found</h2>
+      <p>No users match your current search and filter criteria.</p>
+    </div>
+  </ng-template>
+</div>
