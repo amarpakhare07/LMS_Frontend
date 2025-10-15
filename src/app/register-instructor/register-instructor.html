@@ -1,4 +1,4 @@
-<h2>Register</h2>
+<h2>Register as Instructor</h2>
 <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
   <div>
     <label for="name">Name:</label>
@@ -16,5 +16,3 @@
   <div *ngIf="errorMessage" style="color: red">{{ errorMessage }}</div>
 </form>
 <p>Already have an account? <a routerLink="/login">Login here</a></p>
-
-<p>To register as an instructor <a routerLink="/register-instructor">Instructor Registration</a></p>

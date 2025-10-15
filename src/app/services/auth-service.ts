@@ -5,6 +5,17 @@ import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 
+export interface DecodedToken {
+  userId: number
+  role: string;
+  // Add other properties as needed
+}
+
+export interface AuthResponse {
+  accessToken: string;
+}
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -12,6 +23,21 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private apiUrl = 'https://localhost:7049/api'; // Your API URL
+
+
+// ✨ NEW: A private helper method for redirection
+  private handleLogin(token: string): void {
+    localStorage.setItem('auth_token', token);
+    const userRole = this.getUserRole();
+
+    if (userRole === 'Admin') {
+      this.router.navigate(['/admin']);
+    } else if (userRole === 'Instructor') {
+      this.router.navigate(['/instructor']);
+    } else {
+      this.router.navigate(['/home']);
+    }
+  }
 
   // Method to get the token from localStorage
   getToken(): string | null {
@@ -25,22 +51,33 @@ export class AuthService {
 
   // Login method: sends credentials to the backend
   login(credentials: { email: string, password: string }): Observable<any> {
-    return this.http.post<{ token: string }>(`${this.apiUrl}/Auth/login`, credentials).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/Auth/login`, credentials).pipe(
       tap(response => {
         // On successful login, store the token
-        localStorage.setItem('auth_token', response.token);
-        this.router.navigate(['/dashboard']); // Redirect to a protected route
+        // console.log('Login response:', response.accessToken);
+        localStorage.setItem('auth_token', response.accessToken);
+        this.handleLogin(response.accessToken);
       })
     );
   }
 
  // ✨ NEW: Register method
   register(userDetails: { name: string, email: string, password: string }): Observable<any> {
-    return this.http.post<{ token: string }>(`${this.apiUrl}/register`, userDetails).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/Auth/register`, userDetails).pipe(
       // We use the same 'tap' operator to automatically log the user in
       tap(response => {
-        localStorage.setItem('auth_token', response.token);
-        this.router.navigate(['/dashboard']);
+        localStorage.setItem('auth_token', response.accessToken);
+        this.handleLogin(response.accessToken);
+      })
+    );
+  }
+
+  registerInstructor(userDetails: { name: string, email: string, password: string }): Observable<any> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/Auth/register/instructor`, userDetails).pipe(
+      // We use the same 'tap' operator to automatically log the user in
+      tap(response => {
+        localStorage.setItem('auth_token', response.accessToken);
+        this.handleLogin(response.accessToken);
       })
     );
   }
@@ -56,8 +93,8 @@ export class AuthService {
     const token = this.getToken();
     if (token) {
       try {
-        const decodedToken: { role: string } = jwtDecode(token);
-        return decodedToken.role;
+        const decodedTokenrole: DecodedToken = jwtDecode(token);
+        return decodedTokenrole.role;
       } catch (error) {
         console.error('Error decoding token:', error);
         return null;

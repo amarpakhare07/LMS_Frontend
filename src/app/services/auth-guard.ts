@@ -23,13 +23,14 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state) =
 
   // 3. Get the current user's role
   const currentUserRole = authService.getUserRole();
+    // console.log(`Guard Check -> Expected: '${expectedRole}', User Has: '${currentUserRole}'`);
 
   // 4. Compare roles and grant or deny access
   if (currentUserRole === expectedRole) {
     return true; // User has the required role, allow access
   } else {
     // Redirect to an unauthorized/access-denied page or back to the dashboard
-    router.navigate(['/dashboard']); // Or a dedicated '/unauthorized' page
+    router.navigate(['/unauthorized']); // Or a dedicated '/unauthorized' page
     return false;
   }
 };
