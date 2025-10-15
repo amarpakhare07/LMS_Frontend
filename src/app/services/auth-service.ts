@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
+import { environment } from '../../environment';
 
 export interface DecodedToken {
   userId: number
@@ -22,7 +23,7 @@ export interface AuthResponse {
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-  private apiUrl = 'https://localhost:7049/api'; // Your API URL
+  private apiUrl = environment.apiUrl // Your API URL
 
 
 // ✨ NEW: A private helper method for redirection
