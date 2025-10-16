@@ -10,7 +10,7 @@ import { AuthService } from '../../../services/auth-service';
   templateUrl: './layout.html',
   styleUrls: ['./layout.css'],
 })
-export class Layout {
+export class AdminLayout {
   authService = inject(AuthService);
   logout() {
     this.authService.logout();
