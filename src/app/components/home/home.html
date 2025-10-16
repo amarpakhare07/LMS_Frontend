@@ -1,0 +1,40 @@
+<div class="hero">
+  <div class="hero-left">
+    <h1>Smart, Seamless, Powerful</h1>
+    <h2>Your Training Platform</h2>
+    <p>Step into the world of knowledge and growth — register now to start your journey.</p>
+
+    <div class="search-bar">
+      <input
+        [(ngModel)]="searchQuery"
+        placeholder="Search courses by title, description, syllabus..."
+        (keydown.enter)="onSearch()"
+        aria-label="Search courses"
+      />
+      <button (click)="onSearch()">Search</button>
+      <button class="clear" *ngIf="searchQuery" (click)="clearSearch()">Clear</button>
+    </div>
+
+    <div class="quick-note">
+      <small>Tip: Try “C#”, “API”, or “Beginner” — press Enter to search</small>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <img src="../../../assets/images/home-hero.png" alt="Hero banner" />
+  </div>
+</div>
+
+<!-- results -->
+<section class="courses-section" *ngIf="filteredCourses?.length || loading || error">
+  <div class="results-header">
+    <h3 *ngIf="filteredCourses?.length">{{ filteredCourses.length }} course(s) found for “{{ searchQuery }}”</h3>
+    <h3 *ngIf="!filteredCourses?.length && !loading && !error">No matching courses</h3>
+    <div class="loader" *ngIf="loading">Loading...</div>
+    <div class="error" *ngIf="error">{{ error }}</div>
+  </div>
+
+  <div class="course-grid" *ngIf="filteredCourses?.length">
+    <app-course-card *ngFor="let c of filteredCourses" [course]="c"></app-course-card>
+  </div>
+</section>

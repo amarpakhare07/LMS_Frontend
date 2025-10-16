@@ -11,29 +11,29 @@ export interface User {
   isDeleted: boolean;
 }
 
-export interface Course {
-  courseID: number;
-  title: string;
-  description: string;
-  syllabus: string;
-  level: string;
-  language: string;
-  duration: number;
-  thumbnailURL: string;
-  categoryID: number;
-  published: boolean;
-  rating: number;
-  reviewCount: number;
-}
+// export interface Course {
+//   courseID: number;
+//   title: string;
+//   description: string;
+//   syllabus: string;
+//   level: string;
+//   language: string;
+//   duration: number;
+//   thumbnailURL: string;
+//   categoryID: number;
+//   published: boolean;
+//   rating: number;
+//   reviewCount: number;
+// }
 
-export interface Category {
-  categoryID: number;
-  name: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string | null;
-  isDeleted: boolean;
-  courses: Course[] | null;
-}
+// export interface Category {
+//   categoryID: number;
+//   name: string;
+//   description: string;
+//   createdAt: string;
+//   updatedAt: string | null;
+//   isDeleted: boolean;
+//   courses: Course[] | null;
+// }
 
 

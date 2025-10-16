@@ -2,7 +2,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { User, Course } from '../models/interfaces';
+import { User} from '../models/interfaces';
+import { Course } from '../models/course.model';
 import { environment } from '../../environment';
 
 @Injectable({

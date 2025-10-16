@@ -1,0 +1,87 @@
+.footer {
+  background-color: #d5cdec; /* exact light purple from image */
+  /* background-image: url('assets/circuit-bg.png'); optional: tech-themed circuit pattern */
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: #333;
+  padding: 2rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.footer-left {
+  flex: 1;
+  min-width: 200px;
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.tagline {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+.footer-links {
+  display: flex;
+  flex: 2;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.link-section {
+  display: flex;
+  flex-direction: column;
+  margin: 0 1rem;
+}
+
+.link-section h4 {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.link-section a {
+  text-decoration: none;
+  color: #333;
+  margin-bottom: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.link-section a:hover {
+  text-decoration: underline;
+}
+
+.footer-right {
+  flex: 1;
+  min-width: 200px;
+  text-align: right;
+}
+
+.social-icons {
+  margin-bottom: 0.5rem;
+}
+
+.social-icons a {
+  margin-left: 0.5rem;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.social-icons a:hover {
+  color: #555;
+}
+
+copyright {
+  font-size: 0.85rem;
+}
