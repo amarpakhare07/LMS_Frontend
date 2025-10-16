@@ -9,6 +9,7 @@ import { RegisterInstructor } from './components/auth/register-instructor/regist
 import { AdminDashboard } from './components/admin/dashboard/dashboard';
 import { HomeLayout } from './components/home/layout/layout';
 import { AdminLayout } from './components/admin/layout/layout';
+import { InstructorLayout } from './components/instructor/layout/layout';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -18,6 +19,11 @@ export const routes: Routes = [
     path: 'home',
     component: HomeLayout,
     canActivate: [authGuard], // Apply the guard here
+  },
+  {
+    path: 'instructor',
+    component: InstructorLayout,
+    canActivate: [authGuard], // Apply the same guard
   },
   {
     path: 'admin',

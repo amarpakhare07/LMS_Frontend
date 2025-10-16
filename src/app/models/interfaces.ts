@@ -11,6 +11,14 @@ export interface User {
   isDeleted: boolean;
 }
 
+export interface DashboardSummary {
+  totalUsers: number;
+  activeUsers: number;
+  roles: {
+    [key: string]: number; // e.g., { Admin: 5, Instructor: 10 }
+  };
+}
+
 export interface Course {
   courseID: number;
   title: string;

@@ -1,12 +1,12 @@
 // src/app/services/admin.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { User, Course } from '../models/interfaces';
+import { forkJoin, map, Observable } from 'rxjs';
+import { User, Course, Category } from '../models/interfaces';
 import { environment } from '../../environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AdminService {
   private http = inject(HttpClient);
@@ -17,20 +17,41 @@ export class AdminService {
     return this.http.get<User[]>(`${this.apiUrl}/UserManagement/admin/users`);
   }
 
-  getUsersByRole(role: string): Observable<User[]> {
+  getUsersByRole(role: number): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/UserManagement/admin/users/role/${role}`);
   }
 
+  fetchDashboardData(): Observable<{ students: User[]; instructors: User[]; admins: User[] }> {
+    // Use forkJoin with a key-value object for a cleaner response
+    return forkJoin({
+      students: this.getUsersByRole(1),
+      instructors: this.getUsersByRole(2),
+      admins: this.getUsersByRole(3),
+    });
+  }
+
   updateUserStatus(email: string, isActive: boolean): Observable<any> {
-    return this.http.put(`${this.apiUrl}/UserManagement/admin/users/status/${email}`, { isActive });
+    return this.http.put(`${this.apiUrl}/UserManagement/admin/users/status`, { email, isActive });
   }
 
   deleteUser(email: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/UserManagement/admin/users`, { body: { email } });
   }
 
-  // --- Course Methods ---
-  // getCourses(): Observable<Course[]> {
-  //   return this.http.get<Course[]>(`${this.apiUrl}/UserManagement/admin/courses`);
-  // }
+// ✨ --- Course Management Methods ---
+  
+  // This method was already here, now we ensure it's used.
+  getCourses(): Observable<Course[]> {
+    return this.http.get<Course[]>(`${this.apiUrl}/Course`);
+  }
+
+  // New method to fetch categories for the filter dropdown
+  getCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(`${this.apiUrl}/CourseCategories`);
+  }
+
+  // New method to publish or unpublish a course
+  updateCourseStatus(courseID: number, published: boolean): Observable<any> {
+    return this.http.put(`${this.apiUrl}/Course/status/${courseID}`, { published });
+  }
 }
