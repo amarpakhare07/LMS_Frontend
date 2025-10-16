@@ -1,15 +1,61 @@
-<h2>Login</h2>
-<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-  <div>
-    <label for="email">Email:</label>
-    <input id="email" type="email" formControlName="email" />
-  </div>
-  <div>
-    <label for="password">Password:</label>
-    <input id="password" type="password" formControlName="password" />
-  </div>
-  <button type="submit" [disabled]="!loginForm.valid">Log In</button>
-  <div *ngIf="errorMessage" style="color: red">{{ errorMessage }}</div>
-</form>
+<section class="auth auth--login">
+  <h2 class="auth__title">Login</h2>
 
-<p>Don't have an account? <a routerLink="/register">Register here</a></p>
+  <form [formGroup]="loginForm"
+        (ngSubmit)="onSubmit()"
+        class="auth__form"
+        novalidate>
+    
+    <!-- Email -->
+    <div class="field">
+      <input id="email"
+             type="email"
+             formControlName="email"
+             placeholder="Email"
+             autocomplete="email"
+             required
+             [class.invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+             aria-describedby="email-help" />
+      <small id="email-help"
+             class="field__error"
+             *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+        Please enter a valid email address.
+      </small>
+    </div>
+
+    <!-- Password -->
+    <div class="field">
+      <input id="password"
+             type="password"
+             formControlName="password"
+             placeholder="Password"
+             autocomplete="current-password"
+             required
+             minlength="6"
+             [class.invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+             aria-describedby="password-help" />
+      <small id="password-help"
+             class="field__error"
+             *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+        Password must be at least 6 characters.
+      </small>
+    </div>
+
+    <button type="submit"
+            class="auth__submit"
+            [disabled]="!loginForm.valid">
+      Log In
+    </button>
+
+    <div *ngIf="errorMessage"
+         class="error-message"
+         role="alert"
+         aria-live="polite">
+      {{ errorMessage }}
+    </div>
+  </form>
+
+  <p class="auth__foot">
+    Don't have an account? <a routerLink="/register">Register here</a>
+  </p>
+</section>

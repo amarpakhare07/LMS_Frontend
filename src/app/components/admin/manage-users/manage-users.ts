@@ -17,6 +17,7 @@ export class ManageUsers implements OnInit {
   
   isLoading = true;
   allUsers: User[] = [];
+  trackByUserId = (index: number, user: User) => user.email; // Assuming email is unique
   filteredUsers: User[] = [];
   
   // Properties for filtering
