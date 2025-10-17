@@ -1,1 +1,56 @@
-<p>manage-courses works!</p>
+<div class="page-wrapper">
+  <header class="page-header">
+    <h1>Course Management</h1>
+    <p>Manage course content, categories, and publishing status.</p>
+  </header>
+
+  <div class="toolbar">
+    <input type="text" class="search-input" placeholder="Search by title or description..." [(ngModel)]="searchTerm" (input)="applyFilters()">
+    <div class="filters">
+      <select [(ngModel)]="categoryFilter" (change)="applyFilters()">
+        <option value="all">All Categories</option>
+        <option *ngFor="let category of allCategories" [value]="category.categoryID">{{ category.name }}</option>
+      </select>
+      <select [(ngModel)]="statusFilter" (change)="applyFilters()">
+        <option value="all">All Statuses</option>
+        <option value="published">Published</option>
+        <option value="draft">Draft</option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading courses...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="content-area">
+    <div *ngIf="filteredCourses.length > 0; else noCourses" class="course-grid">
+      <div *ngFor="let course of filteredCourses" class="course-card">
+        <img [src]="course.thumbnailURL || 'assets/placeholder.png'" alt="{{ course.title }}" class="card-thumbnail">
+        <div class="card-body">
+          <span class="card-category">{{ getCategoryName(course.categoryID!) }}</span>
+          <h3 class="card-title">{{ course.title }}</h3>
+          <div class="card-meta">
+            <span>Level: {{ course.level }}</span>
+            <span>Duration: {{ course.duration }} hrs</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="status" [ngClass]="course.published ? 'published' : 'draft'">
+            {{ course.published ? 'Published' : 'Draft' }}
+          </span>
+          <button class="action-btn" (click)="togglePublishStatus(course)" [title]="course.published ? 'Unpublish' : 'Publish'">
+            {{ course.published ? 'Unpublish' : 'Publish' }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <ng-template #noCourses>
+      <div class="empty-state">
+        <h2>No Courses Found</h2>
+        <p>Your search and filter criteria did not match any courses.</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

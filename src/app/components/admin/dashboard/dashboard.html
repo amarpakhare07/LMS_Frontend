@@ -1,1 +1,40 @@
-<p>dashboard works!</p>
+<div class="admin-dashboard">
+  <h1>Admin Dashboard</h1>
+
+  <div *ngIf="!isLoading && !error && summary">
+    <div class="dashboard-grid">
+      <!-- <div class="summary-cards">
+        <div class="dashboard-card">
+          <h3 class="card-title">Total Users</h3>
+          <p class="card-value">{{ summary.totalUsers }}</p>
+        </div>
+        <div class="dashboard-card">
+          <h3 class="card-title">Active Users</h3>
+          <p class="card-value">{{ summary.activeUsers }}</p>
+        </div>
+      </div> -->
+      <div class="chart-container">
+        <h3>User Status</h3>
+        <canvas
+          baseChart
+          [data]="doughnutChartData"
+          [type]="'doughnut'"
+          [options]="doughnutChartOptions"
+        >
+        </canvas>
+      </div>
+
+      <div class="chart-container">
+        <h3>User Role Distribution 📊</h3>
+        <canvas
+          baseChart
+          [data]="pieChartData"
+          [type]="'pie'"
+          [options]="pieChartOptions"
+          [legend]="pieChartLegend"
+        >
+        </canvas>
+      </div>
+    </div>
+  </div>
+</div>
