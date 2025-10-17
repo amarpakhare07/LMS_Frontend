@@ -29,7 +29,7 @@
       <div *ngFor="let course of filteredCourses" class="course-card">
         <img [src]="course.thumbnailURL || 'assets/placeholder.png'" alt="{{ course.title }}" class="card-thumbnail">
         <div class="card-body">
-          <span class="card-category">{{ getCategoryName(course.categoryID) }}</span>
+          <span class="card-category">{{ getCategoryName(course.categoryID!) }}</span>
           <h3 class="card-title">{{ course.title }}</h3>
           <div class="card-meta">
             <span>Level: {{ course.level }}</span>

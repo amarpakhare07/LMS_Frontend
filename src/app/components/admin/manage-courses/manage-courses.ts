@@ -1,9 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { AdminService } from '../../../services/admin-service';
-import { Category, Course } from '../../../models/interfaces';
 import { forkJoin } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Course } from '../../../models/course.model';
+import { Category } from '../../../models/interfaces';
 
 @Component({
   selector: 'app-manage-courses',

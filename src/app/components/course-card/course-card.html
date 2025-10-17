@@ -1,0 +1,27 @@
+<div class="course-card"
+     (mouseenter)="isHovered = true"
+     (mouseleave)="isHovered = false"
+     [ngClass]="{ 'hovered': isHovered }">
+
+  <div class="thumbnail">
+    <img [src]="course.thumbnailURL || 'assets/images/default-thumbnail.svg'" alt="Course Thumbnail">
+  </div>
+
+  <div class="card-content">
+    <h3 class="course-title">{{ course.title }}</h3>
+
+    <div class="rating">
+      <ng-container *ngFor="let star of starsArray; let i = index">
+        <i class="fa" [ngClass]="i < getRoundedRating() ? 'fa-star filled' : 'fa-star-o'"></i>
+      </ng-container>
+      <span class="rating-text">{{ getFormattedRating() }} ⭐</span>
+    </div>
+
+    <div class="details">
+      <span class="duration">{{ getDuration(course.duration) }}</span>
+      <span class="level">{{ course.level }}</span>
+    </div>
+
+    <button class="view-btn" (click)="viewCourse()">View Course</button>
+  </div>
+</div>

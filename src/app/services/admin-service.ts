@@ -1,8 +1,15 @@
 // src/app/services/admin.service.ts
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { forkJoin, map, Observable } from 'rxjs';
-import { User, Course, Category } from '../models/interfaces';
+
+import { Observable } from 'rxjs';
+import { User} from '../models/interfaces';
+import { Course } from '../models/course.model';
+
+import { forkJoin, map } from 'rxjs';
+import { Category } from '../models/interfaces';
+
+
 import { environment } from '../../environment';
 
 @Injectable({

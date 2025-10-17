@@ -7,8 +7,8 @@ import { ManageUsers } from './components/admin/manage-users/manage-users';
 import { Profile } from './components/admin/profile/profile';
 import { RegisterInstructor } from './components/auth/register-instructor/register-instructor';
 import { AdminDashboard } from './components/admin/dashboard/dashboard';
-import { HomeLayout } from './components/home/layout/layout';
 import { AdminLayout } from './components/admin/layout/layout';
+import { HomeComponent } from './components/home/home';
 import { InstructorLayout } from './components/instructor/layout/layout';
 
 export const routes: Routes = [
@@ -17,8 +17,8 @@ export const routes: Routes = [
   { path: 'register-instructor', component: RegisterInstructor },
   {
     path: 'home',
-    component: HomeLayout,
-    canActivate: [authGuard], // Apply the guard here
+    component: HomeComponent,
+    // canActivate: [authGuard], // Apply the guard here
   },
   {
     path: 'instructor',
