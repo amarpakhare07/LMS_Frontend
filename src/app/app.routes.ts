@@ -9,7 +9,8 @@ import { RegisterInstructor } from './components/auth/register-instructor/regist
 import { AdminDashboard } from './components/admin/dashboard/dashboard';
 import { AdminLayout } from './components/admin/layout/layout';
 import { HomeComponent } from './components/home/home';
-import { InstructorLayout } from './components/instructor/layout/layout';
+import { InstructorLayout } from './components/instructor/instructor';
+import { DashboardLayout } from './components/dashboard-layout/dashboard-layout';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -40,6 +41,20 @@ export const routes: Routes = [
       { path: 'profile', component: Profile }
     ]
   },
+  {
+  path: 'instructor',
+  component: InstructorLayout,
+  canActivate: [authGuard],
+  data: { expectedRole: 'Instructor' },
+  children: [
+    { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
+  //   { path: 'dashboard', component: InstructorDashboard },
+  //   { path: 'courses', component: ManageCourses },
+  //   { path: 'students', component: ManageUsers },
+  //   { path: 'profile', component: Profile }
+  ]
+  },
+
   // Redirect to home by default if logged in, otherwise guard will redirect to login
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   // Wildcard route for 404

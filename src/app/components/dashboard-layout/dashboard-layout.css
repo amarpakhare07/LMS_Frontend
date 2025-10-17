@@ -1,0 +1,49 @@
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  min-height: 100vh;
+  background: var(--bg, #f9fafb);
+  color: var(--text, #1b1f24);
+}
+
+.sidebar {
+  min-height: 100vh; /* Ensures sidebar fills vertical space */
+  background: var(--surface, #fff);
+  border-right: 1px solid var(--border, #e5e7eb);
+  padding: 1rem;
+  box-shadow: var(--elev-1, 0 1px 2px rgba(0,0,0,.08));
+}
+
+.sidebar-title {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.sidebar a {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text);
+  transition: background 0.2s ease;
+}
+
+.sidebar a:hover {
+  background: var(--surface-muted, #f6f7f9);
+}
+
+.sidebar a.active {
+  background: rgba(37, 99, 235, 0.12);
+  font-weight: bold;
+}
+
+.content {
+  padding: 2rem;
+}

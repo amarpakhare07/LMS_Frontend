@@ -28,9 +28,9 @@
     "@angular/forms": "^20.3.0",
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
-
     "@fontsource/poppins": "^5.2.7",
     "chart.js": "^4.5.1",
+    "fontsource-poppins": "^4.0.0",
     "jwt-decode": "^4.0.0",
     "ng2-charts": "^8.0.0",
     "rxjs": "~7.8.0",
