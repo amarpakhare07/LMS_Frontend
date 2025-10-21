@@ -41,6 +41,5 @@ export class DashboardLayout {
   // Toggle the sidebar (mainly for smaller screens)
   toggleSidebar() {
     this.isSidebarOpen.update((val) => !val);
-    
   }
 }
