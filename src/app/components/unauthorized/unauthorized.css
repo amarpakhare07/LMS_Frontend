@@ -1,0 +1,119 @@
+/* * Apply this to the :host or root component if the
+ * background isn't already global.
+ */
+:host {
+  display: block;
+  background: #f7fafc;
+  min-height: 100vh;
+}
+
+/* * This wrapper centers the message box vertically and horizontally.
+ * It uses the same padding as your .hero section.
+ */
+.unauthorized-container {
+  display: grid;
+  place-items: center;
+  padding: 56px 72px;
+  min-height: 80vh; /* Use 80vh instead of 100vh for better centering */
+}
+
+/* * The main message box.
+ * Styled using the same properties as your .auth card:
+ * - background: #fff
+ * - border-radius: 16px (matches my previous update)
+ * - box-shadow: matches .hero shadow
+ * - border-top: uses the purple from .hero-left h2
+ */
+.unauthorized-box {
+  max-width: 500px;
+  width: 100%;
+  padding: 2.5rem; /* 40px */
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.03);
+  text-align: center;
+  border-top: 4px solid #4b106a; /* Brand purple */
+}
+
+/* * The big "403" text.
+ * Uses the brand green from .hero-left h1
+ */
+.unauthorized-code {
+  display: block;
+  font-size: 6rem; /* 96px */
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 1;
+  color: #0f5132;
+  margin-bottom: 0.5rem;
+}
+
+/* * The main "Access Denied" title.
+ * Uses the brand purple from .hero-left h2
+ */
+.unauthorized-title {
+  font-size: 1.75rem; /* 28px */
+  font-weight: 700;
+  color: #4b106a;
+  margin: 0 0 0.75rem 0;
+}
+
+/* * The helper message.
+ * Uses the paragraph style from .hero-left p
+ */
+.unauthorized-message {
+  margin: 0 0 1.75rem 0; /* 28px bottom margin */
+  color: #374151;
+  font-size: 1rem; /* 16px */
+  line-height: 1.6;
+}
+
+/* * The "Go to Homepage" button.
+ * Styled exactly like your .search-bar button
+ */
+.unauthorized-button {
+  display: inline-block;
+  text-decoration: none;
+  padding: 11px 20px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  color: #0b1220;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter .15s ease, transform .02s ease;
+}
+
+.unauthorized-button:hover {
+  filter: brightness(0.95);
+}
+
+.unauthorized-button:active {
+  transform: translateY(1px);
+}
+
+/* Responsive styles */
+@media (max-width: 900px) {
+  .unauthorized-container {
+    padding: 34px;
+  }
+}
+
+@media (max-width: 480px) {
+  .unauthorized-container {
+    padding: 1.5rem;
+  }
+  .unauthorized-box {
+    padding: 1.5rem;
+  }
+  .unauthorized-code {
+    font-size: 4.5rem; /* 72px */
+  }
+  .unauthorized-title {
+    font-size: 1.25rem; /* 20px */
+  }
+  .unauthorized-message {
+    font-size: 0.95rem;
+  }
+}

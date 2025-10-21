@@ -11,6 +11,7 @@ import { AdminLayout } from './components/admin/layout/layout';
 import { HomeComponent } from './components/home/home';
 import { InstructorLayout } from './components/instructor/instructor';
 import { DashboardLayout } from './components/dashboard-layout/dashboard-layout';
+import { Unauthorized } from './components/unauthorized/unauthorized';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -57,6 +58,7 @@ export const routes: Routes = [
 
   // Redirect to home by default if logged in, otherwise guard will redirect to login
   { path: '', redirectTo: '/home', pathMatch: 'full' },
+  { path: 'unauthorized', component: Unauthorized },
   // Wildcard route for 404
   { path: '**', redirectTo: '/unauthorized' },
 ];
