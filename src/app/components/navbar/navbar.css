@@ -42,3 +42,17 @@
 .register-btn:hover {
   background-color: #e6b800;
 }
+
+.login-btn {
+  background-color: #ffcc00; /* bright yellow */
+  border: none;
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: #e6b800;
+}
