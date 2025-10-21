@@ -1,24 +1,44 @@
+/* * Updated Auth (Login) Styles
+ * Aligned with the homepage theme 
+ */
+
+/* * Base page styles
+ * (To ensure login page matches the host/body styles from homepage) 
+ */
+body {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: #f7fafc;
+  color: #111827;
+  margin: 0;
+  padding: 0;
+}
+
 /* Container card */
 .auth {
   max-width: 420px;
   margin: 4rem auto 2rem;
   padding: 1.5rem;
-  background: var(--surface, #fff);
-  color: var(--text, #1b1f24);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: var(--radius-lg, 14px);
-  box-shadow: var(--elev-1, 0 1px 2px rgba(0,0,0,.08), 0 1px 1px rgba(0,0,0,.06));
+  background: #fff;
+  /* Removed text color, will inherit from body */
+  border: 1px solid #e5e7eb; /* Softer border */
+  border-radius: 16px; /* Softer radius */
+  /* Updated shadow to match hero shadow */
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.03);
 }
 
 .auth--login {
-  border-top: 4px solid var(--info, #0ea5e9);
+  /* Kept purple top border as it matches hero H2 color */
+  border-top: 4px solid #4b106a;
 }
 
 .auth__title {
   text-align: center;
   margin-bottom: 1.25rem;
-  font-size: 1.5rem;
+  font-size: 1.5rem; /* 24px */
   line-height: 1.2;
+  /* Updated to match hero H1 color and weight */
+  color: #4b106a;
+  font-weight: 700;
 }
 
 /* Form layout */
@@ -34,14 +54,17 @@
 
 .field input {
   width: 100%;
-  padding: 1rem 0.875rem 0.875rem; /* extra top space for floating label */
+  padding: 1rem 0.875rem 0.875rem; /* Retain padding for floating label */
   font-size: 1rem;
-  background: var(--surface, #fff);
-  color: var(--text, #1b1f24);
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: var(--radius-md, 10px);
+  background: #fff;
+  color: #111827; /* Inherit from body */
+  /* Updated border to match homepage search input */
+  border: 1px solid #d1d5db;
+  border-radius: 10px; /* Matches homepage */
   outline: none;
   transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+  /* Added inset shadow from homepage search input */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 /* Placeholder-shown + focus trigger the label */
@@ -50,9 +73,10 @@
   left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--text-muted, #545b66);
+  /* Updated to match homepage quick-note color */
+  color: #6b7280;
   font-size: 0.95rem;
-  background: transparent;
+  background: #fff; /* Needs explicit background for floating */
   pointer-events: none;
   padding: 0 .25rem;
   transition: transform .15s ease, top .15s ease, color .15s ease, background .15s ease;
@@ -63,23 +87,27 @@
 .field input:not(:placeholder-shown) + label {
   top: 0.2rem;
   transform: translateY(0) scale(0.85);
-  color: var(--primary, #2563eb);
-  background: var(--surface, #fff);
+  /* Updated to brand purple */
+  color: #4b106a;
+  background: #fff;
 }
 
 /* Focus ring */
 .field input:focus {
-  border-color: var(--primary, #2563eb);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  /* Updated to brand purple */
+  border-color: #4b106a;
+  /* Updated to purple glow + retain inset shadow */
+  box-shadow: 0 0 0 3px rgba(75, 16, 106, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
-/* Invalid states (Angular adds .invalid in template) */
+/* Invalid states (Red/danger color is standard, no change needed) */
 .field input.invalid {
-  border-color: var(--danger, #dc2626);
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15);
+  border-color: #dc2626;
+  /* Retain inset shadow on invalid */
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 .field input.invalid + label {
-  color: var(--danger, #dc2626);
+  color: #dc2626;
 }
 
 /* Inline field error */
@@ -87,24 +115,26 @@
   display: block;
   margin-top: 0.35rem;
   font-size: 0.85rem;
-  color: var(--danger, #dc2626);
+  color: #dc2626;
 }
 
 /* Submit button */
 .auth__submit {
   width: 100%;
-  padding: 0.7rem 1rem;
-  font-weight: 600;
-  border: 1px solid var(--border, #e5e7eb);
-  border-radius: var(--radius-md, 10px);
-  background: var(--primary, #2563eb);
-  color: var(--primary-contrast, #fff);
+  padding: 0.7rem 1rem; /* This is ~11px 16px, matches homepage */
+  font-weight: 700; /* Matches homepage button */
+  border-radius: 10px; /* Matches homepage button */
+  border: none; /* Matches homepage button */
+  /* Updated to match homepage search button */
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  color: #0b1220;
   cursor: pointer;
-  transition: background .15s ease, transform .02s ease;
+  transition: background .15s ease, transform .02s ease, filter .15s ease;
 }
 
 .auth__submit:hover:not(:disabled) {
-  background: #1d4ed8; /* slightly darker primary */
+  /* Add a simple hover effect for the gradient */
+  filter: brightness(0.95);
 }
 
 .auth__submit:active:not(:disabled) {
@@ -116,14 +146,14 @@
   cursor: not-allowed;
 }
 
-/* Server error message */
+/* Server error message (styles are fine, just removing vars) */
 .error-message {
   margin-top: 0.75rem;
   padding: 0.6rem 0.8rem;
-  border-radius: var(--radius-md, 10px);
+  border-radius: 10px;
   border: 1px solid rgba(220, 38, 38, 0.3);
   background: rgba(220, 38, 38, 0.08);
-  color: var(--danger, #dc2626);
+  color: #dc2626;
 }
 
 /* Footer */
@@ -131,10 +161,12 @@
   margin-top: 1rem;
   text-align: center;
   font-size: 0.95rem;
-  color: var(--text-muted, #545b66);
+  /* Updated to match homepage quick-note color */
+  color: #6b7280;
 }
 .auth__foot a {
-  color: var(--primary, #2563eb);
+  /* Updated to brand purple */
+  color: #4b106a;
   text-decoration: none;
 }
 .auth__foot a:hover {
@@ -143,10 +175,15 @@
 
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
+  * {
+    transition: none !important;
+  }
 }
 
-/* Small screens */
+/* Small screens (no change needed) */
 @media (max-width: 480px) {
-  .auth { margin: 2rem auto 1rem; padding: 1rem; }
+  .auth {
+    margin: 2rem auto 1rem;
+    padding: 1rem;
+  }
 }
