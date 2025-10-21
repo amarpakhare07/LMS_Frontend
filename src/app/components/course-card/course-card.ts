@@ -19,12 +19,12 @@ export class CourseCardComponent {
   constructor(private router: Router) {}
 
   getDuration(duration?: number): string {
-    if (!duration) return '—';
-    if (duration < 60) return `${duration} min`;
-    const hours = Math.floor(duration / 60);
-    const minutes = duration % 60;
-    return `${hours}h ${minutes}m`;
-  }
+  if (!duration) return '—';
+  if (duration < 60) return `${duration} min`;
+  const hours = Math.floor(duration / 60);
+  const minutes = duration % 60;
+  return `${hours}h ${minutes}m`;
+}
 
   getRoundedRating(): number {
     return Math.round(this.course.rating ?? 0);
@@ -38,3 +38,11 @@ export class CourseCardComponent {
     this.router.navigate(['/course', this.course.courseID]);
   }
 }
+
+// getDuration(duration?: number): string {
+//   if (!duration) return '—';
+//   if (duration < 60) return ${duration} min;
+//   const hours = Math.floor(duration / 60);
+//   const minutes = duration % 60;
+//   return ${hours}h ${minutes}m;
+// }
