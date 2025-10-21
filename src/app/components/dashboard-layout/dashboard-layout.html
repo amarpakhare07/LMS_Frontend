@@ -1,15 +1,22 @@
-<div class="dashboard-layout">
-  <aside class="sidebar">
-    <h2 class="sidebar-title">{{ title }}</h2>
-    <ul>
-      <li *ngFor="let item of navItems">
-        <a [routerLink]="item.path" routerLinkActive="active">{{ item.label }}</a>
-      </li>
-    </ul>
-    <button *ngIf="showLogout" class="logout-btn" (click)="logout()">Logout</button>
-  </aside>
+<mat-sidenav-container class="dashboard-container">
+    <mat-sidenav #sidenav mode="side" [opened]="isSidebarOpen()" class="sidebar-nav"
+    [ngClass]="{'sidebar-collapsed': !isSidebarOpen()}">
+        <div class="sidebar-header">
+                </div>
 
-  <main class="content">
-    <router-outlet></router-outlet>
-  </main>
-</div>
+        <mat-nav-list>
+            <a mat-list-item *ngFor="let item of navItems" [routerLink]="item.path" routerLinkActive="active">
+                <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+                <span matListItemTitle>{{ item.label }}</span>
+              </a>
+          </mat-nav-list>
+
+        <div class="logout-footer">
+            <button mat-flat-button color="warn" (click)="logout()">
+                <mat-icon>logout</mat-icon>
+                <span *ngIf="isSidebarOpen()">Logout</span>       </button>
+          </div>
+      </mat-sidenav>
+    
+
+</mat-sidenav-container>

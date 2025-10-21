@@ -48,10 +48,10 @@ export const routes: Routes = [
   data: { expectedRole: 'Instructor' },
   children: [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
-  //   { path: 'dashboard', component: InstructorDashboard },
-  //   { path: 'courses', component: ManageCourses },
-  //   { path: 'students', component: ManageUsers },
-  //   { path: 'profile', component: Profile }
+    // { path: 'dashboard', component: InstructorDashboard },
+    // { path: 'courses', component: ManageCourses },
+    // { path: 'students', component: ManageUsers },
+    // { path: 'profile', component: Profile }
   ]
   },
 

@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DashboardLayout, DashboardNavItem } from '../dashboard-layout/dashboard-layout';
+import { DashboardLayout } from '../dashboard-layout/dashboard-layout';
+import { DashboardNavItem } from '../../models/dashboard-layout-module';
 import { RouterOutlet } from '@angular/router';
 
 @Component({
@@ -12,9 +13,9 @@ import { RouterOutlet } from '@angular/router';
 })
 export class InstructorLayout {
   navItems: DashboardNavItem[] = [
-    { label: 'Dashboard', path: 'dashboard' },
-    { label: 'Courses', path: 'courses' },
-    { label: 'Students', path: 'students' },
-    { label: 'Profile', path: 'profile' }
+    { label: 'Dashboard', path: 'dashboard', icon: 'dashboard' },
+    { label: 'Courses', path: 'courses', icon: 'book' },
+    { label: 'Students', path: 'students', icon: 'people' },
+    { label: 'Profile', path: 'profile', icon: 'account_circle' }
   ];
 }
