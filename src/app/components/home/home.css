@@ -7,6 +7,7 @@
   color: #111827;
 }
 
+/* ---------------- Hero Section ---------------- */
 .hero {
   display: flex;
   align-items: center;
@@ -68,6 +69,10 @@
   color: #0b1220;
   font-weight: 700;
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.search-bar button:hover {
+  transform: scale(1.05);
 }
 .search-bar .clear {
   padding: 8px 12px;
@@ -78,7 +83,11 @@
   cursor: pointer;
 }
 
-.quick-note small { color: #6b7280; margin-top: 8px; display: block; }
+.quick-note small { 
+  color: #6b7280; 
+  margin-top: 8px; 
+  display: block; 
+}
 
 .hero-right img {
   width: 100%;
@@ -89,7 +98,7 @@
   margin-left: auto;
 }
 
-/* results */
+/* ---------------- Search Results ---------------- */
 .courses-section {
   padding: 30px 72px;
   max-width: 1200px;
@@ -110,17 +119,121 @@
   gap: 16px;
 }
 
-/* responsive */
+/* ---------------- Category Sections ---------------- */
+.category-section {
+  padding: 40px 30px;
+  margin-bottom: 30px;
+  background: #fff; /* white card */
+  border-radius: 16px; /* rounded corners */
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08); /* subtle shadow */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.category-section:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+}
+
+.category-title {
+  display: inline-block; /* makes the box hug the text */
+  background: linear-gradient(90deg, #f59e0b, #fbbf24); /* subtle gradient */
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* subtle shadow for depth */
+}
+
+.scroll-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.courses-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.courses-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+.courses-scroll::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}
+.courses-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-btn {
+  position: relative;
+  z-index: 1;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.scroll-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg,#6a1b9a,#8e24aa);
+  color: #fff;
+  transform: scale(1.1);
+}
+.scroll-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.scroll-btn.left {
+  margin-right: 8px;
+}
+.scroll-btn.right {
+  margin-left: 8px;
+}
+
+/* Ensure course cards keep original size in horizontal scroll */
+.category-section app-course-card {
+  flex: 0 0 auto; /* prevents stretching */
+  width: 320px;   /* fixed width to match card component size */
+}
+
+/* ---------------- Show More Button ---------------- */
+.show-more-container {
+  text-align: center;
+  margin: 20px 0 60px 0;
+}
+.show-more-btn {
+  padding: 10px 24px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  font-size: 14px;
+  background: linear-gradient(90deg,#4b106a,#8e24aa);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+.show-more-btn:hover {
+  transform: scale(1.05);
+  background: linear-gradient(90deg,#6a1b9a,#9c27b0);
+}
+
+/* ---------------- Responsive ---------------- */
 @media (max-width: 900px) {
   .hero { flex-direction: column; padding: 34px; gap: 18px; }
   .hero-right img { max-width: 420px; }
   .courses-section { padding: 18px; }
-}
-
-.courses-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 30px;
-  padding: 60px 80px;
-  background: #fafafa;
+  .category-section { padding: 30px 18px; }
+  .category-title { font-size: 20px; }
+  .category-section app-course-card { width: 280px; }
 }

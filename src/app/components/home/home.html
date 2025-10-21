@@ -1,9 +1,11 @@
+<!-- Hero Section -->
 <div class="hero">
   <div class="hero-left">
     <h1>Smart, Seamless, Powerful</h1>
     <h2>Your Training Platform</h2>
     <p>Step into the world of knowledge and growth — register now to start your journey.</p>
 
+    <!-- Search Bar -->
     <div class="search-bar">
       <input
         [(ngModel)]="searchQuery"
@@ -25,7 +27,7 @@
   </div>
 </div>
 
-<!-- results -->
+<!-- Search Results Section -->
 <section class="courses-section" *ngIf="filteredCourses?.length || loading || error">
   <div class="results-header">
     <h3 *ngIf="filteredCourses?.length">{{ filteredCourses.length }} course(s) found for “{{ searchQuery }}”</h3>
@@ -38,3 +40,22 @@
     <app-course-card *ngFor="let c of filteredCourses" [course]="c"></app-course-card>
   </div>
 </section>
+
+<!-- Category Sections -->
+<section *ngFor="let cat of visibleCategories; let i = index" class="category-section">
+  <h3 class="category-title">{{ cat.name }}</h3>
+  <div class="scroll-wrapper">
+    <button class="scroll-btn left" (click)="scrollCategory(i, 'left')" [disabled]="arrowState[i]?.left">←</button>
+    <div class="courses-scroll" #catScroll (scroll)="onCategoryScroll(i)">
+      <app-course-card *ngFor="let course of cat.courses" [course]="course"></app-course-card>
+    </div>
+    <button class="scroll-btn right" (click)="scrollCategory(i, 'right')" [disabled]="arrowState[i]?.right">→</button>
+  </div>
+</section>
+
+<!-- Show More / Show Less -->
+<div class="show-more-container" *ngIf="categories.length > 3">
+  <button class="show-more-btn" (click)="toggleShowAllCategories()">
+    {{ showAllCategories ? 'Show Less' : 'Show More' }}
+  </button>
+</div>
