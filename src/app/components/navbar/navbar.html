@@ -1,11 +1,38 @@
-<nav class="navbar">
-  <div class="navbar-left">
-    <span class="logo">OLMS</span>
+<mat-toolbar color="primary" class="navbar">
+  <!-- Logo -->
+  <a routerLink="/" class="logo">OLMS</a>
+
+  <!-- Spacer -->
+  <span class="spacer"></span>
+
+  <!-- Navigation Links -->
+  <nav class="nav-links">
+    <a mat-button routerLink="/about">About</a>
+    <a mat-button routerLink="/contact">Contact Us</a>
+  </nav>
+
+  <!-- Profile / Auth -->
+  <div *ngIf="isLoggedIn$ | async; else guestLinks" class="profile-menu">
+    <button mat-icon-button [matMenuTriggerFor]="profileMenu" aria-label="Profile menu">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <mat-menu #profileMenu="matMenu">
+      <div class="profile-menu-header">
+        <span *ngIf="currentUser$ | async as user">Hello, {{ user.name }}</span>
+      </div>
+      <a mat-menu-item routerLink="/profile">
+        <mat-icon>person_outline</mat-icon>
+        <span>My Profile</span>
+      </a>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
   </div>
-  <div class="navbar-right">
-    <a routerLink="/about" class="nav-link">About</a>
-    <a routerLink="/contact" class="nav-link">Contact Us</a>
-    <button routerLink="/register" class="register-btn">Register Now</button>
-    <button routerLink="/login" class="login-btn">Login</button>
-  </div>
-</nav>
+
+  <ng-template #guestLinks>
+    <a mat-stroked-button routerLink="/login" class="nav-button">Login</a>
+    <a mat-flat-button color="accent" routerLink="/register" class="nav-button">Register Now</a>
+  </ng-template>
+</mat-toolbar>

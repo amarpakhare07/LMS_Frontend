@@ -1,27 +1,36 @@
-<div class="course-card"
-     (mouseenter)="isHovered = true"
-     (mouseleave)="isHovered = false"
-     [ngClass]="{ 'hovered': isHovered }">
+<a class="course-card-link" [routerLink]="['/course', course.courseID]">
+  <mat-card class="course-card">
+    
+    <img mat-card-image [src]="course.thumbnailURL || 'assets/images/default-thumbnail.svg'" alt="Course Thumbnail">
+    
+    <mat-card-title-group>
+      <mat-card-title>{{ course.title }}</mat-card-title>
+      </mat-card-title-group>
 
-  <div class="thumbnail">
-    <img [src]="course.thumbnailURL || 'assets/images/default-thumbnail.svg'" alt="Course Thumbnail">
-  </div>
-
-  <div class="card-content">
-    <h3 class="course-title">{{ course.title }}</h3>
-
-    <div class="rating">
-      <ng-container *ngFor="let star of starsArray; let i = index">
-        <i class="fa" [ngClass]="i < getRoundedRating() ? 'fa-star filled' : 'fa-star-o'"></i>
-      </ng-container>
-      <span class="rating-text">{{ getFormattedRating() }} ⭐</span>
+    <mat-card-content>
+      <div class="rating" 
+           [matTooltip]="getFormattedRating() + ' out of 5 stars'"
+           aria-label="Rating">
+        <ng-container *ngFor="let star of starsArray; let i = index">
+          <mat-icon>{{ i < getRoundedRating() ? 'star' : 'star_border' }}</mat-icon>
+        </ng-container>
+      </div>
+      
+      <mat-chip-listbox class="details-chips" aria-label="Course details">
+        <mat-chip>
+          <mat-icon matChipAvatar>schedule</mat-icon>
+          {{ getDuration(course.duration) }}
+        </mat-chip>
+        <mat-chip>
+          <mat-icon matChipAvatar>signal_cellular_alt</mat-icon>
+          {{ course.level }}
+        </mat-chip>
+      </mat-chip-listbox>
+    </mat-card-content>
+    
+    <div class="view-indicator">
+      <mat-icon>arrow_forward</mat-icon>
     </div>
 
-    <div class="details">
-      <span class="duration">{{ getDuration(course.duration) }}</span>
-      <span class="level">{{ course.level }}</span>
-    </div>
-
-    <button class="view-btn" (click)="viewCourse()">View Course</button>
-  </div>
-</div>
+  </mat-card>
+</a>

@@ -1,11 +1,16 @@
-.footer {
-  background-color: #d5cdec; /* exact light purple from image */
-  /* background-image: url('assets/circuit-bg.png'); optional: tech-themed circuit pattern */
-  background-repeat: no-repeat;
-  background-size: cover;
-  color: #333;
-  padding: 2rem;
-  font-family: 'Poppins', sans-serif;
+/* src/app/components/footer/footer.css */
+
+.footer-toolbar {
+  /* --- NEW --- */
+  /* A professional dark gray, softer than pure black */
+  background-color: #212529; 
+  /* Set the base text color to white */
+  color: white; 
+  /* --- END NEW --- */
+
+  height: auto;
+  min-height: 64px;
+  padding: 2rem 3rem;
 }
 
 .footer-content {
@@ -13,75 +18,93 @@
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 2rem;
+  width: 100%;
 }
 
-.footer-left {
+.footer-section {
   flex: 1;
-  min-width: 200px;
 }
 
+/* Logo & Tagline */
 .logo {
   font-size: 1.8rem;
   font-weight: 700;
+  line-height: 1;
 }
 
 .tagline {
   margin-top: 0.5rem;
   font-size: 0.95rem;
-  font-weight: 400;
+  opacity: 0.9; /* This will now be 90% white, which is perfect */
 }
 
+/* Links Section */
 .footer-links {
   display: flex;
-  flex: 2;
   justify-content: space-around;
-  flex-wrap: wrap;
-  margin-top: 1rem;
+  flex: 2;
+  min-width: 300px;
 }
 
-.link-section {
+.link-column {
   display: flex;
   flex-direction: column;
-  margin: 0 1rem;
+  align-items: flex-start;
 }
 
-.link-section h4 {
-  margin-bottom: 0.5rem;
+.link-column h4 {
+  margin: 0 0 0.5rem;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
+  opacity: 0.9; /* 90% white */
 }
 
-.link-section a {
-  text-decoration: none;
-  color: #333;
-  margin-bottom: 0.3rem;
-  font-size: 0.9rem;
+.link-column a[mat-button] {
+  padding: 4px 0;
+  line-height: 1.5;
+  min-width: auto;
+  text-align: left;
+  /* This light text color will look great on the dark background */
+  color: rgba(255, 255, 255, 0.9); 
 }
 
-.link-section a:hover {
-  text-decoration: underline;
-}
-
+/* Right Section */
 .footer-right {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   min-width: 200px;
-  text-align: right;
 }
 
 .social-icons {
   margin-bottom: 0.5rem;
 }
 
-.social-icons a {
-  margin-left: 0.5rem;
-  color: #333;
-  font-size: 1.2rem;
+.social-icons a[mat-icon-button] {
+  color: white; /* This style is already correct */
 }
 
-.social-icons a:hover {
-  color: #555;
-}
-
-copyright {
+.copyright {
   font-size: 0.85rem;
+  opacity: 0.8; /* 80% white */
+}
+
+/* Responsive styles for mobile */
+@media (max-width: 960px) {
+  .footer-toolbar {
+    padding: 2rem;
+  }
+  .footer-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .footer-right,
+  .link-column {
+    align-items: center;
+  }
+  .footer-links {
+    width: 100%;
+  }
 }

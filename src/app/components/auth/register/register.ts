@@ -5,10 +5,30 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth-service';
 
+// --- NEW MATERIAL IMPORTS ---
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+// --- END NEW IMPORTS ---
+
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+
+    // --- ADDED MODULES ---
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule
+    // --- END ADDED MODULES ---
+  ],
   templateUrl: './register.html',
   styleUrls: ['./register.css']
 })
@@ -16,6 +36,9 @@ export class Register {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   errorMessage: string | null = null;
+  
+  // For the password visibility toggle
+  hidePassword = true;
 
   registerForm = this.fb.group({
     name: ['', [Validators.required]],
@@ -27,10 +50,15 @@ export class Register {
     if (this.registerForm.valid) {
       this.authService.register(this.registerForm.value as any).subscribe({
         error: (err) => {
-          // You can customize this error message based on the API response
           this.errorMessage = 'Registration failed. The email might already be in use.';
         }
       });
     }
+  }
+
+  // Helper method for the password toggle
+  togglePassword(event: MouseEvent): void {
+    event.preventDefault(); // Prevent form submission
+    this.hidePassword = !this.hidePassword;
   }
 }
