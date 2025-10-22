@@ -2,14 +2,16 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, BehaviorSubject } from 'rxjs'; // <-- Import BehaviorSubject
 import { jwtDecode } from 'jwt-decode';
 import { environment } from '../../environment';
 
 export interface DecodedToken {
-  userId: number
+  userId: number;
   role: string;
-  // Add other properties as needed
+  name: string;  // <-- Added for navbar
+  email: string; // <-- Added for consistency
+  // Add other properties as they appear in your JWT payload
 }
 
 export interface AuthResponse {
@@ -25,18 +27,65 @@ export class AuthService {
   private router = inject(Router);
   private apiUrl = environment.apiUrl // Your API URL
 
+  // --- NEW: Observables for Navbar ---
+  // Create subjects to hold the current state
+  private isLoggedInSubject = new BehaviorSubject<boolean>(this.hasToken());
+  private currentUserSubject = new BehaviorSubject<DecodedToken | null>(this.getDecodedUser());
 
-// ✨ NEW: A private helper method for redirection
+  // Expose observables for components to subscribe to
+  public isLoggedIn$ = this.isLoggedInSubject.asObservable();
+  public currentUser$ = this.currentUserSubject.asObservable();
+  // --- END NEW ---
+
+  // Private helper to check for token on service initialization
+  private hasToken(): boolean {
+    return !!localStorage.getItem('auth_token');
+  }
+
+  
+getCurrentUserId(): number | null {
+  return this.currentUserSubject.value?.userId ?? null;
+}
+
+
+  // Private helper to get decoded user on service initialization
+  private getDecodedUser(): DecodedToken | null {
+    const token = this.getToken();
+    if (token) {
+      try {
+        return jwtDecode(token);
+      } catch (error) {
+        console.error('Error decoding token on init:', error);
+        localStorage.removeItem('auth_token'); // Clear invalid token
+        return null;
+      }
+    }
+    return null;
+  }
+
+  // ✨ UPDATED: handleLogin now updates the observables
   private handleLogin(token: string): void {
     localStorage.setItem('auth_token', token);
-    const userRole = this.getUserRole();
+    
+    try {
+      const user = jwtDecode<DecodedToken>(token);
+      
+      // --- NEW: Push updates to all subscribed components ---
+      this.isLoggedInSubject.next(true);
+      this.currentUserSubject.next(user);
+      // --- END NEW ---
 
-    if (userRole === 'Admin') {
-      this.router.navigate(['/admin']);
-    } else if (userRole === 'Instructor') {
-      this.router.navigate(['/instructor']);
-    } else {
-      this.router.navigate(['/home']);
+      // Redirect based on role
+      if (user.role === 'Admin') {
+        this.router.navigate(['/admin']);
+      } else if (user.role === 'Instructor') {
+        this.router.navigate(['/instructor']);
+      } else {
+        this.router.navigate(['/home']);
+      }
+    } catch (error) {
+      console.error('Failed to decode token after login:', error);
+      this.logout(); // Log out if token is invalid
     }
   }
 
@@ -45,29 +94,26 @@ export class AuthService {
     return localStorage.getItem('auth_token');
   }
 
-  // Check if the user is currently authenticated
+  // Check if the user is currently authenticated (synchronous)
+  // This is still useful for guards
   isLoggedIn(): boolean {
-    return !!this.getToken(); // Returns true if a token exists
+    return this.isLoggedInSubject.value; 
   }
 
   // Login method: sends credentials to the backend
   login(credentials: { email: string, password: string }): Observable<any> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/Auth/login`, credentials).pipe(
       tap(response => {
-        // On successful login, store the token
-        // console.log('Login response:', response.accessToken);
-        localStorage.setItem('auth_token', response.accessToken);
+        // This will now handle redirection AND update observables
         this.handleLogin(response.accessToken);
       })
     );
   }
 
- // ✨ NEW: Register method
+  // Register method
   register(userDetails: { name: string, email: string, password: string }): Observable<any> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/Auth/register`, userDetails).pipe(
-      // We use the same 'tap' operator to automatically log the user in
       tap(response => {
-        localStorage.setItem('auth_token', response.accessToken);
         this.handleLogin(response.accessToken);
       })
     );
@@ -75,32 +121,27 @@ export class AuthService {
 
   registerInstructor(userDetails: { name: string, email: string, password: string }): Observable<any> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/Auth/register/instructor`, userDetails).pipe(
-      // We use the same 'tap' operator to automatically log the user in
       tap(response => {
-        localStorage.setItem('auth_token', response.accessToken);
         this.handleLogin(response.accessToken);
       })
     );
   }
 
-  // Logout method: removes the token and redirects
+  // ✨ UPDATED: Logout method now updates the observables
   logout(): void {
     localStorage.removeItem('auth_token');
+    
+    // --- NEW: Push updates to all subscribed components ---
+    this.isLoggedInSubject.next(false);
+    this.currentUserSubject.next(null);
+    // --- END NEW ---
+
     this.router.navigate(['/login']);
   }
 
-  // ✨ NEW: Method to get user's role from the token
+  // ✨ UPDATED: Method to get user's role (now from the subject)
   getUserRole(): string | null {
-    const token = this.getToken();
-    if (token) {
-      try {
-        const decodedTokenrole: DecodedToken = jwtDecode(token);
-        return decodedTokenrole.role;
-      } catch (error) {
-        console.error('Error decoding token:', error);
-        return null;
-      }
-    }
-    return null;
+    // This is now faster as it reads from memory
+    return this.currentUserSubject.value?.role || null;
   }
 }

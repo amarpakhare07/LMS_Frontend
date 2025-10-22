@@ -1,58 +1,77 @@
+/* src/app/components/navbar/navbar.css */
+
+/* Toolbar */
 .navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background-color: #e6d6f2; /* light purple */
-  padding: 1rem 2rem;
-  font-family: 'Poppins', sans-serif;
+  padding: 0 16px;
+  background-color: #8e24aa; /* Deep violet */
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(142, 36, 170, 0.3);
 }
 
+/* Logo */
 .logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-}
-
-.navbar-right {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.nav-link {
+  font-size: 1.6rem;
+  font-weight: 700;
   text-decoration: none;
-  color: #333;
+  color: #fff;
+}
+
+/* Spacer */
+.spacer {
+  flex: 1 1 auto;
+}
+
+/* Navigation links */
+.nav-links a {
+  margin: 0 8px;
   font-weight: 500;
+  color: #f3e5f5; /* Light violet */
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.nav-link:hover {
-  text-decoration: underline;
+/* Buttons */
+.nav-button {
+  margin-left: 10px;
+  font-weight: 600;
+  border-color: #f3e5f5;
+  color: #f3e5f5;
 }
 
-.register-btn {
-  background-color: #ffcc00; /* bright yellow */
-  border: none;
-  padding: 0.5rem 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
+.nav-button.mat-flat-button {
+  background-color: #d81b60; /* Magenta accent */
+  color: #fff;
 }
 
-.register-btn:hover {
-  background-color: #e6b800;
+/* Profile menu header */
+.profile-menu-header {
+  padding: 8px 16px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.7);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 4px;
 }
 
-.login-btn {
-  background-color: #ffcc00; /* bright yellow */
-  border: none;
-  padding: 0.5rem 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
+/* Menu icons */
+[mat-menu-item] mat-icon {
+  margin-right: 12px;
+  color: #8e24aa; /* Violet for icons */
 }
 
-.login-btn:hover {
-  background-color: #e6b800;
+/* Hover states */
+.nav-links a:hover,
+.nav-button:hover {
+  background-color: rgba(216, 27, 96, 0.15); /* Magenta hover */
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
 }

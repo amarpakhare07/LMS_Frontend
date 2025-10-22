@@ -1,167 +1,101 @@
-/* * Updated Auth (Register) Styles
- * Aligned with the homepage theme 
+/*
+ * Modern Register Styles
+ * (Adapted from login.css for consistency)
  */
 
-/* * Base page styles
- * (To ensure register page matches the host/body styles from homepage) 
- */
-body {
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  background: #f7fafc;
-  color: #111827;
-  margin: 0;
-  padding: 0;
+/* 1. Full-page wrapper */
+.register-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa; /* Light neutral background */
+  /* Use min-height to handle long forms, padding for small screens */
+  min-height: 100vh; 
+  padding: 2rem 1rem;
+  box-sizing: border-box; /* Include padding in height */
 }
 
-/* Container card */
-.auth {
-  max-width: 520px; /* Kept wider for register form */
-  margin: 4rem auto 2rem;
-  padding: 1.5rem;
-  background: #fff;
-  /* Removed text color, will inherit from body */
-  border: 1px solid #e5e7eb; /* Softer border */
-  border-radius: 16px; /* Softer radius */
-  /* Updated shadow to match hero shadow */
-  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.03);
-}
-
-.auth--register {
-  /* Updated to match hero H1 color */
-  border-top: 4px solid #4b106a;
-}
-
-.auth__title {
-  text-align: center;
-  margin-bottom: 1.25rem;
-  font-size: 1.5rem;
-  line-height: 1.2;
-  /* Updated to match hero H1 color and weight */
-  color: #4b106a;
-  font-weight: 700;
-}
-
-/* Form grid */
-.auth__form {
-  display: grid;
-  gap: 1rem;
-}
-
-/* Field (stacked label) */
-.field label {
-  display: inline-block;
-  font-weight: 600;
-  /* Updated to match homepage paragraph color */
-  color: #374151;
-  margin-bottom: 0.35rem;
-}
-
-.field input {
+/* 2. The Register Card */
+.register-card {
+  max-width: 420px; /* Slightly wider for the extra field */
   width: 100%;
-  padding: 0.7rem 0.85rem;
+  padding: 1rem 1.5rem 1.5rem; /* More padding */
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 3. Header with icon */
+.register-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+/* 4. Style the icon (it will be Cyan) */
+.register-header mat-icon {
+  font-size: 3.5rem;
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+/* 5. Style the title */
+.register-header h2 {
+  margin: 0.5rem 0 0;
+  font-size: 1.75rem;
+  font-weight: 500;
+}
+
+/* 6. Form layout */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* Space between form fields */
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+/* 7. Style the prefix icon color */
+mat-form-field mat-icon[matPrefix] {
+  color: #6c757d; /* Soft gray for non-active icons */
+}
+
+/* 8. Submit button (it will be Orange) */
+.register-button {
+  width: 100%;
+  padding: 0.75rem 0; /* Taller button */
   font-size: 1rem;
-  background: #fff;
-  color: #111827; /* Inherit from body */
-  /* Updated border to match homepage search input */
-  border: 1px solid #d1d5db;
-  border-radius: 10px; /* Matches homepage */
-  outline: none;
-  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
-  /* Added inset shadow from homepage search input */
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+  margin-top: 0.5rem;
 }
 
-/* Focus ring */
-.field input:focus {
-  /* Updated to brand purple for consistent focus */
-  border-color: #4b106a;
-  /* Updated to purple glow + retain inset shadow */
-  box-shadow: 0 0 0 3px rgba(75, 16, 106, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
-}
-
-/* Invalid state (Red/danger color is standard) */
-.field input.invalid {
-  border-color: #dc2626;
-  /* Retain inset shadow on invalid */
-  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
-}
-
-/* Inline error text */
-.field__error {
-  display: block;
-  margin-top: 0.35rem;
-  font-size: 0.88rem;
-  color: #dc2626;
-}
-
-/* Submit button */
-.auth__submit {
-  width: 100%;
-  padding: 0.7rem 1rem; /* ~11px 16px, matches homepage */
-  font-weight: 700; /* Matches homepage button */
-  border-radius: 10px; /* Matches homepage button */
-  border: none; /* Matches homepage button */
-  /* Updated to match homepage search button */
-  background: linear-gradient(90deg, #f59e0b, #fbbf24);
-  color: #0b1220;
-  cursor: pointer;
-  transition: background .15s ease, transform .02s ease, filter .15s ease;
-}
-
-.auth__submit:hover:not(:disabled) {
-  /* Add a simple hover effect for the gradient */
-  filter: brightness(0.95);
-}
-
-.auth__submit:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-.auth__submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Server error message (styles are fine) */
-.error-message {
-  margin-top: 0.75rem;
-  padding: 0.6rem 0.8rem;
-  border-radius: 10px;
-  border: 1px solid rgba(220, 38, 38, 0.3);
-  background: rgba(220, 38, 38, 0.08);
-  color: #dc2626;
-}
-
-/* Footer links */
-.auth__foot {
-  margin-top: 1rem;
+/* 9. Server error message */
+.form-error {
+  color: #f44336; /* Material "warn" color */
   text-align: center;
-  font-size: 0.95rem;
-  /* Updated to match homepage quick-note color */
-  color: #6b7280;
+  font-size: 0.9rem;
+  margin-top: -0.5rem;
 }
 
-.auth__foot a {
-  /* Updated to brand purple */
-  color: #4b106a;
+/* 10. Footer with stacked links */
+.register-footer {
+  display: flex;
+  flex-direction: column; /* Stack the links */
+  align-items: center;
+  gap: 0.75rem; /* Space between the links */
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.register-footer a {
+  color: #00bcd4; /* Use primary color (Cyan) for links */
   text-decoration: none;
+  font-weight: 500;
 }
 
-.auth__foot a:hover {
+.register-footer a:hover {
   text-decoration: underline;
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
-  }
-}
-
-/* Small screens (no change needed) */
-@media (max-width: 480px) {
-  .auth {
-    margin: 2rem auto 1rem;
-    padding: 1rem;
-  }
 }

@@ -1,61 +1,65 @@
-<section class="auth auth--login">
-  <h2 class="auth__title">Login</h2>
+<div class="login-wrapper">
 
-  <form [formGroup]="loginForm"
-        (ngSubmit)="onSubmit()"
-        class="auth__form"
-        novalidate>
+  <mat-card class="login-card">
     
-    <!-- Email -->
-    <div class="field">
-      <input id="email"
-             type="email"
-             formControlName="email"
-             placeholder="Email"
-             autocomplete="email"
-             required
-             [class.invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
-             aria-describedby="email-help" />
-      <small id="email-help"
-             class="field__error"
-             *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-        Please enter a valid email address.
-      </small>
+    <div class="login-header">
+      <mat-icon color="primary">lock_outline</mat-icon>
+      <h2>Login</h2>
     </div>
+    
+    <mat-card-content>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput 
+                 formControlName="email" 
+                 type="email" 
+                 autocomplete="email" 
+                 required>
+          <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+            Email is required
+          </mat-error>
+          <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+            Please enter a valid email
+          </mat-error>
+        </mat-form-field>
 
-    <!-- Password -->
-    <div class="field">
-      <input id="password"
-             type="password"
-             formControlName="password"
-             placeholder="Password"
-             autocomplete="current-password"
-             required
-             minlength="6"
-             [class.invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-             aria-describedby="password-help" />
-      <small id="password-help"
-             class="field__error"
-             *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-        Password must be at least 6 characters.
-      </small>
-    </div>
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input matInput 
+                 [type]="hidePassword ? 'password' : 'text'" 
+                 formControlName="password" 
+                 autocomplete="current-password" 
+                 required>
+          
+          <button mat-icon-button matSuffix (click)="togglePassword($event)" [attr.aria-label]="'Toggle password visibility'">
+            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          
+          <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+            Password is required
+          </mat-error>
+        </mat-form-field>
 
-    <button type="submit"
-            class="auth__submit"
-            [disabled]="!loginForm.valid">
-      Log In
-    </button>
+        <div *ngIf="errorMessage" class="form-error" role="alert">
+          {{ errorMessage }}
+        </div>
 
-    <div *ngIf="errorMessage"
-         class="error-message"
-         role="alert"
-         aria-live="polite">
-      {{ errorMessage }}
-    </div>
-  </form>
+        <button mat-raised-button 
+                color="accent" 
+                type="submit" 
+                class="login-button"
+                [disabled]="!loginForm.valid">
+          Log In
+        </button>
+      </form>
 
-  <p class="auth__foot">
-    Don't have an account? <a routerLink="/register">Register here</a>
-  </p>
-</section>
+      <div class="login-footer">
+        Don't have an account? <a routerLink="/register">Register here</a>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+
+</div>

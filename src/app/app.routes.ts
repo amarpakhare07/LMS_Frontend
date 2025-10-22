@@ -12,11 +12,15 @@ import { HomeComponent } from './components/home/home';
 import { InstructorLayout } from './components/instructor/instructor';
 import { DashboardLayout } from './components/dashboard-layout/dashboard-layout';
 import { Unauthorized } from './components/unauthorized/unauthorized';
+import { publicGuard } from './services/public-guard';
+import { CourseDetailComponent } from './components/course/course-detail/course-detail';
+import { CourseLearn } from './components/course/course-learn/course-learn';
+import { enrolledGuard } from './services/enrolled-guard';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: Register },
-  { path: 'register-instructor', component: RegisterInstructor },
+  { path: 'login', component: LoginComponent, canActivate: [publicGuard] },
+  { path: 'register', component: Register, canActivate: [publicGuard] },
+  { path: 'register-instructor', component: RegisterInstructor, canActivate: [publicGuard] },
   {
     path: 'home',
     component: HomeComponent,
@@ -39,21 +43,31 @@ export const routes: Routes = [
       { path: 'dashboard', component: AdminDashboard },
       { path: 'users', component: ManageUsers },
       { path: 'courses', component: ManageCourses },
-      { path: 'profile', component: Profile }
-    ]
+      { path: 'profile', component: Profile },
+    ],
   },
   {
-  path: 'instructor',
-  component: InstructorLayout,
-  canActivate: [authGuard],
-  data: { expectedRole: 'Instructor' },
-  children: [
-    { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
-  //   { path: 'dashboard', component: InstructorDashboard },
-  //   { path: 'courses', component: ManageCourses },
-  //   { path: 'students', component: ManageUsers },
-  //   { path: 'profile', component: Profile }
-  ]
+    path: 'instructor',
+    component: InstructorLayout,
+    canActivate: [authGuard],
+    data: { expectedRole: 'Instructor' },
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      //   { path: 'dashboard', component: InstructorDashboard },
+      //   { path: 'courses', component: ManageCourses },
+      //   { path: 'students', component: ManageUsers },
+      //   { path: 'profile', component: Profile }
+    ],
+  },
+
+  { 
+    path: 'course/:id', 
+    component: CourseDetailComponent,
+  },
+  {
+    path: 'course/:id/learn',
+    component: CourseLearn,
+    canActivate: [authGuard, enrolledGuard]
   },
 
   // Redirect to home by default if logged in, otherwise guard will redirect to login

@@ -1,16 +1,56 @@
+<mat-sidenav-container class="layout-container">
 
-<div class="admin-layout">
-      <nav class="sidebar">
-        <h2 class="sidebar-title">Admin Menu</h2>
-        <ul>
-          <li><a routerLink="dashboard" routerLinkActive="active">Dashboard</a></li>
-          <li><a routerLink="users" routerLinkActive="active">Manage Users</a></li>
-          <li><a routerLink="courses" routerLinkActive="active">Manage Courses</a></li>
-          <li><a routerLink="profile" routerLinkActive="active">My Profile</a></li>
-        </ul>
-        <button (click)="logout()" class="logout-btn">Logout</button>
-      </nav>
-      <main class="content">
-        <router-outlet></router-outlet>
-      </main>
+  <mat-sidenav #sidenav 
+               class="sidenav"
+               [mode]="(isMobile$ | async) ? 'over' : 'side'"
+               [opened]="(isMobile$ | async) === false">
+    
+    <h3 mat-subheader>Admin Menu</h3>
+    
+    <mat-nav-list (click)="sidenav.mode === 'over' && sidenav.close()">
+      
+      <a mat-list-item routerLink="dashboard" routerLinkActive="active">
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle>Dashboard</span>
+      </a>
+      <a mat-list-item routerLink="users" routerLinkActive="active">
+        <mat-icon matListItemIcon>group</mat-icon>
+        <span matListItemTitle>Manage Users</span>
+      </a>
+      <a mat-list-item routerLink="courses" routerLinkActive="active">
+        <mat-icon matListItemIcon>school</mat-icon>
+        <span matListItemTitle>Manage Courses</span>
+      </a>
+      <a mat-list-item routerLink="profile" routerLinkActive="active">
+        <mat-icon matListItemIcon>person</mat-icon>
+        <span matListItemTitle>My Profile</span>
+      </a>
+    </mat-nav-list>
+
+    <mat-divider></mat-divider>
+
+    <div class="sidenav-footer">
+      <button mat-stroked-button color="accent" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        Logout
+      </button>
     </div>
+
+  </mat-sidenav>
+
+
+  <mat-sidenav-content>
+
+    <mat-toolbar *ngIf="isMobile$ | async" color="primary"> <button mat-icon-button (click)="sidenav.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span>Admin Menu</span>
+    </mat-toolbar>
+
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

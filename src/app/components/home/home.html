@@ -1,24 +1,26 @@
-<!-- Hero Section -->
 <div class="hero">
   <div class="hero-left">
     <h1>Smart, Seamless, Powerful</h1>
     <h2>Your Training Platform</h2>
     <p>Step into the world of knowledge and growth — register now to start your journey.</p>
 
-    <!-- Search Bar -->
-    <div class="search-bar">
-      <input
-        [(ngModel)]="searchQuery"
-        placeholder="Search courses by title, description, syllabus..."
-        (keydown.enter)="onSearch()"
-        aria-label="Search courses"
-      />
-      <button (click)="onSearch()">Search</button>
-      <button class="clear" *ngIf="searchQuery" (click)="clearSearch()">Clear</button>
-    </div>
-
+    <mat-form-field class="search-bar" appearance="outline">
+      <mat-label>Search courses by title, description...</mat-label>
+      
+      <mat-icon matPrefix>search</mat-icon>
+      
+      <input matInput 
+             [(ngModel)]="searchQuery" 
+             (keydown.enter)="onSearch()"
+             aria-label="Search courses">
+      
+      <button mat-icon-button matSuffix *ngIf="searchQuery" (click)="clearSearch()" aria-label="Clear search">
+        <mat-icon>close</mat-icon>
+      </button>
+      
+    </mat-form-field>
     <div class="quick-note">
-      <small>Tip: Try “C#”, “API”, or “Beginner” — press Enter to search!</small>
+      <small>Tip: Try “C#”, “API”, or “Beginner” — press Enter to search</small>
     </div>
   </div>
 
@@ -27,35 +29,44 @@
   </div>
 </div>
 
-<!-- Search Results Section -->
-<section class="courses-section" *ngIf="filteredCourses?.length || loading || error">
-  <div class="results-header">
-    <h3 *ngIf="filteredCourses?.length">{{ filteredCourses.length }} course(s) found for “{{ searchQuery }}”</h3>
-    <h3 *ngIf="!filteredCourses?.length && !loading && !error">No matching courses</h3>
-    <div class="loader" *ngIf="loading">Loading...</div>
-    <div class="error" *ngIf="error">{{ error }}</div>
-  </div>
-
-  <div class="course-grid" *ngIf="filteredCourses?.length">
-    <app-course-card *ngFor="let c of filteredCourses" [course]="c"></app-course-card>
-  </div>
-</section>
-
-<!-- Category Sections -->
-<section *ngFor="let cat of visibleCategories; let i = index" class="category-section">
-  <h3 class="category-title">{{ cat.name }}</h3>
-  <div class="scroll-wrapper">
-    <button class="scroll-btn left" (click)="scrollCategory(i, 'left')" [disabled]="arrowState[i]?.left">←</button>
-    <div class="courses-scroll" #catScroll (scroll)="onCategoryScroll(i)">
-      <app-course-card *ngFor="let course of cat.courses" [course]="course"></app-course-card>
-    </div>
-    <button class="scroll-btn right" (click)="scrollCategory(i, 'right')" [disabled]="arrowState[i]?.right">→</button>
-  </div>
-</section>
-
-<!-- Show More / Show Less -->
-<div class="show-more-container" *ngIf="categories.length > 3">
-  <button class="show-more-btn" (click)="toggleShowAllCategories()">
-    {{ showAllCategories ? 'Show Less' : 'Show More' }}
-  </button>
+<div *ngIf="isLoading" class="page-loader">
+  <mat-spinner diameter="60"></mat-spinner>
 </div>
+
+<div *ngIf="!isLoading && error && !searchQuery" class="page-error">
+  <mat-icon>error_outline</mat-icon>
+  <h3>{{ error }}</h3>
+</div>
+
+<div *ngIf="!isLoading">
+
+  <section class="category-rows" *ngIf="!searchQuery">
+    <div *ngFor="let group of groupedCourses" class="category-row">
+      <h2 class="category-title">{{ group.category.name }}</h2>
+      <div class="course-carousel">
+        <app-course-card *ngFor="let c of group.courses" [course]="c" class="carousel-card"></app-course-card>
+      </div>
+    </div>
+  </section>
+  <section class="courses-section" *ngIf="searchQuery">
+    <div class="results-header">
+      <div *ngIf="isSearching" class="loader">
+        <mat-spinner diameter="30"></mat-spinner>
+        <span>Searching...</span>
+      </div>
+      
+      <div *ngIf="!isSearching">
+        <h3 *ngIf="filteredCourses.length > 0">{{ filteredCourses.length }} course(s) found</h3>
+        <h3 *ngIf="filteredCourses.length === 0">No courses found for “{{ searchQuery }}”</h3>
+      </div>
+    </div>
+    
+    <div *ngIf="!isSearching && error" class="error">
+      {{ error }}
+    </div>
+
+    <div class="course-grid" *ngIf="filteredCourses.length > 0">
+      <app-course-card *ngFor="let c of filteredCourses" [course]="c"></app-course-card>
+    </div>
+  </section>
+  </div>

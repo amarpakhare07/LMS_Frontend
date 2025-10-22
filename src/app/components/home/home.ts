@@ -1,144 +1,138 @@
-import { Component, OnInit, ViewChildren, QueryList, ElementRef } from '@angular/core';
+// src/app/components/home/home.component.ts
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
+
+// --- Services and Models ---
 import { CourseService } from '../../services/course-servics';
-import { CategoryService } from '../../services/category-service';
-import {Category } from '../../models/interfaces';
-import {Course} from '../../models/course.model';
+import { AdminService } from '../../services/admin-service'; // <-- Import AdminService
+import { Course } from '../../models/course.model';
+import { Category } from '../../models/interfaces'; // <-- Import Category
+
+// --- Components ---
 import { CourseCardComponent } from '../course-card/course-card';
-import { tap } from 'rxjs/operators';
+
+// --- NEW MATERIAL IMPORTS ---
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+// This new interface helps us group the courses
+export interface CourseCategoryGroup {
+  category: Category;
+  courses: Course[];
+}
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule, CourseCardComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    CourseCardComponent, // Keep your existing course card
+    // --- ADDED MODULES ---
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './home.html',
   styleUrls: ['./home.css']
 })
 export class HomeComponent implements OnInit {
-  searchQuery = '';
-  filteredCourses: Course[] = [];
-  loading = false;
+  private courseService = inject(CourseService);
+  private adminService = inject(AdminService); // <-- Inject AdminService
+
+  searchQuery: string = '';
+  
+  // --- Data Properties ---
+  allCourses: Course[] = [];
+  allCategories: Category[] = [];
+  groupedCourses: CourseCategoryGroup[] = []; // For the new carousels
+  filteredCourses: Course[] = []; // For the search results
+  
+  isLoading = true; // For initial page load
+  isSearching = false; // For search-specific loading
   error = '';
 
-  categories: Category[] = [];
-  showAllCategories = false;
-
-  @ViewChildren('catScroll') catScroll!: QueryList<ElementRef<HTMLDivElement>>;
-  arrowState: { left: boolean; right: boolean }[] = [];
-
-  constructor(
-    private courseService: CourseService,
-    private categoryService: CategoryService
-  ) {}
-
   ngOnInit(): void {
-    this.loadCategoriesAndCourses();
+    // Load all data on init
+    this.loadInitialData();
   }
 
-  private loadCategoriesAndCourses(): void {
-    this.loading = true;
+  loadInitialData(): void {
+    this.isLoading = true;
     this.error = '';
-
-    // fetch both categories and courses in parallel
-    this.categoryService.getAllCategories().subscribe({
-      next: (categories) => {
-        this.courseService.getAllCourses().subscribe({
-          next: (courses) => {
-            // assign courses to categories
-            this.categories = categories
-              .map(cat => ({
-                ...cat,
-                courses: courses.filter(c => c.categoryID === cat.categoryID)
-              }))
-              .filter(cat => cat.courses && cat.courses.length); // only keep categories with courses
-
-            // init scroll arrow state
-            this.arrowState = this.categories.map(() => ({ left: true, right: false }));
-            this.loading = false;
-            setTimeout(() => this.updateAllArrowStates(), 200);
-          },
-          error: (err) => {
-            console.error(err);
-            this.error = 'Failed to load courses.';
-            this.loading = false;
-          }
-        });
+    forkJoin({
+      courses: this.courseService.getAllCourses(),
+      categories: this.adminService.getCategories() // <-- Fetch categories
+    }).subscribe({
+      next: ({ courses, categories }) => {
+        this.allCourses = courses.filter(c => c.published); // Only show published courses
+        this.allCategories = categories;
+        
+        // --- Group courses by category ---
+        this.groupedCourses = this.groupCourses(this.allCourses, this.allCategories);
+        // ---
+        
+        this.isLoading = false;
       },
       error: (err) => {
-        console.error(err);
-        this.error = 'Failed to load categories.';
-        this.loading = false;
+        console.error('Failed to load home page data', err);
+        this.error = 'Failed to load courses. Please try again later.';
+        this.isLoading = false;
       }
     });
   }
 
-  // ---- search feature remains unchanged ----
+  private groupCourses(courses: Course[], categories: Category[]): CourseCategoryGroup[] {
+    return categories.map(category => {
+      // Find all courses that match this category's ID
+      const coursesInCategory = courses.filter(course => course.categoryID === category.categoryID);
+      
+      return {
+        category: category,
+        courses: coursesInCategory
+      };
+    })
+    // Optional: filter out categories that have no published courses
+    .filter(group => group.courses.length > 0);
+  }
+
+  // Called when user presses enter or clicks search
   onSearch() {
-    const q = this.searchQuery.trim();
+    this.isSearching = true; // Use a separate searching flag
+    this.error = '';
+    
+    const q = this.searchQuery?.trim();
     if (!q) {
       this.filteredCourses = [];
+      this.isSearching = false;
       return;
     }
-
-    this.loading = true;
-    this.error = '';
-    this.courseService.getAllCourses().subscribe({
-      next: (list) => {
-        this.filteredCourses = list.filter(c =>
-          [c.title, c.description, c.syllabus, c.level, c.language]
-            .filter(Boolean)
-            .some(f => f!.toLowerCase().includes(q.toLowerCase()))
-        );
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error(err);
-        this.error = 'Failed to load courses.';
-        this.loading = false;
-      }
-    });
+    
+    // The search logic is now just a local filter
+    this.applyFilter(q);
+    this.isSearching = false;
   }
 
+  private applyFilter(q: string) {
+    const query = q.toLowerCase();
+    this.filteredCourses = this.allCourses.filter(c =>
+      [c.title, c.description, c.syllabus, c.level, c.language]
+        .filter(Boolean)
+        .some(field => field!.toLowerCase().includes(query))
+    );
+  }
+
+  // Clears the search query AND the results
   clearSearch() {
     this.searchQuery = '';
     this.filteredCourses = [];
-  }
-
-  toggleShowAllCategories() {
-    this.showAllCategories = !this.showAllCategories;
-    setTimeout(() => this.updateAllArrowStates(), 200);
-  }
-
-  scrollCategory(index: number, dir: 'left' | 'right') {
-    const el = this.catScroll.toArray()[index]?.nativeElement;
-    if (!el) return;
-    const amt = Math.floor(el.clientWidth * 0.7);
-    el.scrollBy({ left: dir === 'right' ? amt : -amt, behavior: 'smooth' });
-    setTimeout(() => this.updateArrowStateFor(index), 350);
-  }
-
-  onCategoryScroll(index: number) {
-    setTimeout(() => this.updateArrowStateFor(index), 100);
-  }
-
-  private updateAllArrowStates() {
-    this.categories.forEach((_, i) => this.updateArrowStateFor(i));
-  }
-
-  private updateArrowStateFor(index: number) {
-    const el = this.catScroll.toArray()[index]?.nativeElement;
-    if (!el) return;
-    const max = el.scrollWidth - el.clientWidth;
-    const left = el.scrollLeft <= 5;
-    const right = el.scrollLeft >= (max - 5);
-    if (!this.arrowState[index]) this.arrowState[index] = { left: true, right: false };
-    this.arrowState[index].left = left;
-    this.arrowState[index].right = right;
-  }
-
-  get visibleCategories() {
-    return this.showAllCategories ? this.categories : this.categories.slice(0, 3);
+    this.error = '';
   }
 }

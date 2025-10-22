@@ -5,11 +5,31 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../services/auth-service';
 import { RouterLink } from '@angular/router';
 
+// --- NEW MATERIAL IMPORTS ---
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+// --- END NEW IMPORTS ---
+
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+
+    // --- ADDED MODULES ---
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule
+    // --- END ADDED MODULES ---
+  ],
   templateUrl: './login.html',
   styleUrls: ['./login.css']
 })
@@ -17,6 +37,9 @@ export class LoginComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   errorMessage: string | null = null;
+  
+  // For the password visibility toggle
+  hidePassword = true;
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -29,5 +52,11 @@ export class LoginComponent {
         error: (err) => this.errorMessage = 'Login failed. Please check your credentials.'
       });
     }
+  }
+
+  // Helper method for the password toggle
+  togglePassword(event: MouseEvent): void {
+    event.preventDefault(); // Prevent form submission
+    this.hidePassword = !this.hidePassword;
   }
 }
