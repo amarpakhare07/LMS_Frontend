@@ -5,17 +5,21 @@
 
 .sidebar-nav {
   width: 250px;
-  clip-path: inset(50px 0 0 0); /* Inset 50px from the top */
+  /* clip-path: inset(50px 0 0 0);*/ /*Inset 50px from the top */
   /* Use Material's variables for consistency */
   border-right: 1px solid var(--mat-sidenav-border-color);
   display: flex;
   flex-direction: column;
-  transition: width 0.2s ease-in-out; /* Add transition for smooth animation */
+  transition: width 0.2s ease-in-out; min-width: 0.2s ease-in-out; /* Add transition for smooth animation */
 }
 
 .sidebar-header {
-  padding: 16px;
-  border-bottom: 1px solid var(--mat-sidenav-border-color);
+    padding: 16px;
+    padding-top: 60px;
+    border-bottom: 1px solid var(--mat-sidenav-border-color);
+    display: flex; /* Added for logo/toggle alignment */
+    justify-content: space-between; /* Added for logo/toggle alignment */
+    align-items: stretch;
 }
 
 /* Active navigation link styling */
@@ -25,17 +29,21 @@
   font-weight: 600;
 }
 .sidebar-nav.sidebar-collapsed {
-  width: 60px; /* New, smaller width for collapsed state */
+  width: 60px !important; /* New, smaller width for collapsed state */
+  min-width: 60px !important;
 }
 
 /* Hide the text content when the sidebar is collapsed */
 .sidebar-nav.sidebar-collapsed mat-nav-list .mat-list-item-title {
   display: none;
 }
+.sidebar-nav.sidebar-collapsed .sidebar-header {
+    justify-content: center; /* Center the toggle button */
+}
 
 /* Adjust the padding/alignment for mat-list-item in collapsed state */
 .sidebar-nav.sidebar-collapsed .mat-mdc-list-item {
-  padding: 0 !important; /* Remove original padding */
+  padding: 0 10px !important; /* Remove original padding */
   justify-content: center; /* Center the content */
 }
 
@@ -46,8 +54,16 @@
 /* Ensure the icon is centered in collapsed state */
 .sidebar-nav.sidebar-collapsed .mat-mdc-list-item-icon {
   margin-right: 0 !important;
+  min-width: unset !important;
+}
+.sidebar-nav.sidebar-collapsed .portal-title {
+    display: none;
 }
 
+.sidebar-nav.sidebar-collapsed .logout-footer {
+    justify-content: center;
+    padding-left: 32px;
+}
 /* Ensure logout button adapts in collapsed state */
 .sidebar-nav.sidebar-collapsed .logout-footer button {
   min-width: 40px; /* Shrink button width */
@@ -66,6 +82,40 @@
 .logout-footer {
   margin-top: auto; /* Pushes the logout button to the bottom */
   padding: 1rem;
+  display: flex;
+  justify-self: center;
+}
+/* ------------------------------------------------------------------ */
+/* 3. MAIN CONTENT SHIFTING (Fixes the rest of the page alignment) */
+/* ------------------------------------------------------------------ */
+
+/* Default state: Ensure content starts after the full sidebar width */
+.mat-sidenav-content {
+    /* Sets the starting point for the content */
+    margin-left: 250px; 
+    transition: margin-left 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
+/* CRITICAL FIX: When the sidebar is collapsed, shift the main content's margin to the icon-only width (60px) */
+/* ~ is the general sibling combinator */
+.sidebar-nav.sidebar-collapsed ~ .mat-sidenav-content {
+    margin-left: 60px !important; 
+}
+
+/* Ensure inner content fills space */
+.content-router-outlet {
+  padding: 24px;
+  flex-grow: 1;
+}
+
+/* ---------------------------------------------------- */
+/* REMOVE UNUSED TOOLBAR STYLES (for cleanup) */
+/* ---------------------------------------------------- */
+.dashboard-toolbar {
+    display: none; /* Hide if not using a toolbar */
 }
 
 /* ---------------------------------------------------- */
@@ -87,6 +137,9 @@
   padding: 24px;
   flex-grow: 1;
 }
+
+
+
 
 /* Hide the menu icon on large screens where the sidebar is always open */
 @media (min-width: 768px) {

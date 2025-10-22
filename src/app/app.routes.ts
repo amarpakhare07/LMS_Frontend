@@ -10,8 +10,8 @@ import { AdminDashboard } from './components/admin/dashboard/dashboard';
 import { AdminLayout } from './components/admin/layout/layout';
 import { HomeComponent } from './components/home/home';
 import { InstructorLayout } from './components/instructor/instructor';
-import { DashboardLayout } from './components/dashboard-layout/dashboard-layout';
 import { Unauthorized } from './components/unauthorized/unauthorized';
+import { InstructorDashboardComponent } from './components/instructor/instructor-dashboard/instructor-dashboard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -21,11 +21,6 @@ export const routes: Routes = [
     path: 'home',
     component: HomeComponent,
     // canActivate: [authGuard], // Apply the guard here
-  },
-  {
-    path: 'instructor',
-    component: InstructorLayout,
-    canActivate: [authGuard], // Apply the same guard
   },
   {
     path: 'admin',
@@ -48,8 +43,8 @@ export const routes: Routes = [
   canActivate: [authGuard],
   data: { expectedRole: 'Instructor' },
   children: [
-    { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
-    // { path: 'dashboard', component: InstructorDashboard },
+    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    { path: 'dashboard', component: InstructorDashboardComponent }
     // { path: 'courses', component: ManageCourses },
     // { path: 'students', component: ManageUsers },
     // { path: 'profile', component: Profile }

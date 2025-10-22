@@ -1,1 +1,55 @@
-<p>instructor-dashboard works!</p>
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <h1>Welcome Back, Jhon!</h1>
+    <p>Track Your Progress and Discover Courses</p>
+  </header>
+  <section class="summary-cards-grid"> <app-widget *ngFor="let card of summaryCards" [cardData]="card"></app-widget>
+  </section>
+  <section class="analytics-grid">
+    <div class="chart-panel overview-chart">
+      <h2>Overview</h2>
+      <div class="chart-controls"> <span class="active">Students</span> | <span>Teacher</span> | <span>Other</span>
+        <span class="year-selector">2025 ▼</span> </div>
+      <div class="chart-placeholder">[Bar Chart Placeholder]</div>
+    </div>
+    <div class="chart-panel student-analysis-chart">
+      <h2>Student Analysis </h2>
+      <div class="chart-controls"> <span class="year-selector">2025 ▼</span> </div>
+      <div class="chart-placeholder">[Area/Line Chart Placeholder]</div>
+    </div>
+  </section>
+  <section class="top-courses-table">
+    <header>
+      <h2>Top Courses</h2>
+      <div class="search-box"><mat-icon>search</mat-icon></div>
+    </header>
+    <div class="table-scroll-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Course Name</th>
+            <th>Instructor</th>
+            <th>Lessons</th>
+            <th>Total Time</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let course of topCourses">
+            <td>{{ course.name }}</td>
+            <td>{{ course.instructor }}</td>
+            <td>{{ course.lessons }}</td>
+            <td>{{ course.totalTime }}</td>
+            <td> <span class="status-pill" [ngClass]="getStatusClass(course.status)"> {{ course.status }} </span> </td>
+            <td> 
+              <button mat-icon-button color="primary" (click)="viewCourse(course)"> <mat-icon>visibility</mat-icon></button> 
+              <button mat-icon-button color="accent" (click)="editCourse(course)"> <mat-icon>edit</mat-icon></button> 
+              <button mat-icon-button color="warn" (click)="deleteCourse(course)"> <mat-icon>delete</mat-icon></button> 
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
