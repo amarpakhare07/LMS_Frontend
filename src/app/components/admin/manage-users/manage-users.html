@@ -1,79 +1,89 @@
-<section class="page users">
-  <header class="page__header">
-    <h1 class="page__title">Manage Users</h1>
-    <p class="page__subtitle">Search, filter, and manage user account status.</p>
+<div class="page-container">
+  <header class="page-header">
+    <h1 class="mat-h1">Manage Users</h1>
+    <p class="mat-body-1">Search, filter, and manage user account status.</p>
   </header>
 
-  <div class="toolbar" role="region" aria-label="User filters">
-    <div class="search-container">
-      <input
-        type="text"
-        class="search-input"
-        placeholder="Search by name or email..."
-        [(ngModel)]="searchTerm"
-        (input)="applyFilters()"
-        aria-label="Search users by name or email" />
-    </div>
+  <mat-toolbar class="filter-toolbar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search by name or email</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [(ngModel)]="searchTerm" (input)="applyFilters()">
+    </mat-form-field>
 
-    <div class="filter-container">
-      <label for="status" class="filter-label">Filter by status:</label>
-      <select id="status"
-              class="filter-select"
-              [(ngModel)]="statusFilter"
-              (change)="applyFilters()"
-              aria-label="Filter users by status">
-        <option value="all">All</option>
-        <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
-      </select>
+    <div class="filters">
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="statusFilter" (selectionChange)="applyFilters()">
+          <mat-option value="all">All</mat-option>
+          <mat-option value="active">Active</mat-option>
+          <mat-option value="inactive">Inactive</mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
-  </div>
+  </mat-toolbar>
 
-  <div *ngIf="isLoading" class="loading-container" role="status" aria-live="polite">
-    <div class="spinner" aria-hidden="true"></div>
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
     <p>Loading users...</p>
   </div>
 
   <div *ngIf="!isLoading">
-    <div *ngIf="filteredUsers.length > 0; else noUsers" class="table-container">
-      <!-- Add .table for consistent styling with global CSS -->
-      <table class="table users-table">
-        <thead>
-          <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Email</th>
-            <th scope="col">Status</th>
-            <th scope="col">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of filteredUsers; trackBy: trackByUserId">
-            <td>{{ user.name }}</td>
-            <td>{{ user.email }}</td>
-            <td>
-              <span class="status" [ngClass]="user.isActive ? 'active' : 'inactive'">
-                {{ user.isActive ? 'Active' : 'Inactive' }}
-              </span>
+    <mat-card class="table-card">
+      <div class="table-responsive">
+        
+        <table mat-table [dataSource]="dataSource" matSort>
+
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+            <td mat-cell *matCellDef="let user">{{ user.name }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+            <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+          </ng-container>
+          <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Role</th>
+            <td mat-cell *matCellDef="let user">{{ user.role == 1 ? 'Student' : user.role == 2 ? 'Instructor' : 'Admin' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td mat-cell *matCellDef="let user">
+              <mat-chip-set>
+                <mat-chip [color]="user.isActive ? 'primary' : 'warn'" highlighted>
+                  {{ user.isActive ? 'Active' : 'Inactive' }}
+                </mat-chip>
+              </mat-chip-set>
             </td>
-            <td>
-              <button
-                class="action-btn"
-                [class.deactivate-btn]="user.isActive"
-                [class.activate-btn]="!user.isActive"
-                (click)="toggleUserStatus(user)">
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let user">
+              <button mat-stroked-button 
+                      [color]="user.isActive ? 'warn' : 'primary'"
+                      (click)="toggleUserStatus(user)">
                 {{ user.isActive ? 'Deactivate' : 'Activate' }}
               </button>
             </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+          </ng-container>
 
-    <ng-template #noUsers>
-      <div class="empty-state" role="status" aria-live="polite">
-        <h2>No Users Found</h2>
-        <p>No users match your current search and filter criteria.</p>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        </table>
       </div>
-    </ng-template>
+
+      <mat-paginator [pageSizeOptions]="[10, 25, 100]" showFirstLastButtons>
+      </mat-paginator>
+    </mat-card>
+
+    <div *ngIf="dataSource.data.length === 0 && !isLoading" class="empty-state">
+      <mat-icon class="empty-state-icon">search_off</mat-icon>
+      <h2>No Users Found</h2>
+      <p>No users match your current search and filter criteria.</p>
+    </div>
   </div>
-</section>
+</div>

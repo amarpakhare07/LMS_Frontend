@@ -1,45 +1,61 @@
+:host {
+  /* This allows the card to be sized correctly in a grid/flex container */
+  display: block;
+  height: 100%;
+}
+
+.course-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+}
+
 .course-card {
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
-  border: 1px solid #e0e0e0;
+  height: 100%;
+  
+  /* A more subtle, modern border */
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  
+  /* Start with a minimal shadow */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  
+  /* Smooth transition for the hover effect */
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  
+  /* We'll use this to position the arrow icon */
+  position: relative; 
 }
 
-.course-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+/* This is the main hover effect */
+.course-card-link:hover .course-card {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-.thumbnail img {
-  width: 100%;
+.mat-mdc-card-image {
   height: 180px;
   object-fit: cover;
   background: #f7f7f7;
-  transition: transform 0.3s ease;
 }
 
-.course-card:hover .thumbnail img {
-  transform: scale(1.02);
+/* Use the built-in padding for a title group */
+.mat-mdc-card-title-group {
+  padding: 16px 16px 12px;
 }
 
-.card-content {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+.mat-mdc-card-title {
+  font-size: 1.15rem; /* Slightly smaller, more refined */
+  font-weight: 600;
+  line-height: 1.4;
 }
 
-.course-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: #2e2e2e;
-  margin-bottom: 10px;
-  line-height: 1.3;
+/* This content holds the rating and chips */
+.mat-mdc-card-content {
+  padding: 0 16px 16px;
+  flex-grow: 1; /* Pushes the (now removed) actions to the bottom */
 }
 
 .rating {
@@ -48,51 +64,67 @@
   margin-bottom: 12px;
 }
 
-.rating i {
-  color: #fdd835;
-  margin-right: 4px;
+.rating mat-icon {
+  color: #fdd835; /* Gold */
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* --- Style the Chips --- */
+.details-chips {
+  /* This disables the default mat-chip-list spacing */
+  margin: 0; 
+}
+
+/* Use ::ng-deep to style the inner chip elements */
+:host ::ng-deep .details-chips .mdc-evolution-chip-set__chips {
+  gap: 8px; /* Space between chips */
+}
+
+:host ::ng-deep .details-chips .mdc-evolution-chip {
+  height: 28px; /* Make chips smaller */
+  padding: 0 10px;
+  background-color: #f5f5f5; /* Light gray background */
+}
+
+:host ::ng-deep .details-chips .mat-mdc-chip-avatar {
   font-size: 16px;
-  transition: color 0.2s ease;
+  height: 16px;
+  width: 16px;
+  color: #6c757d; /* Soft icon color */
 }
 
-.rating-text {
-  font-size: 13px;
-  color: #666;
-  margin-left: 8px;
+:host ::ng-deep .details-chips .mdc-evolution-chip__text-label {
+  font-size: 0.8rem;
+  color: #333;
 }
 
-.details {
-  font-size: 13px;
-  color: #555;
+/* --- Hover "View" Icon --- */
+.view-indicator {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  
+  /* Make it a circle */
+  background: var(--mat-accent-color, #0f5132); 
+  color: white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  
+  /* Center the icon */
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  font-weight: 500;
+  align-items: center;
+  justify-content: center;
+  
+  /* Start transparent and invisible */
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.duration::before {
-  content: "⏱ ";
-}
-
-.level::before {
-  content: "🎯 ";
-}
-
-.view-btn {
-  margin-top: auto;
-  background: linear-gradient(135deg, #6a1b9a, #8e24aa);
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
-  align-self: flex-start;
-}
-
-.view-btn:hover {
-  background: linear-gradient(135deg, #7b1fa2, #9c27b0);
-  transform: scale(1.05);
+.course-card-link:hover .view-indicator {
+  opacity: 1;
+  transform: scale(1);
 }

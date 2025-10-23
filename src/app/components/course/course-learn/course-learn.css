@@ -1,0 +1,225 @@
+/* Shell & Topbar */
+.learn-shell {
+  height: calc(100vh - 0px); /* adjust if app has its own app-bar height */
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 15;
+}
+.topbar .menu-btn { margin-right: 4px; }
+.topbar-title {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Layout */
+.learn-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 0;
+  flex: 1 1 auto;
+  min-height: 0; /* for proper intrinsic scroll */
+}
+
+/* Sidebar (curriculum) */
+.sidebar {
+  border-right: 1px solid rgba(0,0,0,0.08);
+  background: #fafafa;
+  overflow: auto;
+  min-height: 0;
+}
+
+.sidebar-header {
+  position: sticky;
+  top: 0;
+  background: #fafafa;
+  padding: 12px 12px 8px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  z-index: 5;
+}
+.course-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(0,0,0,.88);
+}
+
+.curriculum {
+  display: block;
+  padding: 8px 0;
+}
+
+.lesson-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  padding: 10px 12px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+.lesson-row:hover {
+  background: rgba(0,188,212,0.06);
+}
+.lesson-row.active {
+  background: rgba(0,188,212,0.12);
+}
+.lesson-icon {
+  color: #00bcd4;
+  align-self: start;
+}
+.lesson-text { min-width: 0; }
+.lesson-title {
+  font-weight: 600;
+  color: rgba(0,0,0,.9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lesson-meta {
+  font-size: 12px;
+  color: rgba(0,0,0,.6);
+}
+.lesson-time {
+  font-size: 12px;
+  color: rgba(0,0,0,.55);
+  align-self: center;
+}
+.sidebar-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(0,0,0,.6);
+  padding: 12px;
+}
+
+/* Player */
+.player {
+  overflow: auto;
+  background: #fff;
+  min-width: 0;
+  padding-bottom: 24px;
+}
+
+/* Sticky lesson header */
+.player-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.92));
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.ph-left { min-width: 0; }
+.lesson-heading {
+  margin: 0 0 2px;
+  font-weight: 700;
+  font-size: 18px;
+  color: rgba(0,0,0,.92);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lesson-submeta {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+  color: rgba(0,0,0,.6);
+}
+.ph-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-btn { text-transform: none; border-radius: 8px; }
+
+/* Video */
+.video-container {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  margin: 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+.video-container iframe,
+.video-container video {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+.no-video {
+  margin: 16px;
+  padding: 24px;
+  border: 1px dashed rgba(0,0,0,.12);
+  border-radius: 12px;
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  color: rgba(0,0,0,.7);
+}
+
+/* Content block */
+.content-block {
+  margin: 8px 16px 0;
+  padding: 16px;
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: 12px;
+}
+.block-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+.lesson-content {
+  color: rgba(0,0,0,.82);
+  line-height: 1.6;
+}
+.lesson-content img, .lesson-content video, .lesson-content iframe {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+/* Mobile / Tablet */
+@media (max-width: 991px) {
+  .topbar { display: flex; }
+  .learn-layout {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: fixed;
+    z-index: 20;
+    top: 48px; /* height of topbar */
+    left: 0;
+    bottom: 0;
+    width: 84%;
+    max-width: 360px;
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+    box-shadow: 8px 0 24px rgba(0,0,0,.16);
+  }
+  .sidebar.open { transform: translateX(0); }
+  .player { padding-bottom: 48px; }
+}

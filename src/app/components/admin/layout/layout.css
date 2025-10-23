@@ -1,173 +1,53 @@
-/* Root grid layout */
-.admin-layout {
-  /* Sidebar width variable (adjust if needed) */
-  --sidebar-w: 280px;
+/*
+ * Material Admin Layout Styles
+ */
 
-  display: grid;
-  grid-template-columns: minmax(240px, var(--sidebar-w)) 1fr;
-  min-height: 100svh; /* handles mobile viewport correctly */
-  background: var(--bg, #f9fafb);
-  color: var(--text, #1b1f24);
+/* 1. Make the layout container fill the entire screen */
+.layout-container {
+  height: 100vh;
 }
 
-/* =========================
-   Sidebar (left column)
-   ========================= */
-.sidebar {
-  position: sticky; /* keeps it visible while content scrolls */
-  top: 0;
-  align-self: start;
-  height: 100svh;
-  overflow-y: auto;
+/* 2. Define the width of the sidebar */
+.sidenav {
+  width: 260px;
+}
 
-  background: var(--surface, #fff);
-  border-right: 1px solid var(--border, #e5e7eb);
-  box-shadow: var(--elev-1, 0 1px 2px rgba(0,0,0,.08), 0 1px 1px rgba(0,0,0,.06));
+/* 3. Style the navigation list and its items */
+.mat-nav-list a[mat-list-item] {
+  /* Use Material's built-in typography for list items */
+  font: var(--mat-list-item-label-text-font);
+  color: var(--mat-list-item-label-text-color);
+}
+
+/* * 4. Style the active router link
+ * We use your 'primary' (Cyan) theme color 
+ */
+.mat-nav-list a[mat-list-item].active {
+  background: rgba(0, 188, 212, 0.1); /* Faint Cyan background */
+  color: #00BCD4; /* Cyan text */
+}
+
+/* Make the icon in the active link match */
+.mat-nav-list a[mat-list-item].active mat-icon {
+  color: #00BCD4; /* Cyan icon */
+}
+
+/* 5. Style the footer (logout button area) */
+.sidenav-footer {
   padding: 1rem;
 }
-
-/* Title */
-.sidebar-title {
-  font-size: 1.1rem;
-  line-height: 1.2;
-  margin: 0 0 0.75rem 0;
-}
-
-/* Menu list reset & spacing */
-.sidebar ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.35rem;
-}
-
-/* Links */
-.sidebar a {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.55rem 0.75rem;
-  border-radius: var(--radius-md, 10px);
-  color: var(--text, #1b1f24);
-  text-decoration: none;
-  border: 1px solid transparent;
-  outline: none;
-  transition: background .15s ease, color .15s ease, border-color .15s ease;
-}
-
-/* Hover */
-.sidebar a:hover {
-  background: var(--surface-muted, #f6f7f9);
-}
-
-/* Keyboard focus */
-.sidebar a:focus-visible {
-  border-color: var(--primary, #2563eb);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
-
-/* Active (Angular adds .active via routerLinkActive) */
-.sidebar a.active {
-  background: rgba(37, 99, 235, 0.12); /* subtle primary tint */
-  border-color: var(--border, #e5e7eb);
-}
-
-/* Active indicator bar on the left */
-.sidebar a.active::before {
-  content: "";
-  position: absolute;
-  left: 4px;
-  top: 6px;
-  bottom: 6px;
-  width: 4px;
-  border-radius: 2px;
-  background: var(--primary, #2563eb);
-}
-
-/* Logout button */
-.logout-btn {
+.sidenav-footer button {
   width: 100%;
-  margin-top: 0.75rem;
-  padding: 0.6rem 0.9rem;
-  font-weight: 600;
-  border-radius: var(--radius-md, 10px);
-  border: 1px solid var(--border, #e5e7eb);
-  background: var(--danger, #dc2626);
-  color: var(--primary-contrast, #fff);
-  cursor: pointer;
-  transition: background .15s ease, transform .02s ease, box-shadow .15s ease;
 }
 
-.logout-btn:hover {
-  background: #b91c1c; /* darker danger */
+/* 6. Add padding to the main content area */
+.content-wrapper {
+  padding: 1.5rem 2rem;
 }
 
-.logout-btn:active {
-  transform: translateY(1px);
-}
-
-/* =========================
-   Content (right column)
-   ========================= */
-.content {
-  background: var(--bg, #f9fafb);
-  padding: 1.25rem 1.5rem;
-  min-width: 0; /* prevents overflow with wide children */
-}
-
-/* Optional: constrain inner pages on wide displays */
-.content > *:not(router-outlet) {
-  max-width: 1200px;
-  margin-inline: auto;
-}
-
-/* =========================
-   Responsive (mobile/tablet)
-   ========================= */
-@media (max-width: 1024px) {
-  .admin-layout {
-    grid-template-columns: 1fr; /* stack */
-  }
-
-  .sidebar {
-    position: sticky;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--border, #e5e7eb);
-    box-shadow: var(--elev-1, 0 1px 2px rgba(0,0,0,.08), 0 1px 1px rgba(0,0,0,.06));
-    padding: 0.75rem 0.75rem 0.85rem;
-  }
-
-  /* Make menu horizontal on mobile */
-  .sidebar ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .sidebar a {
-    padding: 0.5rem 0.65rem;
-  }
-
-  /* Adjust active indicator for horizontal pills */
-  .sidebar a.active::before {
-    left: 0.5rem;
-    top: auto;
-    bottom: auto;
-    height: 3px;
-    width: calc(100% - 1rem);
-    border-radius: 2px;
-    transform: translateY(26px);
-  }
-
-  .content {
+/* 7. On small screens, reduce the content padding */
+@media (max-width: 599px) {
+  .content-wrapper {
     padding: 1rem;
   }
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
 }

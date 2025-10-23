@@ -1,39 +1,52 @@
-<footer class="footer">
+<!-- Use a toolbar with your primary (Cyan) color -->
+<mat-toolbar class="footer-toolbar">
   <div class="footer-content">
-    <div class="footer-left">
+
+    <!-- Left Section: Logo & Tagline -->
+    <div class="footer-section">
       <div class="logo">OLMS</div>
       <div class="tagline">Learn. Grow. Succeed.</div>
     </div>
 
-    <div class="footer-links">
-      <div class="link-section">
+    <!-- Middle Section: Links -->
+    <div class="footer-section footer-links">
+      <div class="link-column">
         <h4>Platform</h4>
-        <a href="#">Dashboard</a>
-        <a href="#">Mentors</a>
+        <a mat-button routerLink="/dashboard">Dashboard</a>
+        <a mat-button routerLink="/mentors">Mentors</a>
       </div>
-      <div class="link-section">
+      <div class="link-column">
         <h4>Company</h4>
-        <a href="#">About</a>
+        <a mat-button routerLink="/about">About</a>
       </div>
-      <div class="link-section">
+      <div class="link-column">
         <h4>Contact Us</h4>
-        <a href="#">Blog</a>
-        <a href="#">Careers</a>
+        <a mat-button routerLink="/blog">Blog</a>
+        <a mat-button routerLink="/careers">Careers</a>
       </div>
-      <div class="link-section">
+      <div class="link-column">
         <h4>Help Center</h4>
-        <a href="#">Help Center</a>
-        <a href="#">Privacy</a>
+        <a mat-button routerLink="/help">Help Center</a>
+        <a mat-button routerLink="/privacy">Privacy</a>
       </div>
     </div>
 
-    <div class="footer-right">
+    <!-- Right Section: Social & Copyright -->
+    <div class="footer-section footer-right">
       <div class="social-icons">
-        <a href="#"><i class="fab fa-twitter"></i></a>
-        <a href="#"><i class="fab fa-facebook-f"></i></a>
-        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        <!-- Use our custom registered SVG icons -->
+        <a mat-icon-button href="#" aria-label="Twitter">
+          <mat-icon svgIcon="twitter"></mat-icon>
+        </a>
+        <a mat-icon-button href="#" aria-label="Facebook">
+          <mat-icon svgIcon="facebook"></mat-icon>
+        </a>
+        <a mat-icon-button href="#" aria-label="LinkedIn">
+          <mat-icon svgIcon="linkedin"></mat-icon>
+        </a>
       </div>
-      <div class="copyright">© 2025. All rights reserved.</div>
+      <div class="copyright">© 2025 OLMS. All rights reserved.</div>
     </div>
+
   </div>
-</footer>
+</mat-toolbar>

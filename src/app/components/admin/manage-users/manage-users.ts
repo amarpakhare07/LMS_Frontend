@@ -1,31 +1,76 @@
 // src/app/components/admin/manage-users/manage-users.component.ts
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // ✨ Import FormsModule for ngModel
+import { FormsModule } from '@angular/forms';
 import { User } from '../../../models/interfaces';
 import { AdminService } from '../../../services/admin-service';
+
+// --- NEW MATERIAL IMPORTS ---
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatCardModule } from '@angular/material/card';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog'; // Adjust path
+// --- END NEW IMPORTS ---
 
 @Component({
   selector: 'app-manage-users',
   standalone: true,
-  imports: [CommonModule, FormsModule], // ✨ Add FormsModule here
-  templateUrl: './manage-users.html', // We'll move the template to its own file
-  styleUrls: ['./manage-users.css'] // We'll move styles to their own file
+  imports: [
+    CommonModule,
+    FormsModule,
+    // --- ADDED MODULES ---
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatChipsModule,
+    MatCardModule,
+    MatToolbarModule,
+    MatDialogModule,
+  ],
+  templateUrl: './manage-users.html',
+  styleUrls: ['./manage-users.css'],
 })
-export class ManageUsers implements OnInit {
+export class ManageUsers implements OnInit, AfterViewInit {
   adminService = inject(AdminService);
-  
+  private dialog = inject(MatDialog);
+
   isLoading = true;
   allUsers: User[] = [];
-  trackByUserId = (index: number, user: User) => user.email; // Assuming email is unique
-  filteredUsers: User[] = [];
-  
-  // Properties for filtering
+
+  // --- MatTable Properties ---
+  displayedColumns: string[] = ['name', 'email', 'role', 'status', 'actions'];
+  dataSource = new MatTableDataSource<User>([]);
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  // --- End MatTable ---
+
   searchTerm: string = '';
-  statusFilter: string = 'all'; // 'all', 'active', 'inactive'
+  statusFilter: string = 'all';
 
   ngOnInit(): void {
     this.loadUsers();
+  }
+
+  ngAfterViewInit(): void {
+    // Link paginator and sort to the data source
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
   }
 
   loadUsers(): void {
@@ -39,46 +84,61 @@ export class ManageUsers implements OnInit {
       error: (err) => {
         console.error('Failed to load users', err);
         this.isLoading = false;
-      }
+      },
     });
   }
 
   applyFilters(): void {
     let users = [...this.allUsers];
 
-    // 1. Filter by status
     if (this.statusFilter !== 'all') {
       const isActive = this.statusFilter === 'active';
-      users = users.filter(user => user.isActive === isActive);
+      users = users.filter((user) => user.isActive === isActive);
     }
 
-    // 2. Filter by search term
     if (this.searchTerm) {
       const lowercasedTerm = this.searchTerm.toLowerCase();
-      users = users.filter(user =>
-        user.name.toLowerCase().includes(lowercasedTerm) ||
-        user.email.toLowerCase().includes(lowercasedTerm)
+      users = users.filter(
+        (user) =>
+          user.name.toLowerCase().includes(lowercasedTerm) ||
+          user.email.toLowerCase().includes(lowercasedTerm)
       );
     }
-    
-    this.filteredUsers = users;
+
+    // --- Update the MatTableDataSource ---
+    this.dataSource.data = users;
+
+    // Go back to the first page when filtering
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+    // --- End Update ---
   }
 
   toggleUserStatus(user: User): void {
     const action = user.isActive ? 'Deactivate' : 'Activate';
-    const confirmation = confirm(`Are you sure you want to ${action} the user "${user.name}"?`);
+    
+    // --- Use MatDialog ---
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        title: `${action} User`,
+        message: `Are you sure you want to ${action.toLowerCase()} "${user.name}"?`,
+      },
+    });
 
-    if (confirmation) {
-      const newStatus = !user.isActive;
-      this.adminService.updateUserStatus(user.email, newStatus).subscribe({
-        next: () => {
-          // Update the status in both the master and filtered lists
-          const userInAll = this.allUsers.find(u => u.email === user.email);
-          if (userInAll) userInAll.isActive = newStatus;
-          this.applyFilters(); // Re-apply filters to update the view
-        },
-        error: (err) => console.error('Failed to update user status', err)
-      });
-    }
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        const newStatus = !user.isActive;
+        this.adminService.updateUserStatus(user.email, newStatus).subscribe({
+          next: () => {
+            const userInAll = this.allUsers.find((u) => u.email === user.email);
+            if (userInAll) userInAll.isActive = newStatus;
+            this.applyFilters(); // Re-apply filters to update the view
+          },
+          error: (err) => console.error('Failed to update user status', err),
+        });
+      }
+    });
   }
 }

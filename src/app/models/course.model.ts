@@ -11,4 +11,18 @@ export interface Course {
   published?: boolean;
   rating?: number;
   reviewCount?: number;
+  lessons: Lesson[];
+}
+
+export interface Lesson {
+  lessonID: number;
+  courseID: number;
+  title: string;
+  content: string;
+  videoURL: string;
+  orderIndex: number;
+  lessonType: string;
+  estimatedTime: number;
+  createdAt: string;
+  updatedAt: string | null;
 }
