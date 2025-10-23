@@ -19,7 +19,7 @@ export class CourseService {
     if (dto.published === true) {
       status = 'Published';
     } else {
-      status = 'Push'; 
+      status = 'Unlisted'; 
     }
 
     return {

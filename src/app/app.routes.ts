@@ -57,7 +57,6 @@ export const routes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     { path: 'dashboard', component: InstructorDashboardComponent },
     { path: 'courses', component: InstructorCoursesComponent },
-    // { path: 'students', component: ManageUsers },
     // { path: 'profile', component: Profile }
   ]
   },
