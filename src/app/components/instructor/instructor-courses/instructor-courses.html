@@ -12,8 +12,8 @@
     <table *ngIf="!isLoading && courseList.length > 0">
       <thead>
         <tr>
+          <th>Course Category</th>
           <th>Course Name</th>
-          <!-- <th>Instructor</th> -->
           <th>Lessons</th>
           <th>Total Time</th>
           <th>Status</th>
@@ -22,8 +22,8 @@
       </thead>
       <tbody>
         <tr *ngFor="let course of courseList; trackBy: trackByCourseName"> 
+          <td>{{ course.category }}</td>
           <td>{{ course.name }}</td>
-          <!-- <td>{{ course.instructor }}</td> -->
           <td>{{ course.lessons }}</td>
           <td>{{ course.totalTime }}</td>
           <td> <span class="status-pill" [ngClass]="getStatusClass(course.status)"> {{ course.status }} </span> </td>

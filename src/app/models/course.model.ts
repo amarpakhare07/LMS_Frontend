@@ -26,3 +26,13 @@ export interface Lesson {
   createdAt: string;
   updatedAt: string | null;
 }
+
+// Matches the structure of the C# CourseListDto sent by the backend API
+export interface CourseListDto {
+    courseID: number;
+    title: string;          // Maps to Course.name
+    published: boolean;     // Maps to Course.status
+    totalLessons: number;   // Maps to Course.lessons
+    totalDurationDisplay: string; // Maps to Course.totalTime
+    courseCategory: string;
+}

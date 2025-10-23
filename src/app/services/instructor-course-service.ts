@@ -1,40 +1,42 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
-import { Course } from '../components/instructor/instructor-courses/instructor-courses'; // Import the Course interface
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Course } from '../components/instructor/instructor-courses/instructor-courses'; 
+import { CourseListDto } from '../models/course.model';
+import { environment } from '../../environment'; 
 
 @Injectable({
   providedIn: 'root'
 })
 export class CourseService {
-  // 🚨 Replace this with your actual API URL endpoint for fetching courses
-  // e.g., private apiUrl = '/api/UserManagement/me/courses';
-  private mockApiUrl = '/api/instructor/courses'; 
+  private http = inject(HttpClient);
+  private apiUrl = environment.apiUrl; 
 
-  // Hardcoded data matching your screenshot for initial setup
-  private mockCourses: Course[] = [
-    { name: 'Machine Learning', instructor: 'John Debi', lessons: 32, totalTime: '248 Hr', status: 'Published' },
-    { name: 'Techniques for Reduction', instructor: 'John Debi', lessons: 24, totalTime: '248 Hr', status: 'Published' },
-    { name: 'User Interface Design', instructor: 'John Debi', lessons: 25, totalTime: '248 Hr', status: 'Push' },
-    { name: 'Digital Marketing', instructor: 'John Debi', lessons: 30, totalTime: '248 Hr', status: 'Published' },
-    { name: 'Python Programming', instructor: 'John Debi', lessons: 25, totalTime: '248 Hr', status: 'Upcoming' },
-  ];
-
-  constructor(private http: HttpClient) { }
-
-  /**
-   * Fetches the list of courses for the current instructor.
-   * Currently mocks the HTTP call by returning hardcoded data.
-   */
-  getInstructorCourses(): Observable<Course[]> {
-    // 🚨 To simulate a real API call:
-    // return this.http.get<Course[]>(this.mockApiUrl);
+  private mapDtoToDisplayCourse(dto: CourseListDto, instructorName: string = 'John Debi'): Course {
+    let status: Course['status'];
     
-    // Using mock data for immediate testing:
-    console.log('--- CourseService: Simulating API call for courses ---');
-    return of(this.mockCourses).pipe(
-      delay(500) // Simulate network latency
+    if (dto.published === true) {
+      status = 'Published';
+    } else {
+      status = 'Push'; 
+    }
+
+    return {
+      name: dto.title,
+      instructor: instructorName, 
+      lessons: dto.totalLessons,
+      totalTime: dto.totalDurationDisplay,
+      status: status,
+      category: dto.courseCategory
+    }
+  }
+
+  getInstructorCourses(): Observable<Course[]> {
+    const fullUrl = `${this.apiUrl}/UserManagement/instructor/courses`;
+
+    return this.http.get<CourseListDto[]>(fullUrl).pipe(
+      map(dtos => dtos.map(dto => this.mapDtoToDisplayCourse(dto)))
     );
   }
 }
