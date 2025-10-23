@@ -1,49 +1,97 @@
-.dashboard-layout {
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  min-height: 100vh;
-  background: var(--bg, #f9fafb);
-  color: var(--text, #1b1f24);
+.dashboard-container {
+  /* Occupy remaining screen height below the main app navbar (if any) */
+  height: 100vh; 
 }
 
-.sidebar {
-  min-height: 100vh; /* Ensures sidebar fills vertical space */
-  background: var(--surface, #fff);
-  border-right: 1px solid var(--border, #e5e7eb);
+.sidebar-nav {
+  width: 250px;
+  clip-path: inset(50px 0 0 0); /* Inset 50px from the top */
+  /* Use Material's variables for consistency */
+  border-right: 1px solid var(--mat-sidenav-border-color);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.2s ease-in-out; /* Add transition for smooth animation */
+}
+
+.sidebar-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--mat-sidenav-border-color);
+}
+
+/* Active navigation link styling */
+.sidebar-nav .active {
+  background-color: var(--mat-list-single-selected-option-background-color, rgba(0, 0, 0, 0.04));
+  color: var(--mat-primary-text-color);
+  font-weight: 600;
+}
+.sidebar-nav.sidebar-collapsed {
+  width: 60px; /* New, smaller width for collapsed state */
+}
+
+/* Hide the text content when the sidebar is collapsed */
+.sidebar-nav.sidebar-collapsed mat-nav-list .mat-list-item-title {
+  display: none;
+}
+
+/* Adjust the padding/alignment for mat-list-item in collapsed state */
+.sidebar-nav.sidebar-collapsed .mat-mdc-list-item {
+  padding: 0 !important; /* Remove original padding */
+  justify-content: center; /* Center the content */
+}
+
+.sidebar-nav.sidebar-collapsed .mat-mdc-list-item-title {
+    display: none;
+}
+
+/* Ensure the icon is centered in collapsed state */
+.sidebar-nav.sidebar-collapsed .mat-mdc-list-item-icon {
+  margin-right: 0 !important;
+}
+
+/* Ensure logout button adapts in collapsed state */
+.sidebar-nav.sidebar-collapsed .logout-footer button {
+  min-width: 40px; /* Shrink button width */
+  padding: 8px; /* Adjust padding */
+}
+
+.sidebar-nav.sidebar-collapsed .logout-footer button span {
+  display: none; /* Hide the logout text */
+}
+
+/* Keep icon in place */
+.sidebar-nav.sidebar-collapsed .logout-footer button mat-icon {
+    margin: 0;
+}
+
+.logout-footer {
+  margin-top: auto; /* Pushes the logout button to the bottom */
   padding: 1rem;
-  box-shadow: var(--elev-1, 0 1px 2px rgba(0,0,0,.08));
 }
 
-.sidebar-title {
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
+/* ---------------------------------------------------- */
+/* Main Content/Toolbar Styles */
+/* ---------------------------------------------------- */
+
+.dashboard-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
 }
 
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  gap: 0.5rem;
+.toolbar-spacer {
+  flex: 1 1 auto;
 }
 
-.sidebar a {
-  display: block;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  text-decoration: none;
-  color: var(--text);
-  transition: background 0.2s ease;
+.content-router-outlet {
+  padding: 24px;
+  flex-grow: 1;
 }
 
-.sidebar a:hover {
-  background: var(--surface-muted, #f6f7f9);
+/* Hide the menu icon on large screens where the sidebar is always open */
+@media (min-width: 768px) {
+  .dashboard-toolbar button:first-child {
+    display: none;
+  }
 }
 
-.sidebar a.active {
-  background: rgba(37, 99, 235, 0.12);
-  font-weight: bold;
-}
-
-.content {
-  padding: 2rem;
-}

@@ -35,7 +35,11 @@ export class AuthService {
       this.router.navigate(['/admin']);
     } else if (userRole === 'Instructor') {
       this.router.navigate(['/instructor']);
-    } else {
+    } 
+    else if (userRole === 'Student') {
+      this.router.navigate(['/student']);
+    }
+    else {
       this.router.navigate(['/home']);
     }
   }
