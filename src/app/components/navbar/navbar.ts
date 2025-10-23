@@ -19,7 +19,7 @@ import { MatMenuModule } from '@angular/material/menu';
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
-    MatMenuModule
+    MatMenuModule,
   ],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.css']
