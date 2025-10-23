@@ -16,6 +16,7 @@ export class CourseService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
 
+
   getCourse(courseId: number): Observable<Course> {
     return this.http.get<Course>(`${this.apiUrl}/Course/${courseId}`).pipe(
       map(c => ({

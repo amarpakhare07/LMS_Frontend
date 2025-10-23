@@ -1,0 +1,179 @@
+
+.page-container {
+  padding: 2rem;
+  background-color: #f8f9fa;
+  min-height: 100%;
+}
+
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.filter-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem; 
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  margin-bottom: 2rem;
+}
+
+.search-field {
+  width: 350px;
+  max-width: 100%;
+}
+
+.filters {
+  display: flex;
+  gap: 1.5rem; 
+  flex-wrap: wrap;
+}
+
+.filters .mat-mdc-form-field {
+  width: 180px;
+  /* Keep the form field from adding extra space at the bottom */
+  margin-bottom: -1.25em;
+}
+
+.loading-container,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 0;
+  gap: 1rem;
+  color: #6c757d;
+  text-align: center;
+}
+
+.empty-state-icon {
+    font-size: 5rem;
+    width: 5rem;
+    height: 5rem;
+    margin-bottom: 1rem;
+}
+
+/* Course Grid */
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+/* Course Card (Reusing admin card styles for look & feel) */
+.course-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.mat-mdc-card-header {
+  padding-bottom: 0;
+}
+
+.mat-mdc-card-image {
+    height: 180px;
+    object-fit: cover;
+}
+
+.mat-mdc-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 5px; /* Added spacing after subtitle */
+}
+
+.mat-mdc-card-subtitle {
+  color: #00BCD4; /* Cyan */
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+/* Student-specific card content */
+.course-card .mat-mdc-card-content {
+    padding-top: 8px; /* Reduce space after title group */
+    padding-bottom: 8px; /* Allow space for actions */
+    flex-grow: 1; /* Pushes the actions to the bottom */
+}
+
+.course-card .instructor-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+/* --- RATING STYLES (NEW) --- */
+.rating-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.rating-row .star-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #ddd; /* Unfilled star color */
+}
+
+.rating-row .star-icon.filled {
+  color: #FFB300; /* Filled star color (Gold) */
+}
+
+.rating-row .rating-value {
+    margin-left: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+
+/* --- PROGRESS INDICATOR STYLES (NEW) --- */
+.progress-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.progress-bar-outline {
+    flex-grow: 1;
+    height: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #512DA8; /* Purple for progress */
+    transition: width 0.3s;
+    border-radius: 4px;
+}
+
+.progress-text {
+    font-size: 0.8rem;
+    color: #555;
+    flex-shrink: 0;
+}
+
+
+/* --- ACTION BUTTON --- */
+.course-card-actions.course-actions {
+    padding-top: 0;
+    padding-bottom: 16px;
+    justify-content: flex-end;
+}
+
+
+

@@ -50,7 +50,7 @@ export class AdminDashboard implements OnInit, AfterViewInit {
   error: string | null = null;
 
   // --- MatTable Properties ---
-  displayedColumns: string[] = ['name', 'email', 'role', 'status'];
+  displayedColumns: string[] = ['name', 'email', 'role', 'status', 'lastLogin'];
   dataSource = new MatTableDataSource<User>([]);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
