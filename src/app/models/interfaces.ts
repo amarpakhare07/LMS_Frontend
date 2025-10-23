@@ -8,6 +8,7 @@ export interface User {
   bio: string | null;
   profilePicture: string | null;
   lastLogin: string;
+  role: number; // 1 = Student, 2 = Instructor, 3 = Admin
   updatedAt: string;
   isActive: boolean;
   isDeleted: boolean;

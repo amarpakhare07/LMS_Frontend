@@ -62,6 +62,7 @@ export class ManageUsers implements OnInit, AfterViewInit {
 
   searchTerm: string = '';
   statusFilter: string = 'all';
+  roleFilter: string = 'all';
 
   ngOnInit(): void {
     this.loadUsers();
@@ -79,6 +80,7 @@ export class ManageUsers implements OnInit, AfterViewInit {
       next: (data) => {
         this.allUsers = data;
         this.applyFilters(); // Apply initial filters
+        // this.applyFiltersByRoles();
         this.isLoading = false;
       },
       error: (err) => {
@@ -88,12 +90,26 @@ export class ManageUsers implements OnInit, AfterViewInit {
     });
   }
 
+  // applyFiltersByRoles(): void {
+  //   let users = [...this.allUsers];
+   
+  //   this.dataSource.data = users;
+  // }
+
   applyFilters(): void {
     let users = [...this.allUsers];
 
     if (this.statusFilter !== 'all') {
       const isActive = this.statusFilter === 'active';
       users = users.filter((user) => user.isActive === isActive);
+    }
+
+     if (this.roleFilter !== 'all') {
+      users = users.filter((user) => {
+        if (this.roleFilter === 'student') return user.role === 1;
+        if (this.roleFilter === 'instructor') return user.role === 2;
+        return true;
+      });
     }
 
     if (this.searchTerm) {
