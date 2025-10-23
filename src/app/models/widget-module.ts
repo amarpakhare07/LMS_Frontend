@@ -7,11 +7,4 @@ export interface SummaryCard {
   colorClass: string; // e.g., 'blue', 'green', 'orange'
 }
 
-// Interface for the Top Courses table
-export interface Course {
-  name: string;
-  instructor: string;
-  lessons: number;
-  totalTime: string;
-  status: 'Published' | 'Draft' | 'Upcoming' | 'Push';
-}
+

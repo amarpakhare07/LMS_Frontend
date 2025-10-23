@@ -1,24 +1,38 @@
 <div class="dashboard-container">
+  <!-- Dynamic Instructor Name in Header -->
   <header class="dashboard-header">
-    <h1>Welcome Back, Jhon!</h1>
-    <p>Track Your Progress and Discover Courses</p>
+    <h1>Welcome Back, {{ instructorName }}!</h1>
+    <p>Manage Your Courses and Track Student Performance</p>
   </header>
-  <section class="summary-cards-grid"> <app-widget *ngFor="let card of summaryCards" [cardData]="card"></app-widget>
+  
+  <!-- Summary Cards Grid (Displays data from DashboardService) -->
+  <section class="summary-cards-grid"> 
+    <app-widget *ngFor="let card of summaryCards" [cardData]="card"></app-widget>
   </section>
+  
+  <!-- Analytics/Chart Section -->
   <section class="analytics-grid">
     <div class="chart-panel overview-chart">
       <h2>Overview</h2>
-      <div class="chart-controls"> <span class="active">Students</span> | <span>Teacher</span> | <span>Other</span>
-        <span class="year-selector">2025 ▼</span> </div>
+      <div class="chart-controls"> 
+        <span class="active">Students</span> | 
+        <span>Teacher</span> | 
+        <span>Other</span>
+        <span class="year-selector">2025 ▼</span> 
+      </div>
       <div class="chart-placeholder">[Bar Chart Placeholder]</div>
     </div>
     <div class="chart-panel student-analysis-chart">
-      <h2>Student Analysis </h2>
-      <div class="chart-controls"> <span class="year-selector">2025 ▼</span> </div>
+      <h2>Student Analysis </h2>
+      <div class="chart-controls"> 
+        <span class="year-selector">2025 ▼</span> 
+      </div>
       <div class="chart-placeholder">[Area/Line Chart Placeholder]</div>
     </div>
   </section>
-  <section class="top-courses-table">
+  
+  <!-- Top Courses Table - Left commented out as in original request -->
+  <!-- <section class="top-courses-table">
     <header>
       <h2>Top Courses</h2>
       <div class="search-box"><mat-icon>search</mat-icon></div>
@@ -51,5 +65,5 @@
         </tbody>
       </table>
     </div>
-  </section>
+  </section> -->
 </div>
