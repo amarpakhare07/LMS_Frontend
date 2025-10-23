@@ -7,7 +7,7 @@ import { RouterOutlet } from '@angular/router';
 @Component({
   selector: 'app-instructor',
   standalone: true,
-  //imports: [CommonModule, DashboardLayout, RouterOutlet],
+  imports: [CommonModule, DashboardLayout, RouterOutlet],
   templateUrl: './instructor.html',
   styleUrls: ['./instructor.css',]
 })

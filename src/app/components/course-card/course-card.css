@@ -107,7 +107,7 @@
   right: 16px;
   
   /* Make it a circle */
-  background: var(--mat-accent-color, #0f5132); 
+  background: var(--mat-accent-color, #4b106a);
   color: white;
   border-radius: 50%;
   width: 40px;
