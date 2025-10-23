@@ -16,6 +16,7 @@ import { CourseDetailComponent } from './components/course/course-detail/course-
 import { enrolledGuard } from './services/enrolled-guard';
 import { CourseLearn } from './components/course/course-learn/course-learn';
 import { publicGuard } from './services/public-guard';
+import { InstructorCoursesComponent } from './components/instructor/instructor-courses/instructor-courses';
 
 
 export const routes: Routes = [
@@ -49,8 +50,8 @@ export const routes: Routes = [
   data: { expectedRole: 'Instructor' },
   children: [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-    { path: 'dashboard', component: InstructorDashboardComponent }
-    // { path: 'courses', component: ManageCourses },
+    { path: 'dashboard', component: InstructorDashboardComponent },
+    { path: 'courses', component: InstructorCoursesComponent },
     // { path: 'students', component: ManageUsers },
     // { path: 'profile', component: Profile }
   ]

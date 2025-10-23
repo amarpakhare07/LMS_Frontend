@@ -15,7 +15,7 @@ export class InstructorLayout {
   navItems: DashboardNavItem[] = [
     { label: 'Dashboard', path: 'dashboard', icon: 'dashboard' },
     { label: 'Courses', path: 'courses', icon: 'book' },
-    { label: 'Students', path: 'students', icon: 'people' },
+    // { label: 'Enrolled Students', path: 'students', icon: 'people' },
     { label: 'Profile', path: 'profile', icon: 'account_circle' }
   ];
 }
