@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 
 // --- Services and Models ---
-import { CourseService } from '../../services/course-servics';
+import { CourseService } from '../../services/course-service';
 import { AdminService } from '../../services/admin-service'; // <-- Import AdminService
 import { Course } from '../../models/course.model';
 import { Category } from '../../models/interfaces'; // <-- Import Category

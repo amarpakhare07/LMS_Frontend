@@ -25,6 +25,10 @@ export class CourseService {
     );
   }
 
+  getAllCourses(): Observable<Course[]> {
+    return this.http.get<Course[]>(`${this.apiUrl}/Course`);
+  }
+
   isEnrolled(courseId: number): Observable<boolean> {
     return this.http
       .get<{isEnrolled: boolean}>(`${this.apiUrl}/Enrollment/is-enrolled/${courseId}`)
