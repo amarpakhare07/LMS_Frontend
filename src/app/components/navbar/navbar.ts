@@ -29,10 +29,12 @@ export class Navbar {
 
   isLoggedIn$: Observable<boolean>;
   currentUser$: Observable<DecodedToken | null>;
+  userRole$: string | null;
 
   constructor() {
     this.isLoggedIn$ = this.authService.isLoggedIn$;
     this.currentUser$ = this.authService.currentUser$;
+    this.userRole$ = this.authService.getUserRole();
   }
 
   logout(): void {
