@@ -1,0 +1,91 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="mat-h1">My Courses</h1>
+    <p class="mat-body-1">View and manage your enrolled courses, monitor your progress, and resume learning.</p>
+  </div>
+
+  <mat-toolbar class="filter-toolbar">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search my courses</mat-label>
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput [(ngModel)]="searchTerm" (input)="applyFilters()">
+    </mat-form-field>
+
+    <div class="filters" style="margin-bottom: 20px;">
+      <mat-form-field appearance="outline">
+        <mat-label>Category</mat-label>
+        <mat-select [(ngModel)]="categoryFilter" (selectionChange)="applyFilters()">
+          <mat-option [value]="'all'">All Categories</mat-option>
+          <mat-option *ngFor="let cat of allCategories" [value]="cat.categoryID">{{ cat.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- <mat-form-field appearance="outline">
+        <mat-label>Sort By</mat-label>
+        <mat-select [(ngModel)]="sortFilter" (selectionChange)="applyFilters()">
+          <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+            {{ option.viewValue }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field> -->
+
+      </div>
+  </mat-toolbar>
+  
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading your enrolled courses...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="content-area">
+    <div *ngIf="filteredCourses.length > 0; else noCourses" class="course-grid">
+      
+      <mat-card *ngFor="let course of filteredCourses" class="course-card">
+        <img mat-card-image [src]="course.thumbnailURL || 'assets/placeholder.png'" [alt]="course.title">
+        
+        <mat-card-header>
+          <mat-card-subtitle>{{ getCategoryName(course.categoryID) }}</mat-card-subtitle>
+          <mat-card-title>{{ course.title }}</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+            <!-- <div class="instructor-text">By {{ course.instructor }}</div> -->
+             <div class="instructor-text">By Mark Spencer</div>
+
+            <div class="rating-row" [matTooltip]="(course.rating || 0).toFixed(1) + ' out of 5 stars'">
+                <mat-icon *ngFor="let i of [1,2,3,4,5]" 
+                          [class.filled]="i <= course.rating" 
+                          class="star-icon">
+                    star
+                </mat-icon>
+                <span class="rating-value">{{ (course.rating || 0).toFixed(1) }}</span>
+            </div>
+
+            <!-- <div class="progress-container">
+                <div class="progress-bar-outline">
+                    <div class="progress-fill" [style.width.%]="course.progress"></div>
+                </div>
+                <span class="progress-text">{{ course.progress }}% complete</span>
+            </div> -->
+        </mat-card-content>
+
+        <mat-card-actions class="course-actions">
+          <button mat-flat-button color="primary" [routerLink]="['/student/course', course.courseID]">
+            <mat-icon>play_arrow</mat-icon>
+            Go to Course
+          </button>
+        </mat-card-actions>
+      </mat-card>
+
+    </div>
+
+    <ng-template #noCourses>
+      <div class="empty-state">
+        <mat-icon class="empty-state-icon">search_off</mat-icon>
+        <h2>No Courses Found</h2>
+        <p>Your search and filter criteria did not match any enrolled courses.</p>
+        <button mat-flat-button color="accent" routerLink="/courses/all">Browse Courses</button>
+      </div>
+    </ng-template>
+  </div>
+</div>

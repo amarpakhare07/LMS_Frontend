@@ -1,0 +1,174 @@
+.mat-headline-medium {
+  margin-bottom: 20px;
+  color: #3f51b5; /* Material Primary */
+}
+
+.profile-card {
+  max-width: 450px;
+  margin: 0 auto;
+  /* Reduced padding on the card itself */
+  padding: 15px; 
+}
+
+/* Reduce the padding of the card content for a tighter fit */
+/* This rule must be outside a component's encapsulation if targeting the mat-card-content child directly */
+.profile-card mat-card-content {
+  padding: 10px; /* Reduced from 15px */
+}
+
+.profile-header {
+  /* This container will wrap the centered image and the absolutely positioned actions */
+  position: relative; /* Needed for absolute positioning of actions */
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  align-items: center; /* Center children (the image container) horizontally */
+  margin-bottom: 15px;
+}
+
+/* Profile Image Styling */
+.profile-image-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-right: 0px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-upload-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Show upload button when hovering or in edit mode */
+.profile-image-container:hover .image-upload-overlay,
+.image-upload-overlay:has(button:focus) {
+  opacity: 1;
+}
+
+.profile-actions {
+  position: absolute; /* Take button out of flow */
+  top: 0; /* Position relative to the top of .profile-header */
+  right: 0;
+  flex-grow: 0; /* No need to grow */
+  text-align: right;
+}
+
+/* Reduced size icon */
+.small-icon {
+  font-size: 18px !important; /* Smaller font size for the icon */
+  height: 18px !important;    /* Adjust height to match */
+  width: 18px !important;    /* Adjust width to match */
+  line-height: 18px !important; /* Ensure proper vertical alignment */
+}
+
+
+
+
+/* Form Styling */
+.full-width {
+  width: 100%;
+  margin-bottom: 5px; /* Reduced space between fields */
+}
+
+/* Reduce the overall height of the mat-form-field */
+.mat-form-field.full-width {
+  line-height: 1.2; /* Tighter line spacing */
+}
+
+/* Target the input container (the outline box) to shrink its height */
+.mat-form-field-appearance-outline .mat-form-field-wrapper {
+  padding-bottom: 0.8em; /* Reduced from default (~1.25em) */
+}
+
+/* Target the container holding the actual input element */
+.mat-form-field-appearance-outline .mat-form-field-flex {
+  padding: 0 0.75em; /* Reduce horizontal padding */
+}
+
+/* Reduce padding inside the input/textarea field itself */
+.mat-form-field-appearance-outline .mat-form-field-infix {
+  padding: 0.5em 0 0.8em 0; /* Reduced top/bottom padding for input */
+}
+
+/* Adjust the floating label position to look right with reduced padding */
+.mat-form-field-appearance-outline .mat-form-field-label {
+  margin-top: -0.1em; /* Slight lift for the label */
+}
+
+/* Specifically target the textarea for the Bio field */
+.mat-form-field-appearance-outline textarea.mat-input-element {
+  padding: 0.5em 0; /* Reduced vertical padding for multiline text */
+}
+
+/* Make sure your error messages don't take up too much vertical space */
+.mat-error {
+  font-size: 11px; /* Smaller font for errors */
+  margin-top: -3px; /* Pull error text up slightly */
+}
+
+
+/* --- NEW LAYOUT RULES FOR BOTTOM SECTION (Side-by-Side) --- */
+
+.bottom-info-actions {
+  display: flex;
+  justify-content: space-between; /* Push items to opposite ends */
+  align-items: center; /* Align items to the bottom line (makes text and button line up) */
+  margin-top: 15px;
+  padding: 0 5px; /* Match the padding of the form fields for alignment */
+}
+
+/* Adjust the Last Login Info style for the new layout */
+.last-login-info {
+  font-size: 14px;
+  color: #757575;
+  margin: 0; /* Remove existing top margin */
+  padding: 0; /* Remove existing left/right padding */
+  /* Line-height helps align the text with the vertical center of the mat-raised-button */
+   margin-top: 5px;
+}
+
+/* Adjust form-actions to align the button correctly within the new container */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0; /* Remove margin-top/bottom as it's handled by .bottom-info-actions */
+  padding-right: 0;
+}
+
+ 
+
+.last-login-container {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #555;
+}
+
+.last-login-icon {
+  margin-right: 8px;
+  font-size: 20px;
+}
+
+.last-login-text {
+  font-weight: 500;
+}

@@ -18,6 +18,18 @@ import { CourseLearn } from './components/course/course-learn/course-learn';
 import { publicGuard } from './services/public-guard';
 
 
+// import { StudentLayout } from './components/student/layout/student-layout/student-layout';
+// import { StudentDashboard } from './components/student/dashboard/student-dashboard/student-dashboard';
+// import { StudentMyCourses } from './components/student/my-courses/student-my-courses/student-my-courses';
+// import { StudentQuiz } from './components/student/quiz/student-quiz/student-quiz';
+// import { StudentQuizHistory } from './components/student/quiz-history/student-quiz-history/student-quiz-history';
+import { StudentLayout } from './components/student/layout/student-layout/student-layout';
+//import { StudentDashboardComponent } from './components/student/dashboard/student-dashboard/student-dashboard';
+import { DashboardComponent as StudentDashboardComponent } from './components/student/dashboard/student-dashboard/student-dashboard';
+import { MyCoursesComponent } from './components/student/my-courses/student-my-courses/student-my-courses';
+import { ProfileComponent } from './components/student/my-profile/my-profile/my-profile';
+//import { StudentQuiz } from './components/student/quiz/quiz';
+// ...existing code...
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [publicGuard] },
   { path: 'register', component: Register, canActivate: [publicGuard] },
@@ -65,10 +77,22 @@ export const routes: Routes = [
     component: CourseLearn,
     canActivate: [authGuard, enrolledGuard]
   },
-
+  {
+    path: 'student',
+    component: StudentLayout,
+    canActivate: [authGuard], // Protect the route
+    data: {
+      expectedRole: 'Student', // For role-based access control
+    },
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: StudentDashboardComponent },
+      { path: 'my-courses', component: MyCoursesComponent },
+      { path: 'profile', component: ProfileComponent },
+    ]
+  },
   // Redirect to home by default if logged in, otherwise guard will redirect to login
   { path: '', redirectTo: '/home', pathMatch: 'full' },
-  { path: 'unauthorized', component: Unauthorized },
   // Wildcard route for 404
   { path: '**', redirectTo: '/unauthorized' },
 ];
