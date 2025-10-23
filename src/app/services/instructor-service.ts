@@ -28,6 +28,7 @@ export class DashboardService {
     // We mock this simple string/value here and combine it later
     const totalEarning$ = of('$8,015.30'); 
 
+    
     // Combine all three observables.
     return forkJoin({ user: user$, analytics: analytics$, totalEarning: totalEarning$ }).pipe(
       map(results => {
