@@ -80,11 +80,7 @@ getCurrentUserId(): number | null {
         this.router.navigate(['/admin']);
       } else if (user.role === 'Instructor') {
         this.router.navigate(['/instructor']);
-      } 
-      else if (user.role === 'Student') {
-        this.router.navigate(['/student']);
-      }
-      else {
+      } else {
         this.router.navigate(['/home']);
       }
     } catch (error) {
