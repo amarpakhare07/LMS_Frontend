@@ -13,12 +13,8 @@ import { QuizResultsService } from '../../../services/quiz-results.service';
   selector: 'app-quiz-results',
   standalone: true,
   imports: [
-    CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDividerModule,
-    MatChipsModule
+    CommonModule, MatCardModule, MatButtonModule,
+    MatIconModule, MatDividerModule, MatChipsModule
   ],
   templateUrl: './quiz-result.html',
   styleUrls: ['./quiz-result.scss']
@@ -32,7 +28,6 @@ export class QuizResultsComponent implements OnInit, OnDestroy {
   quizTitle: string = '';
   courseId: number = 0;
   quizId: number = 0;
-
   correctAnswers: number = 0;
   incorrectAnswers: number = 0;
   grade: string = '';
@@ -44,16 +39,15 @@ export class QuizResultsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // ✅ CRITICAL FIX: Get data from service instead of router state
+    // ✅ Get data from service
     const results = this.quizResultsService.getResults();
-    
+
     if (!results) {
       console.error('No quiz results found');
       this.router.navigate(['/home']);
       return;
     }
 
-    // Load all data from service
     this.score = results.score;
     this.totalMarks = results.totalMarks;
     this.answers = results.answers;
@@ -66,13 +60,12 @@ export class QuizResultsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // Clear results when leaving the page
     this.quizResultsService.clearResults();
   }
 
   calculateResults() {
-    this.percentage = this.totalMarks > 0 
-      ? Math.round((this.score / this.totalMarks) * 100) 
+    this.percentage = this.totalMarks > 0
+      ? Math.round((this.score / this.totalMarks) * 100)
       : 0;
 
     this.correctAnswers = this.answers.filter(a => a.isCorrect).length;
@@ -100,19 +93,12 @@ export class QuizResultsComponent implements OnInit, OnDestroy {
   }
 
   getMotivationalMessage(): string {
-    if (this.percentage >= 90) {
-      return '🎉 Outstanding! You\'re a star!';
-    } else if (this.percentage >= 80) {
-      return '👏 Excellent work! Keep it up!';
-    } else if (this.percentage >= 70) {
-      return '👍 Good job! You\'re doing well!';
-    } else if (this.percentage >= 60) {
-      return '💪 Not bad! Keep practicing!';
-    } else if (this.percentage >= 50) {
-      return '📚 You can do better! Review and try again!';
-    } else {
-      return '🌟 Don\'t give up! Learning takes time!';
-    }
+    if (this.percentage >= 90) return '🎉 Outstanding! You\'re a star!';
+    if (this.percentage >= 80) return '👏 Excellent work! Keep it up!';
+    if (this.percentage >= 70) return '👍 Good job! You\'re doing well!';
+    if (this.percentage >= 60) return '💪 Not bad! Keep practicing!';
+    if (this.percentage >= 50) return '📚 You can do better! Review and try again!';
+    return '🌟 Don\'t give up! Learning takes time!';
   }
 
   retakeQuiz() {
@@ -129,12 +115,9 @@ export class QuizResultsComponent implements OnInit, OnDestroy {
 
   shareResults() {
     const text = `I scored ${this.score}/${this.totalMarks} (${this.percentage}%) on ${this.quizTitle}!`;
-
     if (navigator.share) {
-      navigator.share({
-        title: 'Quiz Results',
-        text: text,
-      }).catch(err => console.log('Error sharing:', err));
+      navigator.share({ title: 'Quiz Results', text: text })
+        .catch(err => console.log('Error sharing:', err));
     } else {
       navigator.clipboard.writeText(text)
         .then(() => alert('Results copied to clipboard!'))

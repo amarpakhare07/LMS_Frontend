@@ -223,3 +223,60 @@
   .sidebar.open { transform: translateX(0); }
   .player { padding-bottom: 48px; }
 }
+
+/* Quiz Button in Sidebar (Desktop) */
+.quiz-btn-sidebar {
+width: 100%;
+margin-top: 12px;
+padding: 12px 16px !important;
+font-weight: 600 !important;
+letter-spacing: 0.5px;
+box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+transition: all 0.3s ease;
+}
+
+.quiz-btn-sidebar:hover {
+transform: translateY(-2px);
+box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+}
+
+.quiz-btn-sidebar mat-icon {
+margin-right: 8px;
+}
+
+/* Quiz Button in Topbar (Mobile) */
+.quiz-btn-mobile {
+color: #ff9800;
+margin-left: auto;
+}
+
+.quiz-btn-mobile:hover {
+background-color: rgba(255, 152, 0, 0.1);
+}
+
+/* Update sidebar header to accommodate button */
+.sidebar-header {
+padding: 20px;
+border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+.quiz-btn-sidebar {
+padding: 10px 14px !important;
+font-size: 14px;
+}
+
+.quiz-btn-mobile {
+display: inline-flex;
+}
+}
+
+@media (min-width: 769px) {
+.quiz-btn-mobile {
+display: none;
+}
+}

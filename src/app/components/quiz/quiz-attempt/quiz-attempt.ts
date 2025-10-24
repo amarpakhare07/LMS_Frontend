@@ -10,7 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
 import { QuizService } from '../../../services/quiz.service';
 import { QuestionService } from '../../../services/question.service';
 import { AnswerService } from '../../../services/answer.service';
@@ -27,17 +27,9 @@ import { AuthService } from '../../../services/auth-service';
   selector: 'app-quiz-attempt',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    MatCardModule,
-    MatButtonModule,
-    MatRadioModule,
-    MatProgressBarModule,
-    MatIconModule,
-    MatSnackBarModule,
-    MatChipsModule,
-    MatProgressSpinnerModule,
-    MatDialogModule
+    CommonModule, FormsModule, MatCardModule, MatButtonModule,
+    MatRadioModule, MatProgressBarModule, MatIconModule,
+    MatSnackBarModule, MatChipsModule, MatProgressSpinnerModule, MatDialogModule
   ],
   templateUrl: './quiz-attempt.html',
   styleUrls: ['./quiz-attempt.scss']
@@ -57,7 +49,6 @@ export class QuizAttemptComponent implements OnInit, OnDestroy {
   lastAnswerCorrect = false;
   lastMarksAwarded = 0;
   answerLocked = false;
-
   timeRemaining: number = 0;
   timerSubscription?: Subscription;
   timerDisplay = '00:00';
@@ -71,7 +62,6 @@ export class QuizAttemptComponent implements OnInit, OnDestroy {
     private quizScoreService: QuizScoreService,
     private quizResultsService: QuizResultsService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog,
     private authService: AuthService
   ) {}
 
@@ -79,7 +69,7 @@ export class QuizAttemptComponent implements OnInit, OnDestroy {
     this.route.params.subscribe(params => {
       this.quizId = +params['quizId'];
       this.courseId = +params['courseId'];
-      
+
       if (this.quizId && this.courseId) {
         this.initializeQuiz();
       } else {
@@ -190,9 +180,7 @@ export class QuizAttemptComponent implements OnInit, OnDestroy {
       });
       return;
     }
-    if (this.answerLocked) {
-      return;
-    }
+    if (this.answerLocked) return;
 
     this.answerLocked = true;
     this.submitting = true;
@@ -204,11 +192,8 @@ export class QuizAttemptComponent implements OnInit, OnDestroy {
       attemptNumber: this.quizData.currentAttemptNumber
     };
 
-    console.log('Submitting answer:', answer);
-
     this.answerService.submitAnswer(answer).subscribe({
       next: (result) => {
-        console.log('Answer result:', result);
         this.submitting = false;
         this.showFeedback = true;
         this.lastAnswerCorrect = !!result.isCorrect;
@@ -262,7 +247,7 @@ export class QuizAttemptComponent implements OnInit, OnDestroy {
     this.submitting = true;
 
     const userId = this.authService.getCurrentUserId();
-    
+
     if (!userId) {
       this.showError('User not authenticated. Please login again.');
       this.submitting = false;
@@ -282,7 +267,7 @@ export class QuizAttemptComponent implements OnInit, OnDestroy {
       next: (response) => {
         console.log('Submit response:', response);
 
-        // ✅ CRITICAL FIX: Store results in a SERVICE instead of router state
+        // ✅ Store results in service
         this.quizResultsService.setResults({
           score: response.score,
           totalMarks: this.quizData.totalMarks || 0,
@@ -293,7 +278,7 @@ export class QuizAttemptComponent implements OnInit, OnDestroy {
           quizId: this.quizId
         });
 
-        // Navigate to results WITHOUT state
+        // Navigate to results
         this.router.navigate([`/course/${this.courseId}/quiz/results`]);
       },
       error: (error) => {

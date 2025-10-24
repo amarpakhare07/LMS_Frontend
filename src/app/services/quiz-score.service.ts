@@ -26,7 +26,8 @@ export class QuizScoreService {
   }
 
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('authToken');
+    // ✅ FIXED: Changed from 'authToken' to 'auth_token'
+    const token = localStorage.getItem('auth_token');
     return new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': token ? `Bearer ${token}` : ''
