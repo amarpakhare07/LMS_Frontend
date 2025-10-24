@@ -1,7 +1,15 @@
 <section class="top-courses-table">
   <header>
-    <h2>Top Courses</h2>
-    <div class="search-box"><mat-icon>search</mat-icon></div>
+    <h2>Courses</h2>
+    <div class="header-actions">
+        <button 
+          class="create-course-btn"
+          (click)="createCourse()">
+            <mat-icon class="mr-1 text-base">add_circle_outline</mat-icon>
+            Create Course
+        </button>
+        <!-- <div class="search-box"><mat-icon>search</mat-icon></div> -->
+    </div>
   </header>
   
   <div class="table-scroll-wrapper">

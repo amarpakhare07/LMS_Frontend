@@ -17,6 +17,7 @@ import { enrolledGuard } from './services/enrolled-guard';
 import { CourseLearn } from './components/course/course-learn/course-learn';
 import { publicGuard } from './services/public-guard';
 import { InstructorCoursesComponent } from './components/instructor/instructor-courses/instructor-courses';
+import { InstructorCreateCourseComponent } from './components/instructor/instructor-createcourse/instructor-createcourse';
 
 
 import { StudentLayout } from './components/student/layout/student-layout/student-layout';
@@ -57,6 +58,7 @@ export const routes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     { path: 'dashboard', component: InstructorDashboardComponent },
     { path: 'courses', component: InstructorCoursesComponent },
+    { path: 'create-course', component: InstructorCreateCourseComponent },
     // { path: 'profile', component: Profile }
   ]
   },

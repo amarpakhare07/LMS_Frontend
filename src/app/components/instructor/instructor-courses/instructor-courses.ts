@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { HttpClientModule } from '@angular/common/http'; 
 import { CourseService } from '../../../services/instructor-course-service'; 
+import { Router } from '@angular/router';
 
 // Define the structure for a course object (component's expected data format)
 export interface Course {
@@ -30,7 +31,7 @@ export class InstructorCoursesComponent implements OnInit {
   courseList: Course[] = []; 
   isLoading: boolean = true; 
 
-  constructor(private courseService: CourseService) { }
+  constructor(private courseService: CourseService, private router: Router) { }
 
   ngOnInit(): void {
     this.fetchCourses();
@@ -69,9 +70,14 @@ export class InstructorCoursesComponent implements OnInit {
   }
   
   viewCourse(course: Course): void { 
+    this.router.navigate(['/instructor/course', course.name]);
    }
   editCourse(course: Course): void { 
   }
   deleteCourse(course: Course): void {
   }
+  createCourse(): void {
+    this.router.navigate(['/instructor/create-course']);
+  }
+
 }

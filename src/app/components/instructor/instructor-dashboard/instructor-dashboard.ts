@@ -77,7 +77,7 @@ export class InstructorDashboardComponent implements OnInit {
             title: 'Total Course',
             value: `${metrics.totalCourses}`, 
             trend: '-12.11%', // 🚨 Hardcoded presentation detail
-            iconName: 'book', 
+            iconName: 'library_books', 
             colorClass: 'green' // 🚨 Hardcoded presentation detail
         },
         {
