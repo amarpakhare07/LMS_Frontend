@@ -10,7 +10,7 @@ import { AdminDashboard } from './components/admin/dashboard/dashboard';
 import { AdminLayout } from './components/admin/layout/layout';
 import { HomeComponent } from './components/home/home';
 import { InstructorLayout } from './components/instructor/instructor';
-import { Unauthorized } from './components/unauthorized/unauthorized';
+import { Unauthorized } from './components/shared/unauthorized/unauthorized';
 import { InstructorDashboardComponent } from './components/instructor/instructor-dashboard/instructor-dashboard';
 import { CourseDetailComponent } from './components/course/course-detail/course-detail';
 import { enrolledGuard } from './services/enrolled-guard';
@@ -28,13 +28,22 @@ import { QuizListComponent } from './components/quiz/quiz-list/quiz-list';
 import { QuizAttemptComponent } from './components/quiz/quiz-attempt/quiz-attempt';
 import { QuizResultsComponent } from './components/quiz/quiz-result/quiz-result';
 import { quizEnrolledGuard } from './services/quiz-enrolled.guard';
+import { About } from './components/shared/about/about';
+import { ContactUs } from './components/shared/contact-us/contact-us';
 
 export const routes: Routes = [
   // Public Routes
   { path: 'login', component: LoginComponent, canActivate: [publicGuard] },
   { path: 'register', component: Register, canActivate: [publicGuard] },
   { path: 'register-instructor', component: RegisterInstructor, canActivate: [publicGuard] },
-
+  {
+    path:'about',
+    component: About
+  },
+  {
+    path:'contact',
+    component: ContactUs
+  },
   // Home
   {
     path: 'home',
