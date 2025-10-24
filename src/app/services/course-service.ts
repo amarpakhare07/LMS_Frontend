@@ -16,6 +16,7 @@ export class CourseService {
   private http = inject(HttpClient);
   private apiUrl = environment.apiUrl;
 
+
   getCourse(courseId: number): Observable<Course> {
     return this.http.get<Course>(`${this.apiUrl}/Course/${courseId}`).pipe(
       map(c => ({
@@ -23,6 +24,10 @@ export class CourseService {
         lessons: [...(c.lessons ?? [])].sort((a, b) => a.orderIndex - b.orderIndex)
       }))
     );
+  }
+
+  getAllCourses(): Observable<Course[]> {
+    return this.http.get<Course[]>(`${this.apiUrl}/Course`);
   }
 
   isEnrolled(courseId: number): Observable<boolean> {

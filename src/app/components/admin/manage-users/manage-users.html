@@ -13,6 +13,17 @@
 
     <div class="filters">
       <mat-form-field appearance="outline">
+        <mat-label>Role</mat-label>
+        <mat-select [(ngModel)]="roleFilter" (selectionChange)="applyFilters()">
+          <mat-option value="all">All</mat-option>
+          <mat-option value="student">Student</mat-option>
+          <mat-option value="instructor">Instructor</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="filters">
+      <mat-form-field appearance="outline">
         <mat-label>Status</mat-label>
         <mat-select [(ngModel)]="statusFilter" (selectionChange)="applyFilters()">
           <mat-option value="all">All</mat-option>

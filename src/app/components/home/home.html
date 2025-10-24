@@ -11,7 +11,7 @@
       
       <input matInput 
              [(ngModel)]="searchQuery" 
-             (keydown.enter)="onSearch()"
+             (input)="onSearch()"
              aria-label="Search courses">
       
       <button mat-icon-button matSuffix *ngIf="searchQuery" (click)="clearSearch()" aria-label="Clear search">

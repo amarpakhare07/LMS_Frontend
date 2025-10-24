@@ -10,12 +10,18 @@ import { AdminDashboard } from './components/admin/dashboard/dashboard';
 import { AdminLayout } from './components/admin/layout/layout';
 import { HomeComponent } from './components/home/home';
 import { InstructorLayout } from './components/instructor/instructor';
-import { DashboardLayout } from './components/dashboard-layout/dashboard-layout';
 import { Unauthorized } from './components/unauthorized/unauthorized';
-import { publicGuard } from './services/public-guard';
+import { InstructorDashboardComponent } from './components/instructor/instructor-dashboard/instructor-dashboard';
 import { CourseDetailComponent } from './components/course/course-detail/course-detail';
-import { CourseLearn } from './components/course/course-learn/course-learn';
 import { enrolledGuard } from './services/enrolled-guard';
+import { CourseLearn } from './components/course/course-learn/course-learn';
+import { publicGuard } from './services/public-guard';
+
+
+import { StudentLayout } from './components/student/layout/student-layout/student-layout';
+import { DashboardComponent } from './components/student/dashboard/student-dashboard/student-dashboard';
+import { MyCoursesComponent } from './components/student/my-courses/student-my-courses/student-my-courses';
+import { ProfileComponent } from './components/student/my-profile/my-profile/my-profile';
 
 // Import Quiz Components
 import { QuizListComponent } from './components/quiz/quiz-list/quiz-list';
@@ -33,9 +39,8 @@ export const routes: Routes = [
   {
     path: 'home',
     component: HomeComponent,
+    // canActivate: [authGuard], // Apply the guard here
   },
-
-  // Admin Routes
   {
     path: 'admin',
     component: AdminLayout,
@@ -54,14 +59,17 @@ export const routes: Routes = [
 
   // Instructor Routes
   {
-    path: 'instructor',
-    component: InstructorLayout,
-    canActivate: [authGuard],
-    data: { expectedRole: 'Instructor' },
-    children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      // Add instructor routes here
-    ],
+  path: 'instructor',
+  component: InstructorLayout,
+  canActivate: [authGuard],
+  data: { expectedRole: 'Instructor' },
+  children: [
+    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    { path: 'dashboard', component: InstructorDashboardComponent }
+    // { path: 'courses', component: ManageCourses },
+    // { path: 'students', component: ManageUsers },
+    // { path: 'profile', component: Profile }
+  ]
   },
 
   // Course Routes
@@ -96,5 +104,22 @@ export const routes: Routes = [
   // Default and Error Routes
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'unauthorized', component: Unauthorized },
+  {
+    path: 'student',
+    component: StudentLayout,
+    canActivate: [authGuard], // Protect the route
+    data: {
+      expectedRole: 'Student', // For role-based access control
+    },
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'my-courses', component: MyCoursesComponent },
+      { path: 'profile', component: ProfileComponent },
+    ]
+  },
+  // Redirect to home by default if logged in, otherwise guard will redirect to login
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  // Wildcard route for 404
   { path: '**', redirectTo: '/unauthorized' },
 ];

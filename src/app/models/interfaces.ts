@@ -8,6 +8,7 @@ export interface User {
   bio: string | null;
   profilePicture: string | null;
   lastLogin: string;
+  role: number; // 1 = Student, 2 = Instructor, 3 = Admin
   updatedAt: string;
   isActive: boolean;
   isDeleted: boolean;
@@ -37,20 +38,7 @@ export interface DashboardSummary {
   };
 }
 
-// export interface Course {
-//   courseID: number;
-//   title: string;
-//   description: string;
-//   syllabus: string;
-//   level: string;
-//   language: string;
-//   duration: number;
-//   thumbnailURL: string;
-//   categoryID: number;
-//   published: boolean;
-//   rating: number;
-//   reviewCount: number;
-// }
+
 
 
 export interface Category {

@@ -1,0 +1,139 @@
+
+
+
+<div class="dashboard-container">
+  <mat-card class="banner-card">
+    <div class="banner-content">
+      <div class="banner-text">
+        <h2 class="mat-headline-medium">Learn With Effectively With Us!</h2>
+        <p class="mat-body-1">Get 30% off every course on January.</p>
+        <div class="stats-pills">
+          <span class="stat-pill students">
+            <mat-icon>group</mat-icon> Students <span>75,000+</span>
+          </span>
+          <span class="stat-pill mentors">
+            <mat-icon>person</mat-icon> Expert Mentors <span>200+</span>
+          </span>
+        </div>
+      </div>
+      <div class="banner-illustration">
+        <img src="https://via.placeholder.com/250x150/e0f2f7/4dd0e1?text=Students+Learning" alt="Students Learning">
+      </div>
+    </div>
+  </mat-card>
+
+  <div class="main-dashboard-grid">
+    <div class="left-column">
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-card-title>Popular Courses</mat-card-title>
+          <button mat-button class="view-all-button">All Courses</button>
+        </mat-card-header>
+        <mat-card-content class="course-list">
+          <div class="course-item" *ngFor="let course of popularCourses">
+            <div class="course-icon" [style.background]="course.color">{{ course.initial }}</div>
+            <div class="course-details">
+              <span class="course-title">{{ course.title }}</span>
+              <span class="course-count">{{ course.count }} Courses</span>
+            </div>
+            <button mat-stroked-button class="course-view-button">View Course</button>
+            <button mat-icon-button class="course-menu-button"><mat-icon>more_vert</mat-icon></button>
+          </div>
+          </mat-card-content>
+      </mat-card>
+
+      <mat-card class="section-card school-performance-card">
+        <mat-card-header>
+          <mat-card-title>Top 5 School Performance</mat-card-title>
+          <button mat-button class="view-all-button">See All</button>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="placeholder-chart">School Performance Chart</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="middle-column">
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-card-title>Current Activity</mat-card-title>
+          <button mat-button class="view-all-button">See All</button>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="activity-title">Monthly Progress</p>
+          <p class="activity-subtitle">This is the latest improvement</p>
+          <div class="placeholder-chart">Monthly Progress Chart</div>
+          <div class="progress-stats">
+            <div class="stat-box green">
+              <span>450K+</span>
+              <p>Completed Course</p>
+              <small>This is the latest data</small>
+              <mat-icon>play_circle</mat-icon>
+            </div>
+            <div class="stat-box red">
+              <span>200K+</span>
+              <p>Video Course</p>
+              <mat-icon>visibility</mat-icon>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <div class="bottom-stats-row">
+        <mat-card class="section-card small-stat-card">
+          <mat-card-header>
+            <mat-card-title>Overall Pass Percentage</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="placeholder-stat">85% Pass</div>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="section-card small-stat-card">
+          <mat-card-header>
+            <mat-card-title>Content Usage</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="placeholder-stat">70% Used</div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <mat-card class="section-card knowledge-card">
+        <mat-card-title>Have More knowledge to share?</mat-card-title>
+        <mat-card-content>
+          <button mat-flat-button color="primary">
+            <mat-icon>add_circle</mat-icon> Create New Course
+          </button>
+          <div class="course-discussion-stats">
+            <div class="stat-box blue">
+              <span>Courses in Progress</span>
+              <h3>5</h3>
+            </div>
+            <div class="stat-box light-blue">
+              <span>Forum Discussion</span>
+              <h3>25</h3>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="section-card best-instructors-card">
+        <mat-card-header>
+          <mat-card-title>Best Instructors</mat-card-title>
+          <button mat-button class="view-all-button">See All</button>
+        </mat-card-header>
+        <mat-card-content class="instructor-list">
+          <div class="instructor-item" *ngFor="let instructor of instructors">
+            <div class="instructor-avatar"></div> <div class="instructor-details">
+              <span class="instructor-name">{{ instructor.name }}</span>
+              <span class="instructor-course-count">{{ instructor.courseCount }} Design Course</span>
+            </div>
+            <button mat-flat-button color="accent" class="instructor-courses-button">Courses</button>
+          </div>
+          </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

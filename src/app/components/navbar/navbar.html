@@ -20,7 +20,7 @@
       <div class="profile-menu-header">
         <span *ngIf="currentUser$ | async as user">Hello, {{ user.name }}</span>
       </div>
-      <a mat-menu-item routerLink="/profile">
+      <a mat-menu-item [routerLink]="userRole$ === 'Admin' ? '/admin/dashboard' : userRole$ === 'Instructor' ? '/instructor/dashboard' : '/student/dashboard'">
         <mat-icon>person_outline</mat-icon>
         <span>My Profile</span>
       </a>
@@ -32,7 +32,7 @@
   </div>
 
   <ng-template #guestLinks>
-    <a mat-stroked-button routerLink="/login" class="nav-button">Login</a>
+    <a mat-stroked-button color="accent" routerLink="/login" class="nav-button">Login</a>
     <a mat-flat-button color="accent" routerLink="/register" class="nav-button">Register Now</a>
   </ng-template>
 </mat-toolbar>
