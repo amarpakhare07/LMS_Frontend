@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router'; 
-
-// --- Material UI Imports ---
+import { Router, RouterModule } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,9 +9,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatCardModule } from '@angular/material/card'; 
-import { MatListModule } from '@angular/material/list'; 
-import { MatTooltipModule } from '@angular/material/tooltip'; 
+import { MatCardModule } from '@angular/material/card';
+import { MatListModule } from '@angular/material/list';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatDividerModule } from '@angular/material/divider';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 // --- Hardcoded Interfaces matching your backend DTOs ---
 interface CourseCategory {
@@ -27,23 +28,25 @@ interface CourseDetails {
   syllabus: string;
   level: string;
   language: string;
-  duration: number; 
+  duration: number; // In MINUTES (Point 3)
   thumbnailURL: string;
-  categoryID: number; 
+  categoryID: number;
   published: boolean;
 }
 
 interface Lesson {
-  id?: number; 
+  id?: number;
   courseID: number;
   title: string;
   content: string;
   videoURL: string;
   orderIndex: number;
   lessonType: 'Video' | 'Quiz' | 'Article';
-  estimatedTime: number; 
-  includeDocument: boolean; 
-  attachmentFile?: File | null; 
+  estimatedTime: number;
+  includeDocument: boolean;
+  attachmentFile?: File | null;
+  // Simulated property for attachment link (since we can't upload to a real server)
+  attachmentFileUrl: string;
 }
 
 // --- Component ---
@@ -52,19 +55,20 @@ interface Lesson {
   selector: 'app-instructor-createcourse',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     FormsModule,
-    RouterModule, 
-    MatTabsModule, MatIconModule, MatButtonModule, MatInputModule, 
+    RouterModule,
+    MatTabsModule, MatIconModule, MatButtonModule, MatInputModule,
     MatFormFieldModule, MatSelectModule, MatCheckboxModule,
-    MatCardModule, MatListModule, MatTooltipModule
+    MatCardModule, MatListModule, MatTooltipModule,
+    MatProgressSpinnerModule, MatDividerModule, MatSnackBarModule
   ],
   templateUrl: './instructor-createcourse.html',
-  styleUrls: ['./instructor-createcourse.css']
+  styleUrls: [`./instructor-createcourse.css`]
 })
 export class InstructorCreateCourseComponent implements OnInit {
   activeStep: 'category' | 'details' | 'lessons' = 'category';
-  
+
   completedSteps: { [key: string]: boolean } = {
     category: false,
     details: false
@@ -72,17 +76,19 @@ export class InstructorCreateCourseComponent implements OnInit {
 
   categorySearchText: string = '';
   selectedCategory: CourseCategory | null = null;
-  
+  // NEW: Status to control the feedback message
+  categoryStatus: 'new' | 'existing' | 'none' = 'none'; 
+
   courseData: CourseDetails = {
     title: '', description: '', syllabus: '',
-    level: 'Beginner', language: 'English', duration: 60,
+    level: 'Beginner', language: 'English', duration: 60, 
     thumbnailURL: '', categoryID: 0, published: false
   };
 
   lessons: Lesson[] = [];
-  
+
   lessonData: Lesson = this.getNewLessonTemplate(1);
-  lessonToEditIndex: number | null = null; 
+  lessonToEditIndex: number | null = null;
 
   // --- Hardcoded Data ---
   hardcodedCategories: CourseCategory[] = [
@@ -92,23 +98,27 @@ export class InstructorCreateCourseComponent implements OnInit {
     { id: 4, name: 'Art & Design' }
   ];
   filteredCategories: CourseCategory[] = [];
-  
+  isLoading: unknown;
+  expandedLessonId: number | null = null;
+
   constructor(private router: Router) { }
 
   ngOnInit(): void {
     this.filteredCategories = [...this.hardcodedCategories];
-    // IMPORTANT FIX: Removed initial setup to ensure a clean start for the category selection.
-    // this.selectedCategory is now null, and completedSteps['category'] is false.
+    this.selectedCategory = null;
+    this.categorySearchText = '';
+    this.categoryStatus = 'none';
   }
-  
+
   getNewLessonTemplate(orderIndex: number): Lesson {
     return {
-      courseID: 0, 
+      courseID: 0,
       title: '', content: '', videoURL: '',
       orderIndex: orderIndex, lessonType: 'Video',
-      estimatedTime: 15, 
-      includeDocument: false, 
-      attachmentFile: null
+      estimatedTime: 15,
+      includeDocument: false,
+      attachmentFile: null,
+      attachmentFileUrl: 'https://placehold.co/600x400/3f51b5/ffffff/pdf.pdf?text=Attached+Document' 
     };
   }
 
@@ -119,7 +129,7 @@ export class InstructorCreateCourseComponent implements OnInit {
   isFieldDisabled(step: 'category' | 'details' | 'lessons'): boolean {
     return this.completedSteps[step] && this.activeStep !== step;
   }
-  
+
   setActiveStep(step: 'category' | 'details' | 'lessons'): void {
     if (step === 'category') {
       this.activeStep = step;
@@ -128,23 +138,50 @@ export class InstructorCreateCourseComponent implements OnInit {
     } else if (step === 'lessons' && this.completedSteps['details']) {
       this.activeStep = step;
     } else {
-      const requiredStep = step === 'details' ? 'Category' : 'Course Details';
-      console.error(`Please complete the ${requiredStep} step first.`);
+      console.error(`Please complete the previous step first.`);
     }
   }
 
   onCategorySearch(): void {
-    const text = this.categorySearchText.toLowerCase();
-    this.filteredCategories = this.hardcodedCategories.filter(cat => 
+    const text = this.categorySearchText.trim().toLowerCase();
+    
+    // Clear selection if input changes
+    if (this.selectedCategory && this.selectedCategory.name.toLowerCase() !== text) {
+        this.selectedCategory = null;
+    }
+
+    this.filteredCategories = this.hardcodedCategories.filter(cat =>
       cat.name.toLowerCase().includes(text)
     );
-    this.selectedCategory = null; 
+    
+    this.categoryStatus = 'none'; // Reset status
+
+    if (text.length > 0) {
+        // Find exact match
+        const exactMatch = this.hardcodedCategories.find(cat => cat.name.toLowerCase() === text);
+
+        if (exactMatch) {
+            // Found existing category (even by typing the full name)
+            this.selectedCategory = exactMatch;
+            this.filteredCategories = [exactMatch]; 
+            this.categoryStatus = 'existing';
+        } else if (this.filteredCategories.length === 0) {
+            // No matches found, treat as new
+            this.categoryStatus = 'new';
+        }
+        // If filteredCategories.length > 0 but no exact match, categoryStatus remains 'none'
+        // which means the list of suggestions is displayed.
+    } else {
+        // Search text is empty
+        this.filteredCategories = [...this.hardcodedCategories];
+    }
   }
 
   selectCategory(category: CourseCategory): void {
     this.selectedCategory = category;
     this.categorySearchText = category.name;
     this.filteredCategories = []; 
+    this.categoryStatus = 'existing'; // Explicitly set status when clicked from list
   }
 
   saveCategoryStep(): void {
@@ -152,29 +189,29 @@ export class InstructorCreateCourseComponent implements OnInit {
       console.error("Please select or type a category name.");
       return;
     }
-    
+
     if (!this.selectedCategory) {
+      // Logic for creating a new category 
       const newCategory: CourseCategory = { id: Math.floor(Math.random() * 1000), name: this.categorySearchText.trim() };
       this.selectedCategory = newCategory;
     }
-    
+
     this.courseData.categoryID = this.selectedCategory!.id;
     this.completedSteps['category'] = true;
     this.setActiveStep('details');
   }
 
   saveCourseDetails(): void {
-    if (this.courseData.title.trim().length < 5) {
-      console.error("Course Title must be at least 5 characters long.");
+    if (this.courseData.title.trim().length < 5 || this.courseData.syllabus.trim().length < 10) {
+      console.error("Title and Syllabus must meet minimum length requirements.");
       return;
     }
-    
-    const newCourseId = 99; 
-    
+
+    const newCourseId = 99;
     this.completedSteps['details'] = true;
     this.lessonData.courseID = newCourseId;
     this.lessons.forEach(l => l.courseID = newCourseId);
-    
+
     this.setActiveStep('lessons');
   }
 
@@ -182,34 +219,37 @@ export class InstructorCreateCourseComponent implements OnInit {
     const fileList: FileList = event.target.files;
     if (fileList.length > 0) {
       this.lessonData.attachmentFile = fileList[0];
+      this.lessonData.attachmentFileUrl = 'https://placehold.co/600x400/3f51b5/ffffff/pdf.pdf?text=' + encodeURIComponent(fileList[0].name);
     } else {
-      // If the user cancels the file dialog after checking the box
       this.lessonData.attachmentFile = null;
+      this.lessonData.attachmentFileUrl = '';
     }
   }
 
-  /**
-   * FIX: Added validation for lesson form, including checking for an attached file 
-   * if the includeDocument checkbox is checked.
-   */
+  openAttachment(url: string, event: Event): void {
+    event.stopPropagation();
+    if (url) {
+        window.open(url, '_blank');
+    }
+  }
+
   get isLessonFormValid(): boolean {
     const titleValid = this.lessonData.title.trim().length > 0;
-    
+    const videoUrlValid = this.lessonData.videoURL.trim().length > 0;
+    const contentValid = this.lessonData.content.trim().length > 0;
+
     const attachmentRequired = this.lessonData.includeDocument;
     const attachmentProvided = !!this.lessonData.attachmentFile;
 
-    // Valid if: (Title is OK) AND (If attachment is required, it must be provided)
     const attachmentCheck = !attachmentRequired || attachmentProvided;
 
-    return titleValid && attachmentCheck;
+    return titleValid && videoUrlValid && contentValid && attachmentCheck;
   }
-  expandedLessonId: number | null = null;
-  
+
   saveLesson(): void {
-    // Validation is now handled by the isLessonFormValid getter on the button
     if (!this.isLessonFormValid) {
-        console.error("Cannot save lesson. Check title and file attachment status.");
-        return;
+      console.error("Cannot save lesson. Check title, video URL, content, and file attachment status.");
+      return;
     }
 
     if (this.lessonToEditIndex !== null) {
@@ -219,16 +259,14 @@ export class InstructorCreateCourseComponent implements OnInit {
       const newLesson: Lesson = { ...this.lessonData, id: Math.floor(Math.random() * 1000) };
       this.lessons.push(newLesson);
     }
-    
+
     this.lessonData = this.getNewLessonTemplate(this.lessons.length + 1);
   }
 
   editLesson(lesson: Lesson, index: number): void {
     this.lessonData = { ...lesson };
     this.lessonToEditIndex = index;
-    // When editing, we clear the local file object to force re-upload if document is still required.
-    // In a real application, you would load metadata about the existing file here.
-    this.lessonData.attachmentFile = null; 
+    this.expandedLessonId = null; 
   }
 
   removeLesson(index: number): void {
@@ -237,39 +275,22 @@ export class InstructorCreateCourseComponent implements OnInit {
     this.lessonData.orderIndex = this.lessons.length + 1;
     this.lessonToEditIndex = null;
     this.lessonData = this.getNewLessonTemplate(this.lessons.length + 1);
+    this.expandedLessonId = null;
   }
 
-  /**
-   * FIX: Added method to simulate viewing lesson details and attachment link.
-   */
   viewLessonDetails(lesson: Lesson): void {
     if (this.expandedLessonId === lesson.id) {
-      this.expandedLessonId = null; // Collapse if already open
+      this.expandedLessonId = null;
     } else {
-      this.expandedLessonId = lesson.id || null; // Expand the new lesson
+      this.expandedLessonId = lesson.id || null;
+      this.lessonToEditIndex = null; // Exit edit mode if entering view mode
     }
-    
-    // Keep the console log for backend simulation/debugging
-    console.log('Lesson Toggle Action:', lesson.title, this.expandedLessonId === lesson.id ? 'Expanded' : 'Collapsed');
-
-    console.log(`Content Preview: ${lesson.content.substring(0, 50)}...`);
-
-    if (lesson.includeDocument) {
-      // NOTE: In a production app, the attachmentFile would be a saved URL/ID, 
-      // not a local File object. We use a placeholder here.
-      const attachmentInfo = lesson.attachmentFile ? lesson.attachmentFile.name : 'Placeholder Attachment (Saved)';
-      console.log(`Attachment Status: Document Included`);
-      console.log(`[CLICK ACTION]: Simulate opening the attachment for: ${attachmentInfo}`);
-    } else {
-      console.log(`Attachment Status: No Document Included`);
-    }
-    console.log('------------------------------');
   }
 
   saveAndFinish(): void {
     if (this.lessons.length === 0) {
-        console.error("Cannot publish course without any lessons.");
-        return;
+      console.error("Cannot publish course without any lessons.");
+      return;
     }
     console.log('Course creation complete! Redirecting...');
     this.router.navigate(['/instructor/courses']);
