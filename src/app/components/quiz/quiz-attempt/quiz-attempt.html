@@ -1,0 +1,179 @@
+<div class="quiz-attempt-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner color="primary" diameter="60"></mat-spinner>
+    <p class="loading-text">Loading quiz questions...</p>
+  </div>
+
+  <!-- Quiz Content -->
+
+  <div *ngIf="!loading && questions.length > 0" class="quiz-content">
+<!-- Header Section -->
+<div class="quiz-header">
+  <button mat-icon-button (click)="goBack()" class="back-btn">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+
+  <div class="quiz-info">
+    <h1 class="quiz-title">{{ quizData.title }}</h1>
+    <div class="info-chips">
+      <div class="chip timer-chip" [class.warning]="timeRemaining < 60">
+        <mat-icon>schedule</mat-icon>
+        <span>{{ timerDisplay }}</span>
+      </div>
+      <div class="chip">
+        <mat-icon>quiz</mat-icon>
+        <span>{{ currentQuestionIndex + 1 }} / {{ questions.length }}</span>
+      </div>
+      <div class="chip score-chip">
+        <mat-icon>emoji_events</mat-icon>
+        <span>{{ totalScore }} / {{ quizData.totalMarks }}</span>
+      </div>
+    </div>
+  </div>
+
+  <mat-progress-bar 
+    mode="determinate" 
+    [value]="progress" 
+    class="progress-bar">
+  </mat-progress-bar>
+</div>
+
+<!-- Question Card -->
+<mat-card class="question-card" *ngIf="currentQuestion">
+  
+  <!-- Question Header -->
+  <div class="question-header">
+    <div class="question-number-badge">
+      <span>{{ currentQuestionIndex + 1 }}</span>
+    </div>
+    <div class="question-info">
+      <h2 class="question-text">{{ currentQuestion.questionText }}</h2>
+      <p class="question-marks">
+        <mat-icon>stars</mat-icon>
+        Worth {{ currentQuestion.marks }} marks
+      </p>
+    </div>
+  </div>
+
+  <!-- Options Section -->
+  <div class="options-container">
+  <mat-radio-group
+    [(ngModel)]="selectedAnswer"
+    [disabled]="showFeedback || submitting"
+    class="options-group">
+
+    <mat-radio-button
+      *ngFor="let option of currentQuestion.options; let i = index"
+      [value]="option"
+      class="option-radio"
+      [class.selected]="selectedAnswer === option"
+      [class.correct-answer]="showFeedback && lastAnswerCorrect && selectedAnswer === option"
+      [class.wrong-answer]="showFeedback && !lastAnswerCorrect && selectedAnswer === option">
+
+      <div class="option-content">
+        <span class="option-label">{{ getOptionLabel(i) }}.</span>
+        <span class="option-text">{{ option }}</span>
+
+        <mat-icon
+          *ngIf="showFeedback && lastAnswerCorrect && selectedAnswer === option"
+          class="feedback-icon correct">
+          check_circle
+        </mat-icon>
+
+        <mat-icon
+          *ngIf="showFeedback && !lastAnswerCorrect && selectedAnswer === option"
+          class="feedback-icon wrong">
+          cancel
+        </mat-icon>
+      </div>
+    </mat-radio-button>
+  </mat-radio-group>
+</div>
+
+  <!-- Feedback Card (Shown after submission) -->
+  <div 
+    *ngIf="showFeedback" 
+    class="feedback-card"
+    [class.correct]="lastAnswerCorrect"
+    [class.incorrect]="!lastAnswerCorrect">
+    
+    <mat-icon class="feedback-main-icon">
+      {{ lastAnswerCorrect ? 'check_circle' : 'cancel' }}
+    </mat-icon>
+    
+    <div class="feedback-content">
+      <h3 class="feedback-title">
+        {{ lastAnswerCorrect ? '🎉 Correct Answer!' : '❌ Incorrect Answer' }}
+      </h3>
+      <p class="feedback-text">
+        {{ lastAnswerCorrect 
+          ? 'Great job! You earned ' + lastMarksAwarded + ' marks.' 
+          : 'Don\'t worry! The correct answer is shown above.' }}
+      </p>
+      <div class="marks-display">
+        <span class="marks-earned">+{{ lastMarksAwarded }}</span>
+        <span class="marks-total">/ {{ currentQuestion.marks }} marks</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-buttons">
+    
+    <!-- Submit Answer Button (Before feedback) -->
+    <button
+      *ngIf="!showFeedback"
+      mat-raised-button
+      color="primary"
+      (click)="submitAnswer()"
+      [disabled]="!selectedAnswer || submitting"
+      class="action-btn submit-btn">
+      <mat-spinner *ngIf="submitting" diameter="20" class="btn-spinner"></mat-spinner>
+      <mat-icon *ngIf="!submitting">send</mat-icon>
+      <span>{{ submitting ? 'Submitting...' : 'Submit Answer' }}</span>
+    </button>
+
+    <!-- Next Question Button (After feedback, not last question) -->
+    <button
+      *ngIf="showFeedback && !isLastQuestion"
+      mat-raised-button
+      color="accent"
+      (click)="nextQuestion()"
+      class="action-btn next-btn">
+      <mat-icon>arrow_forward</mat-icon>
+      <span>Next Question</span>
+    </button>
+
+    <!-- Submit Quiz Button (After feedback, last question) -->
+    <button
+      *ngIf="showFeedback && isLastQuestion"
+      mat-raised-button
+      color="warn"
+      (click)="submitQuiz()"
+      [disabled]="submitting"
+      class="action-btn final-submit-btn">
+      <mat-spinner *ngIf="submitting" diameter="20" class="btn-spinner"></mat-spinner>
+      <mat-icon *ngIf="!submitting">emoji_events</mat-icon>
+      <span>{{ submitting ? 'Finalizing...' : 'See Final Results' }}</span>
+    </button>
+
+  </div>
+
+</mat-card>
+
+  </div>
+
+  <!-- Error State -->
+
+  <div *ngIf="!loading && questions.length === 0" class="error-container">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <h2>No Questions Available</h2>
+    <p>This quiz doesn't have any questions yet.</p>
+    <button mat-raised-button color="primary" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Quiz List
+    </button>
+  </div>
+
+</div>

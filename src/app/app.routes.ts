@@ -10,7 +10,7 @@ import { AdminDashboard } from './components/admin/dashboard/dashboard';
 import { AdminLayout } from './components/admin/layout/layout';
 import { HomeComponent } from './components/home/home';
 import { InstructorLayout } from './components/instructor/instructor';
-import { Unauthorized } from './components/unauthorized/unauthorized';
+import { Unauthorized } from './components/shared/unauthorized/unauthorized';
 import { InstructorDashboardComponent } from './components/instructor/instructor-dashboard/instructor-dashboard';
 import { CourseDetailComponent } from './components/course/course-detail/course-detail';
 import { enrolledGuard } from './services/enrolled-guard';
@@ -25,10 +25,28 @@ import { DashboardComponent } from './components/student/dashboard/student-dashb
 import { MyCoursesComponent } from './components/student/my-courses/student-my-courses/student-my-courses';
 import { ProfileComponent } from './components/student/my-profile/my-profile/my-profile';
 
+// Import Quiz Components
+import { QuizListComponent } from './components/quiz/quiz-list/quiz-list';
+import { QuizAttemptComponent } from './components/quiz/quiz-attempt/quiz-attempt';
+import { QuizResultsComponent } from './components/quiz/quiz-result/quiz-result';
+import { quizEnrolledGuard } from './services/quiz-enrolled.guard';
+import { About } from './components/shared/about/about';
+import { ContactUs } from './components/shared/contact-us/contact-us';
+
 export const routes: Routes = [
+  // Public Routes
   { path: 'login', component: LoginComponent, canActivate: [publicGuard] },
   { path: 'register', component: Register, canActivate: [publicGuard] },
   { path: 'register-instructor', component: RegisterInstructor, canActivate: [publicGuard] },
+  {
+    path:'about',
+    component: About
+  },
+  {
+    path:'contact',
+    component: ContactUs
+  },
+  // Home
   {
     path: 'home',
     component: HomeComponent,
@@ -37,18 +55,20 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayout,
-    canActivate: [authGuard], // Apply the same guard
+    canActivate: [authGuard],
     data: {
-      expectedRole: 'Admin', // ✨ Add the required role here
+      expectedRole: 'Admin',
     },
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Default admin route
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboard },
       { path: 'users', component: ManageUsers },
       { path: 'courses', component: ManageCourses },
       { path: 'profile', component: Profile },
     ],
   },
+
+  // Instructor Routes
   {
   path: 'instructor',
   component: InstructorLayout,
@@ -63,8 +83,9 @@ export const routes: Routes = [
   ]
   },
 
-  { 
-    path: 'course/:id', 
+  // Course Routes
+  {
+    path: 'course/:id',
     component: CourseDetailComponent,
   },
   {
@@ -72,6 +93,28 @@ export const routes: Routes = [
     component: CourseLearn,
     canActivate: [authGuard, enrolledGuard]
   },
+
+  // ✨ QUIZ ROUTES
+  {
+    path: 'course/:courseId/quiz/list',
+    component: QuizListComponent,
+    canActivate: [authGuard, quizEnrolledGuard]
+  },
+  {
+    path: 'course/:courseId/quiz/:quizId/attempt',
+    component: QuizAttemptComponent,
+    canActivate: [authGuard, quizEnrolledGuard]
+  },
+  {
+    path: 'course/:courseId/quiz/results',
+    component: QuizResultsComponent
+    // ✅ REMOVED: canActivate: [authGuard]
+    // No guards - open access to results page
+  },
+
+  // Default and Error Routes
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  { path: 'unauthorized', component: Unauthorized },
   {
     path: 'student',
     component: StudentLayout,

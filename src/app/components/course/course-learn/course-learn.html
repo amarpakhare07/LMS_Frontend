@@ -7,6 +7,16 @@
       <mat-icon>menu</mat-icon>
     </button>
     <div class="topbar-title">{{ currentLesson()?.title || c.title }}</div>
+<!-- ✅ NEW: Quiz Button in Topbar (Mobile) -->
+<button 
+  mat-icon-button 
+  class="quiz-btn-mobile" 
+  (click)="navigateToQuizzes()"
+  matTooltip="Take Quizzes"
+  aria-label="Go to quizzes">
+  <mat-icon>quiz</mat-icon>
+</button>
+
   </div>
 
   <div class="learn-layout">
@@ -14,110 +24,121 @@
     <aside class="sidebar" [class.open]="sidebarOpen">
       <div class="sidebar-header">
         <h3 class="course-title" title="{{ c.title }}">{{ c.title }}</h3>
+    <!-- ✅ NEW: Quiz Button in Sidebar (Desktop) -->
+    <button 
+      mat-raised-button 
+      color="accent" 
+      class="quiz-btn-sidebar"
+      (click)="navigateToQuizzes()">
+      <mat-icon>quiz</mat-icon>
+      Take Quiz
+    </button>
+  </div>
+
+  <nav class="curriculum" *ngIf="c.lessons?.length; else emptyCurriculum">
+    <a
+      class="lesson-row"
+      *ngFor="let l of c.lessons; trackBy: trackByLessonId"
+      (click)="selectLesson(l)"
+      [class.active]="currentLesson()?.lessonID === l.lessonID"
+      [attr.aria-current]="currentLesson()?.lessonID === l.lessonID ? 'true' : null"
+      tabindex="0"
+    >
+      <mat-icon class="lesson-icon" aria-hidden="true">
+        {{ currentLesson()?.lessonID === l.lessonID ? 'play_circle' : 'play_arrow' }}
+      </mat-icon>
+      <div class="lesson-text">
+        <div class="lesson-title" title="{{ l.title }}">{{ l.orderIndex }}. {{ l.title }}</div>
+        <div class="lesson-meta">{{ l.lessonType }} • {{ l.estimatedTime }} min</div>
       </div>
+      <div class="lesson-time">{{ l.estimatedTime }}m</div>
+    </a>
+  </nav>
 
-      <nav class="curriculum" *ngIf="c.lessons?.length; else emptyCurriculum">
-        <a
-          class="lesson-row"
-          *ngFor="let l of c.lessons; trackBy: trackByLessonId"
-          (click)="selectLesson(l)"
-          [class.active]="currentLesson()?.lessonID === l.lessonID"
-          [attr.aria-current]="currentLesson()?.lessonID === l.lessonID ? 'true' : null"
-          tabindex="0"
-        >
-          <mat-icon class="lesson-icon" aria-hidden="true">
-            {{ currentLesson()?.lessonID === l.lessonID ? 'play_circle' : 'play_arrow' }}
-          </mat-icon>
-          <div class="lesson-text">
-            <div class="lesson-title" title="{{ l.title }}">{{ l.orderIndex }}. {{ l.title }}</div>
-            <div class="lesson-meta">{{ l.lessonType }} • {{ l.estimatedTime }} min</div>
-          </div>
-          <div class="lesson-time">{{ l.estimatedTime }}m</div>
-        </a>
-      </nav>
+  <ng-template #emptyCurriculum>
+    <div class="sidebar-empty">
+      <mat-icon>info</mat-icon>
+      <span>No lessons yet.</span>
+    </div>
+  </ng-template>
+</aside>
 
-      <ng-template #emptyCurriculum>
-        <div class="sidebar-empty">
-          <mat-icon>info</mat-icon>
-          <span>No lessons yet.</span>
-        </div>
-      </ng-template>
-    </aside>
+<!-- MAIN PLAYER AREA -->
+<main class="player">
+  <section class="player-header">
+    <div class="ph-left">
+      <h2 class="lesson-heading" *ngIf="currentLesson() as lesson" [title]="lesson.title">
+        {{ lesson.orderIndex }}. {{ lesson.title }}
+      </h2>
+      <div class="lesson-submeta" *ngIf="currentLesson() as lesson">
+        <span>{{ lesson.lessonType }}</span>
+        <span>•</span>
+        <span>{{ lesson.estimatedTime }} min</span>
+      </div>
+    </div>
 
-    <!-- MAIN PLAYER AREA -->
-    <main class="player">
-      <section class="player-header">
-        <div class="ph-left">
-          <h2 class="lesson-heading" *ngIf="currentLesson() as lesson" [title]="lesson.title">
-            {{ lesson.orderIndex }}. {{ lesson.title }}
-          </h2>
-          <div class="lesson-submeta" *ngIf="currentLesson() as lesson">
-            <span>{{ lesson.lessonType }}</span>
-            <span>•</span>
-            <span>{{ lesson.estimatedTime }} min</span>
-          </div>
-        </div>
+    <div class="ph-right">
+      <button mat-stroked-button color="primary" class="nav-btn" (click)="prevLesson()" [disabled]="!hasPrev()">
+        <mat-icon>chevron_left</mat-icon>
+        Prev
+      </button>
+      <button mat-raised-button color="accent" class="nav-btn" (click)="nextLesson()" [disabled]="!hasNext()">
+        Next
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  </section>
 
-        <div class="ph-right">
-          <button mat-stroked-button color="primary" class="nav-btn" (click)="prevLesson()" [disabled]="!hasPrev()">
-            <mat-icon>chevron_left</mat-icon>
-            Prev
-          </button>
-          <button mat-raised-button color="accent" class="nav-btn" (click)="nextLesson()" [disabled]="!hasNext()">
-            Next
-            <mat-icon>chevron_right</mat-icon>
-          </button>
-        </div>
-      </section>
+  <!-- VIDEO -->
+  <section *ngIf="currentLesson() as lesson">
+    <div class="video-container" *ngIf="lesson.videoURL; else noVideo">
+      <!-- YouTube -->
+      <iframe
+        *ngIf="isYouTube(lesson.videoURL)"
+        [src]="safeYoutubeUrl(lesson.videoURL)"
+        title="Lesson video player"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+      ></iframe>
 
-      <!-- VIDEO -->
-      <section *ngIf="currentLesson() as lesson">
-        <div class="video-container" *ngIf="lesson.videoURL; else noVideo">
-          <!-- YouTube -->
-          <iframe
-            *ngIf="isYouTube(lesson.videoURL)"
-            [src]="safeYoutubeUrl(lesson.videoURL)"
-            title="Lesson video player"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen
-          ></iframe>
+      <!-- Native video -->
+      <video
+        *ngIf="!isYouTube(lesson.videoURL)"
+        [src]="lesson.videoURL!"
+        controls
+        playsinline
+      ></video>
+    </div>
 
-          <!-- Native video -->
-          <video
-            *ngIf="!isYouTube(lesson.videoURL)"
-            [src]="lesson.videoURL!"
-            controls
-            playsinline
-          ></video>
-        </div>
+    <ng-template #noVideo>
+      <div class="no-video">
+        <mat-icon>video_off</mat-icon>
+        <p>No video provided for this lesson.</p>
+      </div>
+    </ng-template>
+  </section>
 
-        <ng-template #noVideo>
-          <div class="no-video">
-            <mat-icon>video_off</mat-icon>
-            <p>No video provided for this lesson.</p>
-          </div>
-        </ng-template>
-      </section>
+  <!-- CONTENT / NOTES -->
+  <section class="content-block" *ngIf="currentLesson() as lesson">
+    <h3 class="block-title">
+      <mat-icon>article</mat-icon>
+      Lesson content
+    </h3>
+    <article class="lesson-content" [innerHTML]="lesson.content"></article>
+  </section>
+</main>
 
-      <!-- CONTENT / NOTES -->
-      <section class="content-block" *ngIf="currentLesson() as lesson">
-        <h3 class="block-title">
-          <mat-icon>article</mat-icon>
-          Lesson content
-        </h3>
-        <article class="lesson-content" [innerHTML]="lesson.content"></article>
-      </section>
-    </main>
   </div>
 </div>
 
 <!-- Loading / Error -->
+
 <ng-template #loadOrError>
-  <mat-card >
-    <mat-card-content>
-      <p *ngIf="errorMsg(); else loading">{{ errorMsg() }}</p>
-      <ng-template #loading>Loading…</ng-template>
-    </mat-card-content>
-  </mat-card>
+<mat-card>
+<mat-card-content>
+<p *ngIf="errorMsg(); else loading">{{ errorMsg() }}</p>
+<ng-template #loading>Loading…</ng-template>
+</mat-card-content>
+</mat-card>
 </ng-template>

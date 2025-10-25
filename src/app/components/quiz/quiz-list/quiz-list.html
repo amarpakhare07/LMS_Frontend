@@ -1,0 +1,39 @@
+
+<div class="quiz-list-container">
+  <!-- Header -->
+  <div class="header">
+    <button mat-icon-button (click)="goBack()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-content">
+      <h1 class="title">{{ courseName }}</h1>
+      <p class="subtitle">Select a quiz to begin your assessment</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner color="primary"></mat-spinner>
+    <p>Loading quizzes...</p>
+  </div>
+
+  <!-- Quiz Grid -->
+  <div *ngIf="!loading && quizzes.length > 0" class="quiz-grid">
+    <app-quiz-card
+      *ngFor="let quiz of quizzes; let i = index"
+      [quiz]="quiz"
+      (startQuiz)="onStartQuiz($event)"
+      [style.animation-delay]="i * 0.1 + 's'">
+    </app-quiz-card>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && quizzes.length === 0" class="empty-state">
+    <mat-icon>quiz</mat-icon>
+    <h2>No Quizzes Available</h2>
+    <p>There are currently no quizzes for this course.</p>
+    <button mat-raised-button color="primary" (click)="goBack()">
+      Back to Courses
+    </button>
+  </div>
+</div>
