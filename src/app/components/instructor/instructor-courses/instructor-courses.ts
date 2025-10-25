@@ -77,7 +77,7 @@ export class InstructorCoursesComponent implements OnInit {
   deleteCourse(course: Course): void {
   }
   createCourse(): void {
-    this.router.navigate(['/instructor/create-course']);
+    this.router.navigate(['/instructor/createcourse']);
   }
 
 }
