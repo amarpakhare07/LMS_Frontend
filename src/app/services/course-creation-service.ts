@@ -6,9 +6,9 @@ import { Observable, tap, of, throwError } from 'rxjs';
 // --- INTERFACES (MODELS) ---
 
 export interface CourseCategory {
-  id?: number; // optional for creation
+  id: number; // optional for creation
   name: string;
-  description?: string;
+  description: string;
 }
 
 export interface CourseDetail {
@@ -90,20 +90,22 @@ export class CourseInstructorService {
    * @param category The full category object with its ID and updated details.
    * @returns An Observable of the updated CourseCategory.
    */
-  updateCategoryDetails(category: CourseCategory): Observable<CourseCategory> {
-    // Ensuring category has an ID for the PUT request
-    if (!category.id) {
-        return throwError(() => new Error('Category ID is required for update.'));
-    }
-    const endpoint = `${this.apiUrl}/CourseCategories/${category.id}`;
-    console.log(`➡️ API CHECK: Sending PUT request to update category ID: ${category.id}`);
+    updateCategoryDetails(categoryDetails: CourseCategory): Observable<CourseCategory> {
+      // Ensuring category has an ID for the PUT request
+      if (!categoryDetails.id) {
+          return throwError(() => new Error('Category ID is required for update.'));
+      }
+      const endpoint = `${this.apiUrl}/CourseCategories/${categoryDetails.id}`;
+      console.log(`➡️ API CHECK: Sending PUT request to update category ID: ${categoryDetails.id}`);
 
-    return this.http.put<CourseCategory>(endpoint, category).pipe(
-        tap((updatedCategory) => {
-            console.log(`✅ API CHECK: Category ${updatedCategory.id} updated successfully.`);
-        })
-    );
-  }
+      // The return type of the method (Observable<CourseCategory>) now matches 
+      // the generic type of the HTTP call (http.put<CourseCategory>).
+      return this.http.put<CourseCategory>(endpoint, categoryDetails).pipe(
+          tap((updatedCategory) => {
+              console.log(`✅ API CHECK: Category ${updatedCategory.id} updated successfully.`);
+          })
+      );
+    }
 
   // --- COURSE APIs ---
 

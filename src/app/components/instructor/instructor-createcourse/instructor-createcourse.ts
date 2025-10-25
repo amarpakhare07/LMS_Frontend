@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIcon } from "@angular/material/icon";
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar'; 
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 // --- ENHANCED MODELS FOR COMPONENT STATE ---
 
@@ -72,6 +73,7 @@ export class InstructorCreateCourseComponent implements OnInit {
   // === DEPENDENCIES ===
   private courseService = inject(CourseInstructorService);
   private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
 
   // === INSTRUCTOR ID STATE ===
   instructorId: number | null = null; 
@@ -136,6 +138,27 @@ export class InstructorCreateCourseComponent implements OnInit {
     });
   }
 
+   isCategoryStepValid(): boolean {
+    // 1. Check if an existing category is selected.
+    if (this.selectedCategory && this.categoryStatus === 'existing') {
+        return true;
+    }
+
+    // 2. Check if the user is attempting to create a new category.
+    if (this.categoryStatus === 'new') {
+        // Must have a category name (checked by categorySearchText.trim().length >= 3)
+        const nameValid = this.categorySearchText.trim().length >= 3;
+        
+        // Must have a description (using 10 chars as a reasonable minimum, based on hint)
+        const descriptionValid = this.newCategoryDescription.trim().length >= 10; 
+        
+        return nameValid && descriptionValid;
+    }
+
+    // 3. Otherwise (e.g., initial state, categoryStatus === 'none', or searching but no match/selection)
+    return false;
+}
+
   // --- STEP MANAGEMENT METHODS ---
 
   setActiveStep(step: 'category' | 'details' | 'lessons'): void {
@@ -159,32 +182,32 @@ export class InstructorCreateCourseComponent implements OnInit {
   }
   
   // NEW: Validation for "Next" button in Category Step (Requirement 1 & 3)
-  get isCategoryStepValid(): boolean {
-    if (!this.selectedCategory) {
-        return false;
-    }
+  // get isCategoryStepValid(): boolean {
+  //   if (!this.selectedCategory) {
+  //       return false;
+  //   }
 
-    // 1. Existing category selected (from list or previously created)
-    if (this.selectedCategory.id) {
-        // Check if the user is currently editing the description
-        const isDescriptionModified = this.newCategoryDescription.trim() !== (this.originalCategoryDescription?.trim() || '');
+  //   // 1. Existing category selected (from list or previously created)
+  //   if (this.selectedCategory.id) {
+  //       // Check if the user is currently editing the description
+  //       const isDescriptionModified = this.newCategoryDescription.trim() !== (this.originalCategoryDescription?.trim() || '');
         
-        if (this.categoryStatus === 'existing' && isDescriptionModified) {
-            // If modified, validate the new description length (Requirement 2 check)
-            return this.newCategoryDescription.trim().length >= 10;
-        }
-        // If not modified, or status is just existing, it's valid to proceed (Requirement 3 check)
-        return true; 
-    }
+  //       if (this.categoryStatus === 'existing' && isDescriptionModified) {
+  //           // If modified, validate the new description length (Requirement 2 check)
+  //           return this.newCategoryDescription.trim().length >= 10;
+  //       }
+  //       // If not modified, or status is just existing, it's valid to proceed (Requirement 3 check)
+  //       return true; 
+  //   }
     
-    // 2. New category creation in progress (no ID yet)
-    if (this.categoryStatus === 'new') {
-        // Must have search text (name) and a valid description (Requirement 1 check)
-        return this.categorySearchText.trim().length > 0 && this.newCategoryDescription.trim().length >= 10;
-    }
+  //   // 2. New category creation in progress (no ID yet)
+  //   if (this.categoryStatus === 'new') {
+  //       // Must have search text (name) and a valid description (Requirement 1 check)
+  //       return this.categorySearchText.trim().length > 0 && this.newCategoryDescription.trim().length >= 10;
+  //   }
     
-    return false;
-  }
+  //   return false;
+  // }
 
 
   // --- STEP 1: CATEGORY LOGIC ---
@@ -232,7 +255,7 @@ export class InstructorCreateCourseComponent implements OnInit {
       this.categoryStatus = 'new';
       // If switching from 'existing' to 'new', clear the original description tracking
       if (!this.selectedCategory.id) {
-         this.originalCategoryDescription = null; 
+           this.originalCategoryDescription = null; 
       }
     } else {
       this.categoryStatus = 'none';
@@ -242,29 +265,95 @@ export class InstructorCreateCourseComponent implements OnInit {
     }
   }
   
-  selectCategory(category: CourseCategory): void {
-    this.selectedCategory = category;
-    this.categorySearchText = category.name; 
-    this.categoryStatus = 'existing';
-    // Load existing description into the editable field and track the original (Requirement 2 setup)
-    this.newCategoryDescription = category.description || ''; 
-    this.originalCategoryDescription = category.description || ''; 
-  }
+  selectCategory(cat: CourseCategory): void {
+    // Check if the same category is being unselected
+    
+    this.selectedCategory = cat;
+    this.categorySearchText = cat.name; // Keep the search box consistent
+    this.categoryStatus = 'existing'; // <-- CRUCIAL: Set status to 'existing'
+    // Clear any new category description if present
+    this.newCategoryDescription = ''; 
+}
   
   getSelectedCategoryName(): string {
-    return this.selectedCategory?.name || 'N/A';
+    return this.selectedCategory?.name|| 'N/A';
   }
 
-  // Helper method to consolidate advancing logic
-  private markStepCompleteAndAdvance(): void {
-    this.isSaving = false;
+  
+  private proceedToDetailsStep(categoryId: number): void {
+    const existingCategoryId = categoryId;
+    
+    // Set local state before navigation regardless of update status
+    this.courseData.categoryID = categoryId;
     this.completedSteps['category'] = true;
-    this.setActiveStep('details');
+
+    if (existingCategoryId) {
+        // SCENARIO 1 (FIX): Course already exists. Update its category ID via API.
+        this.isSaving = true;
+
+        // ** CORRECTED CALL **: Assuming service requires courseId and a partial Course object.
+        // We only send the ID and the specific field (categoryID) we want to update.
+        const categoryUpdatePayload = {
+            id: categoryId,
+            
+        } as Partial<CourseCategory>;
+
+        this.courseService.updateCourseDetails(existingCategoryId, categoryUpdatePayload as CourseCategory)
+            .subscribe({
+                next: () => {
+                    this.isSaving = false;
+                    this.setActiveStep('details'); // Navigate to details
+                    console.log(`Course ${existingCategoryId} category updated successfully and proceeding.`);
+                },
+                error: (err) => {
+                    this.isSaving = false;
+                    console.error('Failed to update existing course category:', err);
+                }
+            });
+    } else {
+        // SCENARIO 2 (Initial Run): Course does NOT exist yet. Just advance.
+        this.isSaving = false;
+        this.setActiveStep('details'); 
+    }
   }
 
-  // Modified to handle update/create (Requirement 2 & 3)
+  // private saveCourseDraftAndAdvance(): void {
+  //   this.courseData.categoryID = this.selectedCategory?.id ?? 0; // Ensure the final ID is set
+
+  //   const apiPayload = {
+  //       id: this.courseId || 0,
+  //       categoryID: this.courseData.categoryID,
+  //       instructorId: this.instructorId, // Assuming this is available
+  //       title: this.courseData.title || this.selectedCategory?.name, // Use placeholder title for draft
+  //       status: 'Draft'
+  //       // Include any other minimum required fields for a draft here
+  //   } as Course; 
+
+  //   // Determine the operation based on the existing course ID (Feature 4)
+  //   const saveOperation = this.courseId
+  //       ? this.courseService.updateCourseDetails(this.courseId, apiPayload) // Update Draft
+  //       : this.courseService.createCourse(apiPayload); // Create Initial Draft
+
+  //   saveOperation.pipe(
+  //       tap((course) => {
+  //           // CRITICAL: Store the ID returned from the server (Feature 4 fix)
+  //           this.courseId = course.id; 
+            
+  //           this.completedSteps['category'] = true;
+  //           this.isSaving = false;
+  //           this.snackBar.open('Category saved. Proceeding to details.', 'Success', { duration: 3000 });
+  //           this.setActiveStep('details'); // <-- Handles navigation (Feature 3)
+  //       }),
+  //       catchError(err => {
+  //           console.error('Failed to create/update course draft:', err);
+  //           this.isSaving = false;
+  //           return of(null);
+  //       })
+  //   ).subscribe();
+  // }
+
   saveCategoryStep(): void {
-    if (!this.selectedCategory || !this.isCategoryStepValid || this.isSaving) {
+    if (!this.isCategoryStepValid || this.isSaving) {
         console.error('Category step validation failed or already saving.');
         return;
     }
@@ -272,10 +361,10 @@ export class InstructorCreateCourseComponent implements OnInit {
     this.isSaving = true;
     const currentName = this.categorySearchText.trim();
     const currentDescription = this.newCategoryDescription.trim();
-    const categoryId = this.selectedCategory.id;
+    const categoryId = this.selectedCategory?.id ?? 0;
 
     // --- SCENARIO 1: EXISTING CATEGORY (Update/Proceed) ---
-    if (categoryId) {
+    if (categoryId !== 0) {
         this.courseData.categoryID = categoryId;
         
         // Check for modification (Requirement 2: Update)
@@ -296,7 +385,8 @@ export class InstructorCreateCourseComponent implements OnInit {
                     if(index !== -1) this.allCategories[index] = updatedCategory;
                     this.selectedCategory = updatedCategory;
                     this.originalCategoryDescription = updatedCategory.description || ''; 
-                    this.markStepCompleteAndAdvance();
+                    // this.saveCourseDraftAndAdvance();
+                    this.proceedToDetailsStep(updatedCategory.id);
                 }),
                 catchError(err => {
                     console.error('Failed to update existing category:', err);
@@ -306,7 +396,9 @@ export class InstructorCreateCourseComponent implements OnInit {
             ).subscribe();
         } else {
             // If no modification, just proceed (Requirement 3: Proceed)
-            this.markStepCompleteAndAdvance();
+            // this.saveCourseDraftAndAdvance();
+            this.proceedToDetailsStep(categoryId);
+            
         }
     } 
     // --- SCENARIO 2: NEW CATEGORY NEEDS CREATION ---
@@ -320,7 +412,7 @@ export class InstructorCreateCourseComponent implements OnInit {
                     this.allCategories.push(newCategory); // Add to local list
                     this.courseData.categoryID = newCategory.id!;
                     this.originalCategoryDescription = newCategory.description || ''; // Set original
-                    this.markStepCompleteAndAdvance();
+                    this.proceedToDetailsStep(newCategory.id!);
                 }),
                 catchError(err => {
                     console.error('Failed to create new category:', err);
@@ -338,6 +430,8 @@ export class InstructorCreateCourseComponent implements OnInit {
   saveCourseDetails(): void {
     const data = this.courseData;
     let validationFailed = false;
+
+    
 
     if (data.categoryID === 0) {
         console.error('Validation failed: Category must be selected (categoryID is 0).');
@@ -380,7 +474,7 @@ export class InstructorCreateCourseComponent implements OnInit {
         level: data.level, 
         syllabus: data.syllabus || '', 
         thumbnailURL: data.thumbnailURL || 'https://placehold.co/400x225/333/FFF?text=Course+Image', 
-        id: 0, 
+        id: this.courseId || 0, 
         instructorId: this.instructorId, 
         status: 'Draft',
         lessons: [], 

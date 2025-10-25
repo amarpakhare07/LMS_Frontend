@@ -109,12 +109,15 @@
                 </div>
             </div>
 
-            <div class="step-actions">
-                <button mat-flat-button color="primary" class="next-step-button" (click)="saveCategoryStep()"
-                    [disabled]="!selectedCategory && categorySearchText.trim().length < 3">
-                    <mat-icon>arrow_forward</mat-icon> {{ completedSteps['category'] ? 'Update Category' : 'Next: Course
-                    Details' }}
-                </button>
+            <div *ngIf="activeStep === 'category'" class="step-content">
+                <div class="step-actions">
+                    <button mat-flat-button color="primary" class="next-step-button" (click)="saveCategoryStep()"
+                        [disabled]="!isCategoryStepValid()">
+                        <mat-icon>arrow_forward</mat-icon> {{ completedSteps['category'] ? 'Update Category' : 'Next:
+                        Course
+                        Details' }}
+                    </button>
+                </div>
             </div>
         </div>
 
