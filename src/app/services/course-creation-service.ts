@@ -6,7 +6,7 @@ import { Observable, tap, of, throwError } from 'rxjs';
 // --- INTERFACES (MODELS) ---
 
 export interface CourseCategory {
-  id: number; // optional for creation
+  categoryID: number; // optional for creation
   name: string;
   description: string;
 }
@@ -78,7 +78,7 @@ export class CourseInstructorService {
 
     return this.http.post<CourseCategory>(endpoint, categoryDetails).pipe(
       tap((newCategory) => {
-        console.log(`✅ API CHECK: Category created successfully. Received ID: ${newCategory.id}`);
+        console.log(`✅ API CHECK: Category created successfully. Received ID: ${newCategory.categoryID}`);
       })
     );
   }
@@ -92,17 +92,17 @@ export class CourseInstructorService {
    */
     updateCategoryDetails(categoryDetails: CourseCategory): Observable<CourseCategory> {
       // Ensuring category has an ID for the PUT request
-      if (!categoryDetails.id) {
+      if (!categoryDetails.categoryID) {
           return throwError(() => new Error('Category ID is required for update.'));
       }
-      const endpoint = `${this.apiUrl}/CourseCategories/${categoryDetails.id}`;
-      console.log(`➡️ API CHECK: Sending PUT request to update category ID: ${categoryDetails.id}`);
+      const endpoint = `${this.apiUrl}/CourseCategories/${categoryDetails.categoryID}`;
+      console.log(`➡️ API CHECK: Sending PUT request to update category ID: ${categoryDetails.categoryID}`);
 
       // The return type of the method (Observable<CourseCategory>) now matches 
       // the generic type of the HTTP call (http.put<CourseCategory>).
       return this.http.put<CourseCategory>(endpoint, categoryDetails).pipe(
           tap((updatedCategory) => {
-              console.log(`✅ API CHECK: Category ${updatedCategory.id} updated successfully.`);
+              console.log(`✅ API CHECK: Category ${updatedCategory.categoryID} updated successfully.`);
           })
       );
     }

@@ -57,9 +57,9 @@
                     <div *ngIf="categoryStatus === 'none' && categorySearchText.trim()"
                         class="category-list mat-elevation-z1">
 
-                        <div *ngFor="let cat of filteredCategories" [class.selected]="selectedCategory?.id === cat.id"
+                        <div *ngFor="let cat of filteredCategories" [class.selected]="selectedCategory?.categoryID === cat.categoryID"
                             (click)="selectCategory(cat)">
-                            <mat-icon class="icon-small">{{ selectedCategory?.id === cat.id ? 'folder_open' : 'folder'
+                            <mat-icon class="icon-small">{{ selectedCategory?.categoryID === cat.categoryID ? 'folder_open' : 'folder'
                                 }}</mat-icon>
                             {{ cat.name }}
                         </div>
@@ -105,7 +105,7 @@
                 </div>
 
                 <div class="step-actions">
-                    <button mat-stroked-button color="primary" (click)="saveCategoryStep(false)"
+                    <button mat-stroked-button color="primary" (click)="saveCategoryStep(true)"
                         [disabled]="!isCategoryStepValid()">
                         <mat-icon>save</mat-icon> Save Category
                     </button>
@@ -202,15 +202,17 @@
                     </mat-form-field>
                 </div>
 
-                <div class="step-actions">
-                    <button mat-stroked-button color="primary" (click)="saveDetailsStep(false)"
-                        [disabled]="!isCourseDetailsValid()">
-                        <mat-icon>save</mat-icon> Save Details Draft
-                    </button>
-                    <button mat-flat-button color="primary" class="next-step-button" (click)="saveDetailsStep(true)"
-                        [disabled]="!isCourseDetailsValid()">
-                        <mat-icon>arrow_forward</mat-icon> Next: Lessons Content
-                    </button>
+                <div *ngIf="activeStep === 'details'">
+                    <div class="step-actions">
+                        <button mat-stroked-button color="primary" (click)="saveDetailsStep(false)"
+                            [disabled]="!isCourseDetailsValid()">
+                            <mat-icon>save</mat-icon> Save Details Draft
+                        </button>
+                        <button mat-flat-button color="primary" class="next-step-button" (click)="saveDetailsStep(true)"
+                            [disabled]="!isCourseDetailsValid()">
+                            <mat-icon>arrow_forward</mat-icon> Next: Lessons Content
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -237,10 +239,13 @@
                         <p>Duration: <strong>{{ courseData.duration }} mins</strong></p>
                     </div>
                 </div>
-                <div class="step-actions-read-only">
-                    <button mat-flat-button color="primary" class="next-step-button" (click)="setActiveStep('lessons')">
-                        <mat-icon>arrow_forward</mat-icon> Continue to Lessons
-                    </button>
+                <div *ngIf="isFieldDisabled('details')" class="read-only-step-display mat-elevation-z1">
+                    <div class="step-actions-read-only">
+                        <button mat-flat-button color="primary" class="next-step-button"
+                            (click)="setActiveStep('lessons')">
+                            <mat-icon>arrow_forward</mat-icon> Continue to Lessons
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

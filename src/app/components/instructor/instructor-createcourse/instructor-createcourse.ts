@@ -148,7 +148,7 @@ export class InstructorCreateCourseComponent implements OnInit {
     thumbnailURL: '',
     level: 'Beginner',
     language: 'English',
-    duration: null,
+    duration: 10,
     categoryId: null,
     categoryName: null,
     categoryDescription: null,
@@ -248,7 +248,7 @@ export class InstructorCreateCourseComponent implements OnInit {
 
     if (course.categoryId && course.categoryName) {
       this.completedSteps.category = true;
-      this.selectedCategory = this.allCategories.find(c => c.id === course.categoryId) || { id: course.categoryId, name: course.categoryName!, description: course.categoryDescription || '' };
+      this.selectedCategory = this.allCategories.find(c => c.categoryID === course.categoryId) || { categoryID: course.categoryId, name: course.categoryName!, description: course.categoryDescription || '' };
       this.categorySearchText = course.categoryName;
       this.categoryStatus = 'existing';
     }
@@ -319,111 +319,193 @@ export class InstructorCreateCourseComponent implements OnInit {
     this.categorySearchText = cat.name; // Keep the search text synchronized
     this.categoryStatus = 'existing'; // Mark status as existing
     // Ensure the course data is populated immediately for validation/display
-    this.courseData.categoryId = cat.id;
+    this.courseData.categoryId = cat.categoryID;
     this.courseData.categoryName = cat.name;
     this.courseData.categoryDescription = cat.description;
   }
 
   isCategoryStepValid(): boolean {
-    if (this.categoryStatus === 'existing' && this.selectedCategory && this.selectedCategory.id > 0) {
-        return true;
+    if (this.categoryStatus === 'existing' && this.selectedCategory && this.selectedCategory.categoryID > 0) {
+      return true;
     }
-    
+
     if (this.categoryStatus === 'new' && this.categorySearchText.trim().length > 0 && this.newCategoryDescription.trim().length >= 10) {
-        return true;
+      return true;
     }
 
     return false;
-}
- saveCategoryStep(next: boolean = false) {
+  }
+  saveCategoryStep(next: boolean = false) {
     if (!this.isCategoryStepValid() || !this.instructorId) {
-        console.warn('Validation failed or Instructor ID is missing.');
-        return;
+      console.warn('Validation failed or Instructor ID is missing.');
+      return;
     }
-    
+
     // 💡 1. Set loading to true before the API call
-    this.isLoading = true; 
-    
+    this.isLoading = true;
+
     let category$: Observable<CourseCategory>;
 
     // 1. Determine Category Action (Create New or Use Existing)
     if (this.categoryStatus === 'new') {
-        const newCatDetails = { name: this.categorySearchText.trim(), description: this.newCategoryDescription.trim() };
-        category$ = this.courseService.createCategory(newCatDetails).pipe(
-            tap(newCategory => this.allCategories.push(newCategory))
-        );
+      const newCatDetails = { name: this.categorySearchText.trim(), description: this.newCategoryDescription.trim(), categoryID: 0 };
+      category$ = this.courseService.createCategory(newCatDetails).pipe(
+        tap(newCategory => this.allCategories.push(newCategory))
+      );
     } else {
-        category$ = of(this.selectedCategory!);
+      category$ = of(this.selectedCategory!);
     }
-    
-    // 2. Perform Category Action and ONLY update local state
-    category$.subscribe({
-        next: (cat) => { 
-            this.courseData.categoryId = cat.id;
-            this.courseData.categoryName = cat.name;
-            this.courseData.categoryDescription = cat.description;
-            
-            this.completedSteps.category = true;
-            console.log('Category saved/selected successfully.');
-            
-            // 💡 2a. Set loading to false on success
-            this.isLoading = false; 
 
-            if (next) {
-                this.setActiveStep('details'); 
-            }
-        },
-        error: (err) => {
-            console.error('API Error: Category save failed', err);
-            // 💡 2b. Set loading to false on error
-            this.isLoading = false; 
+    // 2. Perform Category Action and ONLY update local state
+    // category$.subscribe({
+    //     next: (cat) => { 
+    //         this.courseData.categoryId = cat.id;
+    //         this.courseData.categoryName = cat.name;
+    //         this.courseData.categoryDescription = cat.description;
+
+    //         this.completedSteps.category = true;
+    //         console.log('Category saved/selected successfully.');
+
+    //         // 💡 2a. Set loading to false on success
+    //         this.isLoading = false; 
+
+    //         if (next) {
+    //             this.setActiveStep('details'); 
+    //         }
+    //     },
+    category$.subscribe({
+      next: (cat) => {
+        const categoryIdFromApi = cat.categoryID; // 👈 FIX: Read from categoryID
+
+        // 1. Check if the ID is valid
+        if (typeof categoryIdFromApi !== 'number' || categoryIdFromApi <= 0) {
+          console.error('API failed to return a valid Category ID (categoryID <= 0).', cat);
+          this.isLoading = false;
+          return;
         }
+
+        // 2. Update the local state with the valid ID
+        this.courseData.categoryId = categoryIdFromApi;
+        this.courseData.categoryName = cat.name;
+        this.courseData.categoryDescription = cat.description;
+
+        this.completedSteps.category = true;
+        console.log('Category saved/selected successfully. ID:', categoryIdFromApi);
+
+        this.isLoading = false;
+
+        if (next) {
+          this.setActiveStep('details');
+        }
+      },
+      error: (err) => {
+        console.error('API Error: Category save failed', err);
+        // 💡 2b. Set loading to false on error
+        this.isLoading = false;
+      }
     });
-}
+  }
 
   // =========================================================================
   //                             STEP 2: DETAILS ACTIONS
   // =========================================================================
 
   isCourseDetailsValid(): boolean {
-    // Checks that the course ID exists (i.e., step 1 was completed)
-    return !!this.courseId &&
-      this.courseData.title.trim().length >= 5 &&
-      this.courseData.description.trim().length >= 10 &&
-      this.courseData.syllabus.trim().length >= 10 &&
-      !!this.courseData.level &&
-      !!this.courseData.language;
+    const data = this.courseData;
+
+    // 1. Core Metadata Validation: Ensure the result of the expression is explicitly a boolean.
+    // The issue occurs in the variables that start with `data.field && ...`
+    const isTitleValid: boolean = !!(data.title && data.title.trim().length >= 5);
+    const isDescriptionValid: boolean = !!(data.description && data.description.trim().length >= 10);
+    const isSyllabusValid: boolean = !!(data.syllabus && data.syllabus.trim().length >= 10);
+
+    // 2. Selection/Numeric Validation:
+    // !! is already the correct way to cast truthiness to boolean.
+    const isLevelValid: boolean = !!data.level;
+    const isLanguageValid: boolean = !!(data.language && data.language.trim().length >= 2);
+
+    // This was already correct, as it produces a strict boolean result.
+    const isDurationValid: boolean = typeof data.duration === 'number' && data.duration > 0;
+
+    // 3. Final Return: The combination of strict boolean variables is now safe.
+    return (
+      isTitleValid &&
+      isDescriptionValid &&
+      isSyllabusValid &&
+      isLevelValid &&
+      isLanguageValid &&
+      isDurationValid
+    );
   }
 
+  // instructor-createcourse.ts
+
+  // instructor-createcourse.ts
+
+  // instructor-createcourse.ts (REPLACEMENT for saveDetailsStep - Only handles POST/Create)
+
   saveDetailsStep(next: boolean = false) {
-    if (!this.isCourseDetailsValid() || !this.courseId) {
-      console.warn('Validation failed or Course ID is missing.');
+    this.isLoading = true;
+
+    // 1. Validation Check (Details fields must be valid)
+    if (!this.isCourseDetailsValid()) {
+      console.warn('Validation failed: Course Details are incomplete or invalid.');
+      this.isLoading = false;
       return;
     }
 
-    // Partial update payload for API
-    const updates: Partial<CourseDetail & { syllabus: string, level: string, language: string, thumbnailURL: string }> = {
+    // CRITICAL CHECK: If courseId already exists, it means the course was created 
+    // in a previous session or by ngOnInit. We skip the POST call entirely 
+    // and rely on the initial course load to populate the data.
+    // if (this.courseId) {
+    //     console.log('Course already created (ID:', this.courseId, '). Skipping API POST call.');
+    //     this.completedSteps.details = true;
+    //     this.isLoading = false;
+
+    //     if (next) {
+    //         this.setActiveStep('lessons');
+    //     }
+    //     return;
+    // }
+
+    // CRITICAL PRE-REQUISITE: The category ID MUST be available from the previous step.
+    if (!this.courseData.categoryId) { // Local state uses camelCase 'categoryId'
+      console.error('Cannot create course: Category ID is required but missing.');
+      this.isLoading = false;
+      return;
+    }
+
+    // 2. Prepare Payload for Course Creation (POST API Call)
+    const createPayload = {
       title: this.courseData.title,
       description: this.courseData.description,
-      // Assuming these extended fields are also accepted by your PUT /api/Course/{id} endpoint
       syllabus: this.courseData.syllabus,
       level: this.courseData.level,
       language: this.courseData.language,
-      thumbnailURL: this.courseData.thumbnailURL
+      thumbnailURL: this.courseData.thumbnailURL,
+      duration: this.courseData.duration,
+      categoryID: this.courseData.categoryId, // PascalCase to match DTO
+      published: false
     };
 
-    this.courseService.updateCourseDetails(this.courseId, updates).subscribe({
-      next: (updatedCourse) => {
-        this.courseData = { ...this.courseData, ...updatedCourse }; // Update local state
+    // 3. Execute Course Creation (POST)
+    this.courseService.createCourse(createPayload).subscribe({
+      next: (newCourse) => {
+        this.courseId = newCourse.id;
+        this.courseData = { ...this.courseData, ...newCourse };
         this.completedSteps.details = true;
+        this.isLoading = false;
 
         if (next) {
           this.setActiveStep('lessons');
         } else {
-          console.log('Course Details saved successfully.');
+          console.log('New Course created successfully with ID:', this.courseId);
         }
       },
-      error: (err) => console.error('API Error: Course Details save failed', err)
+      error: (err) => {
+        console.error('API Error: Course creation failed', err);
+        this.isLoading = false;
+      }
     });
   }
 
