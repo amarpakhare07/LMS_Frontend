@@ -1,641 +1,595 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { CourseInstructorService, CourseCategory, Course, Lesson } from '../../../services/course-creation-service'; 
-import { catchError, of, tap } from 'rxjs';
-import { MatSelect, MatOption } from "@angular/material/select";
-import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from "@angular/material/card";
-import { MatList, MatDivider, MatListItem } from "@angular/material/list";
+import { FormsModule } from '@angular/forms'; // 👈 Essential for data binding
+import { RouterModule } from '@angular/router'; // 👈 Essential for navigation
+import { Router, ActivatedRoute } from '@angular/router';
+import { Observable, of, forkJoin } from 'rxjs';
+import { switchMap, tap, catchError } from 'rxjs/operators';
+import {
+  CourseInstructorService,
+  CourseCategory,
+  CourseDetail,
+  Course,
+  Lesson as ServiceLesson // Renamed to avoid collision with local Lesson interface
+} from '../../../services/course-creation-service';
+
+// Angular Material Imports
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatIcon } from "@angular/material/icon";
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressBarModule } from '@angular/material/progress-bar'; 
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatListModule } from '@angular/material/list';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
-// --- ENHANCED MODELS FOR COMPONENT STATE ---
+// @NgModule({
+//   imports: [
+//     CommonModule,
+//     FormsModule,
+//     RouterModule,
+//     // Angular Material:
+//     MatCardModule,
+//     MatIconModule,
+//     MatButtonModule,
+//     MatFormFieldModule,
+//     MatInputModule,
+//     MatSelectModule,
+//     MatCheckboxModule,
+//     MatListModule,
+//     MatDividerModule,
+//     MatTooltipModule,
+//   ]
+// })
 
-// Extends API CourseDetail with client-side fields
-interface CourseFormData extends Partial<Course> {
+// --- LOCAL INTERFACES (AUGMENTED from Service) ---
+
+// Extend Service's CourseCategory for local state management
+interface Category extends CourseCategory { }
+
+// Local CourseData must hold all fields needed across the flow
+interface CourseData {
+  id: number | null;
+  instructorId: number | null;
   title: string;
   description: string;
-  syllabus: string; // Additional field in HTML
-  thumbnailURL: string; // Additional field in HTML
-  level: 'Beginner' | 'Intermediate' | 'Expert'; // Additional field in HTML
-  language: string; // Additional field in HTML
-  duration: number; // Estimated Duration in Minutes
-  categoryID: number; // No longer null
+  syllabus: string; // Assuming this is part of the detail update in Step 2
+  thumbnailURL: string; // Assuming this is part of the detail update in Step 2
+  level: 'Beginner' | 'Intermediate' | 'Expert' | string; // Assuming this is part of the detail update in Step 2
+  language: string; // Assuming this is part of the detail update in Step 2
+  duration: number | null; // Total duration based on lessons (calculated) or initial estimate
+  categoryId: number | null;
+  categoryName: string | null;
+  categoryDescription: string | null;
+  status: 'Draft' | 'Published';
 }
 
-// Extends API Lesson with client-side fields
-interface LessonFormData extends Partial<Lesson> {
+// Local Lesson interface, augmented for UI/upload features
+interface Lesson {
+  id?: number | null;
+  courseId: number | null;
   title: string;
-  content: string; // Detailed content not required by API, but used in form
-  videoURL: string; // Content source URL (not required by API, assumed handled on client)
-  estimatedTime: number; // Used for form validation
-  lessonType: 'Video'; // Hardcoded in template
+  content: string; // Detailed content (not in service, assumed local/extended detail)
+  lessonType: 'Video';
+  estimatedTime: number | null;
+  orderIndex: number; // For UI sorting
+  videoURL: string; // Assumed part of the lesson detail
   includeDocument: boolean;
-  attachmentFile: File | null;
-  attachmentFileUrl: string | null; // URL after upload (simulated)
+  attachmentFileUrl: string | null; // URL after successful upload
+  attachmentFile?: File | null; // Client-side file object for upload
 }
 
-// Map for Step completion status
-type StepStatus = {
-  [key: string]: boolean;
-};
+// --- MAIN COMPONENT ---
 
 @Component({
   selector: 'app-instructor-createcourse',
-  templateUrl: './instructor-createcourse.html',
-  styleUrl: './instructor-createcourse.css',
   imports: [
-    CommonModule, 
-    FormsModule, 
-    MatIcon, 
-    MatSelect, 
-    MatOption, 
-    MatCard, 
-    MatList, 
-    MatDivider, 
-    MatListItem, 
-    MatFormFieldModule, 
-    MatInputModule, 
-    MatButtonModule, 
-    MatCardContent,
-    // MatCardHeader, 
-    // MatCardTitle, 
-    MatProgressBarModule 
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    // Angular Material:
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatListModule,
+    MatDividerModule,
+    MatTooltipModule,
   ],
-  standalone: true
+  templateUrl: './instructor-createcourse.html',
+  styleUrls: ['./instructor-createcourse.css'],
+
 })
 export class InstructorCreateCourseComponent implements OnInit {
-  // === DEPENDENCIES ===
-  private courseService = inject(CourseInstructorService);
-  private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
+  // --- Services and Dependencies ---
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private courseService: CourseInstructorService // Injected Service
+  ) { }
 
-  // === INSTRUCTOR ID STATE ===
-  instructorId: number | null = null; 
-  isInstructorIdReady: boolean = false; 
+  // --- Step Tracking & State ---
+  activeStep: 'category' | 'details' | 'lessons' | 'preview' = 'category';
+  completedSteps: {
+    category: boolean,
+    details: boolean,
+    lessons: boolean,
+    // Note: 'preview' is usually not here as it's the final action step
+  } = {
+      category: false,
+      details: false,
+      lessons: false,
+    };
+  isLoading: boolean = true;
+  courseId: number | null = null;
+  instructorId: number | null = null;
 
-  // === STEP MANAGEMENT STATE ===
-  activeStep: 'category' | 'details' | 'lessons' = 'category';
-  completedSteps: StepStatus = {
-    category: false,
-    details: false,
-    lessons: false,
-  };
-  courseId: number | null = null; // ID of the Course created in STEP 2
-  isSaving: boolean = false; // Global saving state for buttons
-
-  // === STEP 1: CATEGORY STATE ===
-  allCategories: CourseCategory[] = [];
-  filteredCategories: CourseCategory[] = [];
+  // --- Step 1: Category Data ---
+  allCategories: Category[] = [];
   categorySearchText: string = '';
-  selectedCategory: Partial<CourseCategory> | null = null; // Use Partial to allow {name} only
-  // 'none', 'existing', 'new'
-  categoryStatus: 'none' | 'existing' | 'new' = 'none'; 
+  filteredCategories: Category[] = [];
+  selectedCategory: Category | null = null;
+  categoryStatus: 'none' | 'existing' | 'new' = 'none';
   newCategoryDescription: string = '';
-  // NEW: Track the original description for change detection (Requirement 2)
-  originalCategoryDescription: string | null = null; 
 
-  // === STEP 2: COURSE DETAILS STATE ===
-  courseData: CourseFormData = {
+  // --- Step 2: Course Details Data ---
+  courseData: CourseData = {
+    id: null,
+    instructorId: null,
     title: '',
     description: '',
     syllabus: '',
     thumbnailURL: '',
     level: 'Beginner',
     language: 'English',
-    duration: 10,
-    categoryID: 0,
+    duration: null,
+    categoryId: null,
+    categoryName: null,
+    categoryDescription: null,
+    status: 'Draft',
   };
 
-  // === STEP 3: LESSONS STATE ===
-  lessons: LessonFormData[] = [];
-  lessonData: LessonFormData = this.resetLessonData();
+  // --- Step 3: Lesson Data ---
+  lessons: Lesson[] = [];
+  lessonData: Lesson = this.getNewLessonTemplate();
   lessonToEditIndex: number | null = null;
-  expandedLessonId: number | null = null; 
+  expandedLessonId: number | null | undefined = null;
 
-  // === INITIALIZATION ===
+  // =========================================================================
+  //                             LIFECYCLE HOOKS & DATA LOAD
+  // =========================================================================
+
   ngOnInit(): void {
-    this.fetchInstructorId();
-    this.fetchCategories();
-  }
-
-  fetchInstructorId(): void {
-    this.courseService.getCurrentInstructorId().subscribe({
-      next: (id) => {
-        this.instructorId = id;
-        this.isInstructorIdReady = true;
-        console.log(`Instructor ID fetched: ${id}`);
-      },
-      error: (err) => {
-        console.error('Failed to fetch Instructor ID, defaulting to null:', err);
-        this.isInstructorIdReady = true;
-      }
-    });
-  }
-
-   isCategoryStepValid(): boolean {
-    // 1. Check if an existing category is selected.
-    if (this.selectedCategory && this.categoryStatus === 'existing') {
-        return true;
-    }
-
-    // 2. Check if the user is attempting to create a new category.
-    if (this.categoryStatus === 'new') {
-        // Must have a category name (checked by categorySearchText.trim().length >= 3)
-        const nameValid = this.categorySearchText.trim().length >= 3;
-        
-        // Must have a description (using 10 chars as a reasonable minimum, based on hint)
-        const descriptionValid = this.newCategoryDescription.trim().length >= 10; 
-        
-        return nameValid && descriptionValid;
-    }
-
-    // 3. Otherwise (e.g., initial state, categoryStatus === 'none', or searching but no match/selection)
-    return false;
-}
-
-  // --- STEP MANAGEMENT METHODS ---
-
-  setActiveStep(step: 'category' | 'details' | 'lessons'): void {
-    if (this.completedSteps['details'] && step === 'lessons') {
-      this.activeStep = step;
-    } else if (this.completedSteps['category'] && step === 'details') {
-      this.activeStep = step;
-    } else if (step === 'category') {
-      this.activeStep = step;
-    }
-  }
-
-  isFieldDisabled(step: string): boolean {
-    if (step === 'category') {
-      return this.completedSteps['details'];
-    }
-    if (step === 'details') {
-      return this.completedSteps['lessons'];
-    }
-    return false;
-  }
-  
-  // NEW: Validation for "Next" button in Category Step (Requirement 1 & 3)
-  // get isCategoryStepValid(): boolean {
-  //   if (!this.selectedCategory) {
-  //       return false;
-  //   }
-
-  //   // 1. Existing category selected (from list or previously created)
-  //   if (this.selectedCategory.id) {
-  //       // Check if the user is currently editing the description
-  //       const isDescriptionModified = this.newCategoryDescription.trim() !== (this.originalCategoryDescription?.trim() || '');
-        
-  //       if (this.categoryStatus === 'existing' && isDescriptionModified) {
-  //           // If modified, validate the new description length (Requirement 2 check)
-  //           return this.newCategoryDescription.trim().length >= 10;
-  //       }
-  //       // If not modified, or status is just existing, it's valid to proceed (Requirement 3 check)
-  //       return true; 
-  //   }
-    
-  //   // 2. New category creation in progress (no ID yet)
-  //   if (this.categoryStatus === 'new') {
-  //       // Must have search text (name) and a valid description (Requirement 1 check)
-  //       return this.categorySearchText.trim().length > 0 && this.newCategoryDescription.trim().length >= 10;
-  //   }
-    
-  //   return false;
-  // }
-
-
-  // --- STEP 1: CATEGORY LOGIC ---
-
-  fetchCategories(): void {
-    this.courseService.getAllCategories().subscribe({
-      next: (categories) => {
+    // 1. Get instructor ID and course ID from route (if editing)
+    this.courseService.getCurrentInstructorId().pipe(
+      tap(instructorId => {
+        this.instructorId = instructorId; // Set the ID immediately
+        this.courseData.instructorId = instructorId;
+        if (!instructorId) {
+          // Critical failure: If the API returns 0 or null, we stop.
+          console.error("CRITICAL: Instructor ID could not be loaded from the service.");
+          this.isLoading = false;
+          return;
+        }
+      }),
+      // 2. Load Course ID from route and All Categories
+      switchMap(instructorId => forkJoin({
+        categories: this.courseService.getAllCategories(),
+        courseIdFromRoute: this.route.paramMap.pipe(
+          // Use distinctUntilChanged if you are worried about multiple param emissions
+          tap(params => {
+            const id = params.get('courseId');
+            this.courseId = id ? +id : null;
+          }),
+          switchMap(() => of(this.courseId))
+        )
+      })),
+      tap(({ categories }) => {
         this.allCategories = categories;
-        // If editing an existing course, pre-select the category
-        if (this.courseData.categoryID > 0) {
-            const initialCategory = categories.find(c => c.id === this.courseData.categoryID);
-            if (initialCategory) {
-                this.selectCategory(initialCategory);
-            }
+        this.filteredCategories = categories;
+      }),
+      // 3. Load existing course data if ID is present (Mock or Real API call)
+      switchMap(({ courseIdFromRoute }) => {
+        if (courseIdFromRoute) {
+          // MOCK: Replace with actual course data loading from API
+          return forkJoin({
+            lessons: this.courseService.getLessonsByCourse(courseIdFromRoute),
+            // You must ADD this method: getCourseById(id: number) to your service
+            // courseDetails: this.courseService.getCourseById(courseIdFromRoute) 
+            // Using a mock observable until you add getCourseById:
+            courseDetails: of({
+              title: "Loaded Title", description: "Loaded Description", categoryId: 1,
+              categoryName: "Web Development", categoryDescription: "Learn to build...", status: 'Draft'
+            } as Partial<CourseData>)
+          });
         }
-      },
-      error: (err) => {
-        console.error('Failed to fetch categories:', err);
-      }
-    });
-  }
-
-  onCategorySearch(): void {
-    const searchText = this.categorySearchText.trim().toLowerCase();
-    
-    if (!searchText) {
-      this.categoryStatus = 'none';
-      this.filteredCategories = this.allCategories;
-      this.selectedCategory = null; 
-      this.newCategoryDescription =  ''; 
-      this.originalCategoryDescription = null; 
-      return;
-    }
-
-    this.filteredCategories = this.allCategories.filter(cat =>
-      cat.name.toLowerCase().includes(searchText)
-    );
-
-    const exactMatch = this.filteredCategories.find(cat => cat.name.toLowerCase() === searchText);
-    
-    if (exactMatch) {
-      this.selectCategory(exactMatch);
-    } else if (this.filteredCategories.length === 0 && searchText.length >= 3) {
-      this.selectedCategory = { name: this.categorySearchText.trim() };
-      this.categoryStatus = 'new';
-      // If switching from 'existing' to 'new', clear the original description tracking
-      if (!this.selectedCategory.id) {
-           this.originalCategoryDescription = null; 
-      }
-    } else {
-      this.categoryStatus = 'none';
-      this.selectedCategory = null;
-      this.newCategoryDescription = '';
-      this.originalCategoryDescription = null;
-    }
-  }
-  
-  selectCategory(cat: CourseCategory): void {
-    // Check if the same category is being unselected
-    
-    this.selectedCategory = cat;
-    this.categorySearchText = cat.name; // Keep the search box consistent
-    this.categoryStatus = 'existing'; // <-- CRUCIAL: Set status to 'existing'
-    // Clear any new category description if present
-    this.newCategoryDescription = ''; 
-}
-  
-  getSelectedCategoryName(): string {
-    return this.selectedCategory?.name|| 'N/A';
-  }
-
-  
-  private proceedToDetailsStep(categoryId: number): void {
-    const existingCategoryId = categoryId;
-    
-    // Set local state before navigation regardless of update status
-    this.courseData.categoryID = categoryId;
-    this.completedSteps['category'] = true;
-
-    if (existingCategoryId) {
-        // SCENARIO 1 (FIX): Course already exists. Update its category ID via API.
-        this.isSaving = true;
-
-        // ** CORRECTED CALL **: Assuming service requires courseId and a partial Course object.
-        // We only send the ID and the specific field (categoryID) we want to update.
-        const categoryUpdatePayload = {
-            id: categoryId,
-            
-        } as Partial<CourseCategory>;
-
-        this.courseService.updateCourseDetails(existingCategoryId, categoryUpdatePayload as CourseCategory)
-            .subscribe({
-                next: () => {
-                    this.isSaving = false;
-                    this.setActiveStep('details'); // Navigate to details
-                    console.log(`Course ${existingCategoryId} category updated successfully and proceeding.`);
-                },
-                error: (err) => {
-                    this.isSaving = false;
-                    console.error('Failed to update existing course category:', err);
-                }
-            });
-    } else {
-        // SCENARIO 2 (Initial Run): Course does NOT exist yet. Just advance.
-        this.isSaving = false;
-        this.setActiveStep('details'); 
-    }
-  }
-
-  // private saveCourseDraftAndAdvance(): void {
-  //   this.courseData.categoryID = this.selectedCategory?.id ?? 0; // Ensure the final ID is set
-
-  //   const apiPayload = {
-  //       id: this.courseId || 0,
-  //       categoryID: this.courseData.categoryID,
-  //       instructorId: this.instructorId, // Assuming this is available
-  //       title: this.courseData.title || this.selectedCategory?.name, // Use placeholder title for draft
-  //       status: 'Draft'
-  //       // Include any other minimum required fields for a draft here
-  //   } as Course; 
-
-  //   // Determine the operation based on the existing course ID (Feature 4)
-  //   const saveOperation = this.courseId
-  //       ? this.courseService.updateCourseDetails(this.courseId, apiPayload) // Update Draft
-  //       : this.courseService.createCourse(apiPayload); // Create Initial Draft
-
-  //   saveOperation.pipe(
-  //       tap((course) => {
-  //           // CRITICAL: Store the ID returned from the server (Feature 4 fix)
-  //           this.courseId = course.id; 
-            
-  //           this.completedSteps['category'] = true;
-  //           this.isSaving = false;
-  //           this.snackBar.open('Category saved. Proceeding to details.', 'Success', { duration: 3000 });
-  //           this.setActiveStep('details'); // <-- Handles navigation (Feature 3)
-  //       }),
-  //       catchError(err => {
-  //           console.error('Failed to create/update course draft:', err);
-  //           this.isSaving = false;
-  //           return of(null);
-  //       })
-  //   ).subscribe();
-  // }
-
-  saveCategoryStep(): void {
-    if (!this.isCategoryStepValid || this.isSaving) {
-        console.error('Category step validation failed or already saving.');
-        return;
-    }
-
-    this.isSaving = true;
-    const currentName = this.categorySearchText.trim();
-    const currentDescription = this.newCategoryDescription.trim();
-    const categoryId = this.selectedCategory?.id ?? 0;
-
-    // --- SCENARIO 1: EXISTING CATEGORY (Update/Proceed) ---
-    if (categoryId !== 0) {
-        this.courseData.categoryID = categoryId;
-        
-        // Check for modification (Requirement 2: Update)
-        const isDescriptionModified = currentDescription !== (this.originalCategoryDescription?.trim() || '');
-        
-        if (isDescriptionModified) {
-            // Update the category details in the API
-            this.courseService.updateCategoryDetails({ 
-                id: categoryId, 
-                name: currentName, 
-                description: currentDescription 
-            } as CourseCategory)
-            .pipe(
-                tap((updatedCategory) => {
-                    console.log('Existing category updated:', updatedCategory.id);
-                    // Update the local list/state for consistency
-                    const index = this.allCategories.findIndex(c => c.id === updatedCategory.id);
-                    if(index !== -1) this.allCategories[index] = updatedCategory;
-                    this.selectedCategory = updatedCategory;
-                    this.originalCategoryDescription = updatedCategory.description || ''; 
-                    // this.saveCourseDraftAndAdvance();
-                    this.proceedToDetailsStep(updatedCategory.id);
-                }),
-                catchError(err => {
-                    console.error('Failed to update existing category:', err);
-                    this.isSaving = false;
-                    return of(null); 
-                })
-            ).subscribe();
-        } else {
-            // If no modification, just proceed (Requirement 3: Proceed)
-            // this.saveCourseDraftAndAdvance();
-            this.proceedToDetailsStep(categoryId);
-            
+        return of({ lessons: [], courseDetails: null });
+      }),
+      // 4. Update component state with loaded course data and lessons
+      tap(({ lessons, courseDetails }) => {
+        if (courseDetails) {
+          this.updateStateFromCourseData(courseDetails as CourseData);
         }
-    } 
-    // --- SCENARIO 2: NEW CATEGORY NEEDS CREATION ---
-    else if (this.categoryStatus === 'new') {
-        // API call to create the new category first
-        this.courseService.createCategory({ name: currentName, description: currentDescription } as CourseCategory)
-            .pipe(
-                tap((newCategory) => {
-                    console.log('New category created and ID received:', newCategory.id);
-                    this.selectedCategory = newCategory;
-                    this.allCategories.push(newCategory); // Add to local list
-                    this.courseData.categoryID = newCategory.id!;
-                    this.originalCategoryDescription = newCategory.description || ''; // Set original
-                    this.proceedToDetailsStep(newCategory.id!);
-                }),
-                catchError(err => {
-                    console.error('Failed to create new category:', err);
-                    this.isSaving = false;
-                    return of(null); 
-                })
-            ).subscribe();
-    } else {
-        this.isSaving = false;
-    }
-  }
 
-  // --- STEP 2: COURSE DETAILS LOGIC (Unchanged) ---
+        this.lessons = lessons.map(l => ({
+          id: (l.id === undefined ? null : l.id) as number | null,
+          courseId: this.courseId,
+          title: l.title,
+          orderIndex: l.orderIndex,
+          estimatedTime: l.duration,
+          content: 'Loaded content...',
+          lessonType: 'Video',
+          videoURL: 'https://video.link/loaded',
+          includeDocument: false,
+          attachmentFileUrl: null
+        }));
 
-  saveCourseDetails(): void {
-    const data = this.courseData;
-    let validationFailed = false;
-
-    
-
-    if (data.categoryID === 0) {
-        console.error('Validation failed: Category must be selected (categoryID is 0).');
-        validationFailed = true;
-    }
-
-    if (!data.title || data.title.trim().length < 5) {
-        console.error('Validation failed: Course Title is required and must be at least 5 characters.');
-        validationFailed = true;
-    }
-
-    if (!data.description || data.description.trim().length < 20) {
-        console.error('Validation failed: Course Description is required and must be at least 20 characters.');
-        validationFailed = true;
-    }
-    
-    if (data.duration <= 0) {
-        console.error('Validation failed: Course Duration must be greater than 0.');
-        validationFailed = true;
-    }
-    
-    if (validationFailed) {
-        console.error('Validation failed for course details.'); 
-        return;
-    }
-
-    if (!this.isInstructorIdReady || this.instructorId === null) {
-        console.error('Instructor ID is not available. Please wait for initialization.');
-        return;
-    }
-
-    this.isSaving = true;
-
-    const apiPayload: Course = {
-        title: data.title,
-        description: data.description,
-        categoryID: data.categoryID, 
-        duration: data.duration, 
-        language: data.language, 
-        level: data.level, 
-        syllabus: data.syllabus || '', 
-        thumbnailURL: data.thumbnailURL || 'https://placehold.co/400x225/333/FFF?text=Course+Image', 
-        id: this.courseId || 0, 
-        instructorId: this.instructorId, 
-        status: 'Draft',
-        lessons: [], 
-      } as Course;
-
-    const saveOperation = this.courseId
-      ? this.courseService.updateCourseDetails(this.courseId, apiPayload)
-      : this.courseService.createCourse(apiPayload);
-
-    saveOperation.pipe(
-      tap((course) => {
-        this.courseId = course.id; 
-        this.completedSteps['details'] = true;
-        this.setActiveStep('lessons');
-        this.isSaving = false;
-        console.log(`Course ${this.courseId} details saved. Proceeding to lessons.`);
+        this.completedSteps.lessons = this.lessons.length > 0;
+        this.setActiveStepInitial();
+        this.isLoading = false;
       }),
       catchError(err => {
-        console.error('Failed to save course details:', err);
-        this.isSaving = false;
+        console.error('Failed to load initial course data:', err);
+        this.isLoading = false;
         return of(null);
       })
     ).subscribe();
   }
 
+  private updateStateFromCourseData(course: CourseData) {
+    // Merge the loaded course details into the local state
+    this.courseData = { ...this.courseData, ...course, id: course.id || this.courseId, instructorId: this.instructorId };
 
-  // --- STEP 3: LESSONS LOGIC (Unchanged) ---
+    if (course.categoryId && course.categoryName) {
+      this.completedSteps.category = true;
+      this.selectedCategory = this.allCategories.find(c => c.id === course.categoryId) || { id: course.categoryId, name: course.categoryName!, description: course.categoryDescription || '' };
+      this.categorySearchText = course.categoryName;
+      this.categoryStatus = 'existing';
+    }
 
-  resetLessonData(): LessonFormData {
+    if (course.title && course.description) {
+      this.completedSteps.details = true;
+    }
+  }
+
+  private setActiveStepInitial() {
+    if (!this.completedSteps.category) {
+      this.activeStep = 'category';
+    } else if (!this.completedSteps.details) {
+      this.activeStep = 'details';
+    } else if (!this.completedSteps.lessons) {
+      this.activeStep = 'lessons';
+    } else {
+      this.activeStep = 'preview';
+    }
+  }
+
+
+  private getNewLessonTemplate(): Lesson {
     return {
+      id: null,
+      courseId: this.courseId,
       title: '',
       content: '',
-      videoURL: '',
-      estimatedTime: 5,
       lessonType: 'Video',
+      estimatedTime: null,
+      orderIndex: this.lessons.length + 1,
+      videoURL: '',
       includeDocument: false,
+      attachmentFileUrl: null,
       attachmentFile: null,
-      attachmentFileUrl: null
-    };
+    } as Lesson;
   }
+
+  // =========================================================================
+  //                             STEP 1: CATEGORY ACTIONS
+  // =========================================================================
+
+  onCategorySearch() {
+    this.selectedCategory = null;
+    this.categoryStatus = 'none';
+
+    if (!this.categorySearchText.trim()) {
+      this.filteredCategories = this.allCategories;
+      return;
+    }
+
+    const searchTextLower = this.categorySearchText.trim().toLowerCase();
+    const match = this.allCategories.find(cat => cat.name.toLowerCase() === searchTextLower);
+
+    if (match) {
+      this.selectCategory(match);
+      this.filteredCategories = [];
+    } else {
+      this.categoryStatus = 'new';
+      this.filteredCategories = this.allCategories.filter(cat =>
+        cat.name.toLowerCase().includes(searchTextLower)
+      );
+    }
+  }
+
+  selectCategory(cat: CourseCategory) {
+    this.selectedCategory = cat;
+    this.categorySearchText = cat.name; // Keep the search text synchronized
+    this.categoryStatus = 'existing'; // Mark status as existing
+    // Ensure the course data is populated immediately for validation/display
+    this.courseData.categoryId = cat.id;
+    this.courseData.categoryName = cat.name;
+    this.courseData.categoryDescription = cat.description;
+  }
+
+  isCategoryStepValid(): boolean {
+    if (this.categoryStatus === 'existing' && this.selectedCategory && this.selectedCategory.id > 0) {
+        return true;
+    }
+    
+    if (this.categoryStatus === 'new' && this.categorySearchText.trim().length > 0 && this.newCategoryDescription.trim().length >= 10) {
+        return true;
+    }
+
+    return false;
+}
+ saveCategoryStep(next: boolean = false) {
+    if (!this.isCategoryStepValid() || !this.instructorId) {
+        console.warn('Validation failed or Instructor ID is missing.');
+        return;
+    }
+    
+    // 💡 1. Set loading to true before the API call
+    this.isLoading = true; 
+    
+    let category$: Observable<CourseCategory>;
+
+    // 1. Determine Category Action (Create New or Use Existing)
+    if (this.categoryStatus === 'new') {
+        const newCatDetails = { name: this.categorySearchText.trim(), description: this.newCategoryDescription.trim() };
+        category$ = this.courseService.createCategory(newCatDetails).pipe(
+            tap(newCategory => this.allCategories.push(newCategory))
+        );
+    } else {
+        category$ = of(this.selectedCategory!);
+    }
+    
+    // 2. Perform Category Action and ONLY update local state
+    category$.subscribe({
+        next: (cat) => { 
+            this.courseData.categoryId = cat.id;
+            this.courseData.categoryName = cat.name;
+            this.courseData.categoryDescription = cat.description;
+            
+            this.completedSteps.category = true;
+            console.log('Category saved/selected successfully.');
+            
+            // 💡 2a. Set loading to false on success
+            this.isLoading = false; 
+
+            if (next) {
+                this.setActiveStep('details'); 
+            }
+        },
+        error: (err) => {
+            console.error('API Error: Category save failed', err);
+            // 💡 2b. Set loading to false on error
+            this.isLoading = false; 
+        }
+    });
+}
+
+  // =========================================================================
+  //                             STEP 2: DETAILS ACTIONS
+  // =========================================================================
+
+  isCourseDetailsValid(): boolean {
+    // Checks that the course ID exists (i.e., step 1 was completed)
+    return !!this.courseId &&
+      this.courseData.title.trim().length >= 5 &&
+      this.courseData.description.trim().length >= 10 &&
+      this.courseData.syllabus.trim().length >= 10 &&
+      !!this.courseData.level &&
+      !!this.courseData.language;
+  }
+
+  saveDetailsStep(next: boolean = false) {
+    if (!this.isCourseDetailsValid() || !this.courseId) {
+      console.warn('Validation failed or Course ID is missing.');
+      return;
+    }
+
+    // Partial update payload for API
+    const updates: Partial<CourseDetail & { syllabus: string, level: string, language: string, thumbnailURL: string }> = {
+      title: this.courseData.title,
+      description: this.courseData.description,
+      // Assuming these extended fields are also accepted by your PUT /api/Course/{id} endpoint
+      syllabus: this.courseData.syllabus,
+      level: this.courseData.level,
+      language: this.courseData.language,
+      thumbnailURL: this.courseData.thumbnailURL
+    };
+
+    this.courseService.updateCourseDetails(this.courseId, updates).subscribe({
+      next: (updatedCourse) => {
+        this.courseData = { ...this.courseData, ...updatedCourse }; // Update local state
+        this.completedSteps.details = true;
+
+        if (next) {
+          this.setActiveStep('lessons');
+        } else {
+          console.log('Course Details saved successfully.');
+        }
+      },
+      error: (err) => console.error('API Error: Course Details save failed', err)
+    });
+  }
+
+  // =========================================================================
+  //                             STEP 3: LESSON ACTIONS
+  // =========================================================================
 
   get isLessonFormValid(): boolean {
-    const data = this.lessonData;
-    const baseValid = data.title.trim().length > 3 && data.estimatedTime > 0 && data.videoURL.trim().length > 5;
-    
-    if (data.includeDocument) {
-      return baseValid && (!!data.attachmentFile || !!data.attachmentFileUrl);
-    }
-    return baseValid;
+    const isBaseValid = this.lessonData.title.trim().length >= 3 &&
+      this.lessonData.estimatedTime !== null &&
+      this.lessonData.estimatedTime! > 0 &&
+      !!this.lessonData.videoURL; // Require video for simplicity
+
+    const isAttachmentValid = !this.lessonData.includeDocument || !!this.lessonData.attachmentFile;
+
+    return isBaseValid && isAttachmentValid;
   }
 
-  onFileChange(event: Event): void {
+  onFileChange(event: Event) {
+    // ... (logic remains the same - handles local file object)
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.lessonData.attachmentFile = input.files[0];
-      this.lessonData.attachmentFileUrl = `http://mock-cdn.lms.dev/files/${this.lessonData.attachmentFile.name}`;
+    if (input.files && input.files.length) {
+      const file = input.files[0];
+      this.lessonData.attachmentFile = file;
+      this.lessonData.attachmentFileUrl = `/temp-upload/${file.name}`; // Temporary client URL
     } else {
       this.lessonData.attachmentFile = null;
       this.lessonData.attachmentFileUrl = null;
     }
   }
 
-  saveLesson(): void {
-    if (!this.courseId || this.isSaving) return; 
+  saveLesson() {
+    if (!this.courseId || !this.isLessonFormValid) {
+      console.warn('Cannot save lesson. Course ID missing or form is invalid.');
+      return;
+    }
 
-    this.isSaving = true;
-
-    const lessonPayload: Lesson = {
+    // 1. Prepare Service Lesson Payload
+    const lessonPayload: Omit<ServiceLesson, 'id'> = {
       courseId: this.courseId,
       title: this.lessonData.title,
-      duration: this.lessonData.estimatedTime ?? 5,
-      orderIndex: this.lessonToEditIndex !== null ? this.lessons[this.lessonToEditIndex].orderIndex ?? 1 : this.lessons.length + 1,
+      duration: this.lessonData.estimatedTime!, // Use estimatedTime as duration
+      orderIndex: this.lessonData.orderIndex,
+      // Note: Other local fields like content, videoURL, attachment are not directly in your ServiceLesson model. 
+      // You must extend your ServiceLesson or create a separate API endpoint for these extended details.
+      // For this code, we only send what the service expects.
     };
-    
-    if (this.lessonToEditIndex !== null && this.lessons[this.lessonToEditIndex].id) {
-        lessonPayload.id = this.lessons[this.lessonToEditIndex].id;
+
+    let lessonAction$: Observable<ServiceLesson>;
+
+    if (this.lessonData.id) {
+      // Update existing lesson
+      const fullLesson: ServiceLesson = { ...lessonPayload, id: this.lessonData.id };
+      lessonAction$ = this.courseService.updateLesson(fullLesson);
+    } else {
+      // Create new lesson
+      lessonAction$ = this.courseService.createLesson(lessonPayload);
     }
-    
-    const saveOperation = lessonPayload.id
-        ? this.courseService.updateLesson(lessonPayload)
-        : this.courseService.createLesson(lessonPayload);
 
-    saveOperation.pipe(
-        tap((savedLesson) => {
-            const localLessonData: LessonFormData = { ...this.lessonData, id: savedLesson.id, orderIndex: savedLesson.orderIndex };
+    lessonAction$.subscribe({
+      next: (savedServiceLesson) => {
+        const savedLesson: Lesson = {
+          ...this.lessonData,
+          id: savedServiceLesson.id,
+          orderIndex: savedServiceLesson.orderIndex,
+          estimatedTime: savedServiceLesson.duration,
+          courseId: savedServiceLesson.courseId
+          // NOTE: Local fields like videoURL, content need explicit saving if not in ServiceLesson.
+        };
 
-            if (this.lessonToEditIndex !== null) {
-                this.lessons[this.lessonToEditIndex] = localLessonData;
-            } else {
-                this.lessons.push(localLessonData);
-            }
+        const index = this.lessons.findIndex(l => l.id === savedLesson.id);
 
-            this.lessonData = this.resetLessonData();
-            this.lessonToEditIndex = null;
-            this.completedSteps['lessons'] = true; 
-            this.isSaving = false;
-            console.log(`Lesson ${savedLesson.id} saved successfully.`);
-        }),
-        catchError(err => {
-            console.error('Failed to save lesson:', err);
-            this.isSaving = false;
-            return of(null);
-        })
-    ).subscribe();
+        if (index !== -1) {
+          this.lessons[index] = savedLesson;
+        } else {
+          this.lessons.push(savedLesson);
+        }
+
+        this.completedSteps.lessons = this.lessons.length > 0;
+        this.lessons.forEach((l, i) => l.orderIndex = i + 1);
+        // this.resetLessonForm();
+        console.log('Lesson saved successfully:', savedLesson.title);
+      },
+      error: (err) => console.error('API Error: Lesson save failed', err)
+    });
   }
-  
-  editLesson(lesson: LessonFormData, index: number): void {
-    this.lessonData = { ...lesson }; 
+
+  editLesson(lesson: Lesson, index: number) {
     this.lessonToEditIndex = index;
-    this.expandedLessonId = null; 
+    this.lessonData = { ...lesson };
   }
 
-  removeLesson(index: number): void {
-    const lesson = this.lessons[index];
-    if (!lesson.id) {
-        this.lessons.splice(index, 1);
-        return;
+  removeLesson(index: number) {
+    const lessonId = this.lessons[index].id;
+    if (!lessonId || !confirm('Are you sure you want to remove this lesson?')) {
+      return;
     }
 
-    this.courseService.deleteLesson(lesson.id).subscribe({
+    this.courseService.deleteLesson(lessonId).subscribe({
       next: () => {
         this.lessons.splice(index, 1);
         this.lessons.forEach((l, i) => l.orderIndex = i + 1);
-        if (this.lessonToEditIndex === index) {
-            this.lessonData = this.resetLessonData();
-            this.lessonToEditIndex = null;
-        }
-        console.log(`Lesson ${lesson.id} deleted successfully.`);
+        this.completedSteps.lessons = this.lessons.length > 0;
+        // this.resetLessonForm();
+        this.expandedLessonId = null;
+        console.log('Lesson deleted successfully.');
       },
-      error: (err) => {
-        console.error('Failed to delete lesson:', err);
-      }
+      error: (err) => console.error('API Error: Lesson delete failed', err)
     });
   }
 
-  viewLessonDetails(lesson: LessonFormData): void {
-    this.expandedLessonId = this.expandedLessonId === lesson.id ? null : lesson.id!;
+  saveLessonsStep(next: boolean = false) {
+    if (this.lessons.length === 0) {
+      console.warn('You must add at least one lesson before proceeding.');
+      return;
+    }
+
+    // Final check/state update before proceeding
+    this.completedSteps.lessons = true;
+
+    if (next) {
+      this.setActiveStep('preview');
+    } else {
+      console.log('Lesson structure confirmed. Ready for Preview.');
+    }
   }
 
-  openAttachment(url: string, event: MouseEvent): void {
-    event.stopPropagation(); 
-    window.open(url, '_blank');
-  }
+  // =========================================================================
+  //                             STEP 4: PUBLISH ACTIONS
+  // =========================================================================
 
-  // --- FINALIZATION (Unchanged) ---
+  saveAndFinish() {
+    if (!this.courseId || this.lessons.length === 0) {
+      console.warn('Cannot publish: Course ID missing or no lessons.');
+      return;
+    }
 
-  saveAndFinish(): void {
-    if (!this.courseId || this.lessons.length === 0 || this.isSaving) return;
-
-    this.isSaving = true;
-    
     this.courseService.updateCourseStatus(this.courseId, 'Published').subscribe({
       next: () => {
-        this.isSaving = false;
-        console.log(`Course ${this.courseId} successfully PUBLISHED!`);
-        this.router.navigate(['/instructor/course-details', this.courseId]);
+        this.courseData.status = 'Published';
+        console.log('Course Published!');
+        // Navigate back to the course list
+        this.router.navigate(['/instructor/courses']);
       },
-      error: (err) => {
-        console.error('Failed to publish course:', err);
-        this.isSaving = false;
-      }
+      error: (err) => console.error('API Error: Publish failed', err)
     });
+  }
+
+  // =========================================================================
+  //                             UI/NAVIGATION HELPERS
+  // =========================================================================
+
+  setActiveStep(step: 'category' | 'details' | 'lessons' | 'preview') {
+    // Existing navigation logic
+    if (step === 'details' && !this.completedSteps.category) return;
+    if (step === 'lessons' && !this.completedSteps.details) return;
+    if (step === 'preview' && !this.completedSteps.lessons) return;
+
+    this.activeStep = step;
+  }
+
+  isFieldDisabled(step: 'category' | 'details'): boolean {
+    return this.completedSteps[step] && this.activeStep !== step;
+  }
+
+  viewLessonDetails(lesson: Lesson) {
+    this.expandedLessonId = this.expandedLessonId === lesson.id ? null : lesson.id;
   }
 }
