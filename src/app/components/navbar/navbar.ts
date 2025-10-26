@@ -1,5 +1,4 @@
-// src/app/components/navbar/navbar.component.ts
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
@@ -9,6 +8,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { UserService } from '../../services/user-service';
 
 @Component({
   selector: 'app-navbar',
@@ -22,10 +22,24 @@ import { MatMenuModule } from '@angular/material/menu';
     MatMenuModule,
   ],
   templateUrl: './navbar.html',
-  styleUrls: ['./navbar.css']
+  styleUrls: ['./navbar.scss'],
 })
-export class Navbar {
+export class Navbar implements OnInit {
   private authService = inject(AuthService);
+    private userService = inject(UserService);
+    readonly BASE_IMAGE_URL = 'https://localhost:7049/Uploads/';
+
+  imagePreviewUrl: string | null = null;
+
+  ngOnInit(): void {
+    this.userService.getUserProfile().subscribe({
+      next: (profile) => {
+        if (profile.profilePicture) {
+          this.imagePreviewUrl = this.BASE_IMAGE_URL + profile.profilePicture;
+        }
+      }
+    });
+  }
 
   isLoggedIn$: Observable<boolean>;
   currentUser$: Observable<DecodedToken | null>;

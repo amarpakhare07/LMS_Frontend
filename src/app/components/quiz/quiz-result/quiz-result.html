@@ -1,120 +1,173 @@
 <div class="results-container">
+  <!-- Animated particles background -->
+  <div class="particles-bg"></div>
+  
   <div class="results-content">
-    <!-- Header with Animation -->
+    <!-- Header Section -->
     <div class="results-header">
-      <div class="confetti" *ngIf="percentage >= 70">🎊</div>
+      <div class="confetti-wrap" *ngIf="percentage >= 70">
+        <span class="confetti">🎊</span>
+        <span class="confetti">🎉</span>
+        <span class="confetti">✨</span>
+      </div>
+      
+      <div class="trophy-icon" *ngIf="percentage >= 70">
+        <mat-icon>emoji_events</mat-icon>
+      </div>
+      
       <h1 class="title">Quiz Completed!</h1>
-      <p class="subtitle">{{ quizTitle }} - Attempt {{ attemptNumber }}</p>
+      <p class="subtitle">{{ quizTitle }}</p>
+      <div class="attempt-badge">Attempt #{{ attemptNumber }}</div>
     </div>
 
-    <!-- Score Card -->
+    <!-- Score Card with Circular Progress -->
     <mat-card class="score-card">
-      <div class="score-circle" [style.background]="'conic-gradient(' + gradeColor + ' ' + percentage * 3.6 + 'deg, #e0e0e0 0deg)'">
+      <div class="score-circle-container">
+        <svg class="progress-ring" width="280" height="280">
+          <circle 
+            class="progress-ring-bg" 
+            cx="140" 
+            cy="140" 
+            r="120"
+            fill="none"
+            stroke="#e8ecf1"
+            stroke-width="12"/>
+          <circle 
+            class="progress-ring-circle" 
+            cx="140" 
+            cy="140" 
+            r="120"
+            fill="none"
+            [attr.stroke]="gradeColor"
+            stroke-width="12"
+            stroke-linecap="round"
+            [style.strokeDasharray]="753.98"
+            [style.strokeDashoffset]="753.98 - (753.98 * percentage / 100)"
+            [style.animation]="'fillProgress 1.5s ease-out 0.5s forwards'"/>
+        </svg>
+        
         <div class="score-inner">
           <div class="score-value">{{ score }}</div>
           <div class="score-total">/ {{ totalMarks }}</div>
-          <div class="grade" [style.color]="gradeColor">{{ grade }}</div>
+          <div class="grade-badge" [style.background]="gradeColor">{{ grade }}</div>
         </div>
       </div>
 
-      <div class="score-details"> 
-        <div class="detail-item">
-          <mat-icon class="icon-success">check_circle</mat-icon>
-          <div class="detail-text">
-            <span class="label">Correct</span>
-            <span class="value">{{ correctAnswers }}</span>
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-item correct">
+          <div class="stat-icon">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ correctAnswers }}</span>
+            <span class="stat-label">Correct</span>
           </div>
         </div>
 
-        <mat-divider [vertical]="true"></mat-divider>
+        <div class="stat-divider"></div>
 
-        <div class="detail-item">
-          <mat-icon class="icon-error">cancel</mat-icon>
-          <div class="detail-text">
-            <span class="label">Incorrect</span>
-            <span class="value">{{ incorrectAnswers }}</span>
+        <div class="stat-item incorrect">
+          <div class="stat-icon">
+            <mat-icon>cancel</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ incorrectAnswers }}</span>
+            <span class="stat-label">Incorrect</span>
           </div>
         </div>
 
-        <mat-divider [vertical]="true"></mat-divider>
+        <div class="stat-divider"></div>
 
-        <div class="detail-item">
-          <mat-icon class="icon-percent">percent</mat-icon>
-          <div class="detail-text">
-            <span class="label">Percentage</span>
-            <span class="value">{{ percentage }}%</span>
+        <div class="stat-item percentage">
+          <div class="stat-icon">
+            <mat-icon>percent</mat-icon>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ percentage }}%</span>
+            <span class="stat-label">Score</span>
           </div>
         </div>
       </div>
 
-      <div class="motivational-message">
+      <!-- Motivational Message -->
+      <div class="motivational-banner" [class.excellent]="percentage >= 80" [class.good]="percentage >= 60 && percentage < 80">
+        <mat-icon>{{ percentage >= 80 ? 'star' : percentage >= 60 ? 'thumb_up' : 'trending_up' }}</mat-icon>
         <p>{{ getMotivationalMessage() }}</p>
       </div>
     </mat-card>
 
     <!-- Question Breakdown -->
     <mat-card class="breakdown-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>list_alt</mat-icon>
-          Question Breakdown
-        </mat-card-title>
-      </mat-card-header>
+      <div class="breakdown-header">
+        <div class="header-content">
+          <mat-icon>assignment</mat-icon>
+          <h2>Question Breakdown</h2>
+        </div>
+        <div class="summary-badge">
+          {{ correctAnswers }} / {{ answers.length }} Correct
+        </div>
+      </div>
 
-      <mat-card-content>
-        <div class="answers-list">
-          <div 
-            *ngFor="let answer of answers; let i = index" 
-            class="answer-item"
-            [class.correct]="answer.isCorrect"
-            [class.incorrect]="!answer.isCorrect">
-            
-            <div class="answer-header">
-              <div class="question-number">Q{{ i + 1 }}</div>
-              <div class="answer-status">
-                <mat-icon>{{ answer.isCorrect ? 'check_circle' : 'cancel' }}</mat-icon>
-                <span>{{ answer.isCorrect ? 'Correct' : 'Incorrect' }}</span>
-              </div>
-              <div class="marks">
-                <mat-chip-listbox>
-                  <mat-chip-option [class.earned]="answer.isCorrect">
-                    {{ answer.marksAwarded }} / {{ answer.totalMarks }} marks
-                  </mat-chip-option>
-                </mat-chip-listbox>
-              </div>
+      <div class="answers-list">
+        <div 
+          *ngFor="let answer of answers; let i = index" 
+          class="answer-item"
+          [class.correct]="answer.isCorrect"
+          [class.incorrect]="!answer.isCorrect"
+          [style.animation-delay]="(i * 0.1) + 's'">
+          
+          <div class="answer-row">
+            <div class="question-badge" [class.correct]="answer.isCorrect" [class.incorrect]="!answer.isCorrect">
+              <span class="q-number">{{ i + 1 }}</span>
             </div>
 
-            <div class="answer-content">
-              <p class="question-text">{{ answer.questionText }}</p>
-              <div class="your-answer">
-                <strong>Your Answer:</strong> {{ answer.response }}
+            <div class="answer-details">
+              <div class="answer-top">
+                <p class="question-text">{{ answer.questionText }}</p>
+                <div class="marks-badge" [class.earned]="answer.isCorrect">
+                  <mat-icon>{{ answer.isCorrect ? 'check_circle' : 'cancel' }}</mat-icon>
+                  <span>{{ answer.marksAwarded }}/{{ answer.totalMarks }}</span>
+                </div>
+              </div>
+
+              <div class="answer-response">
+                <div class="response-label">
+                  <mat-icon>{{ answer.isCorrect ? 'check' : 'close' }}</mat-icon>
+                  <span>Your Answer:</span>
+                </div>
+                <div class="response-text">{{ answer.response }}</div>
               </div>
             </div>
           </div>
         </div>
-      </mat-card-content>
+      </div>
     </mat-card>
 
     <!-- Action Buttons -->
     <div class="action-buttons">
-      <button mat-raised-button color="primary" (click)="retakeQuiz()">
+      <button mat-raised-button class="btn-primary" (click)="retakeQuiz()">
         <mat-icon>refresh</mat-icon>
-        Retake Quiz
+        <span>Retake Quiz</span>
       </button>
 
-      <button mat-raised-button (click)="backToQuizList()">
+      <button mat-raised-button class="btn-secondary" (click)="backToQuizList()">
         <mat-icon>arrow_back</mat-icon>
-        Back to Quizzes
+        <span>Back to Quizzes</span>
       </button>
 
-      <button mat-stroked-button (click)="shareResults()">
+      <button mat-stroked-button class="btn-outline" (click)="shareResults()">
         <mat-icon>share</mat-icon>
-        Share Results
+        <span>Share Results</span>
       </button>
 
-      <button mat-stroked-button (click)="downloadCertificate()" *ngIf="percentage >= 70">
+      <button 
+        mat-raised-button 
+        class="btn-certificate" 
+        (click)="downloadCertificate()" 
+        *ngIf="percentage >= 70">
         <mat-icon>workspace_premium</mat-icon>
-        Download Certificate
+        <span>Get Certificate</span>
       </button>
     </div>
   </div>

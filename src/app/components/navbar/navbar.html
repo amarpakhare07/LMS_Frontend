@@ -13,17 +13,35 @@
 
   <!-- Profile / Auth -->
   <div *ngIf="isLoggedIn$ | async; else guestLinks" class="profile-menu">
-    <button mat-icon-button [matMenuTriggerFor]="profileMenu" aria-label="Profile menu">
-      <mat-icon>account_circle</mat-icon>
+    <!-- profile icon button (visible) -->
+    <button mat-icon-button [matMenuTriggerFor]="profileMenu" aria-label="Profile menu" class="profile-button">
+      <!-- explicit class so CSS can force visible color/size -->
+      <!-- <mat-icon class="profile-icon">account_circle</mat-icon> -->
+       <img *ngIf="imagePreviewUrl; else defaultUserIcon" [src]="imagePreviewUrl" alt="" class="profile-image">
+          <ng-template #defaultUserIcon>
+            <mat-icon class="profile-icon">account_circle</mat-icon>
+          </ng-template>
     </button>
+
     <mat-menu #profileMenu="matMenu">
       <div class="profile-menu-header">
         <span *ngIf="currentUser$ | async as user">Hello, {{ user.name }}</span>
       </div>
-      <a mat-menu-item [routerLink]="userRole$ === 'Admin' ? '/admin/dashboard' : userRole$ === 'Instructor' ? '/instructor/dashboard' : '/student/dashboard'">
+
+      <a
+        mat-menu-item
+        [routerLink]="
+          userRole$ === 'Admin'
+            ? '/admin/dashboard'
+            : userRole$ === 'Instructor'
+            ? '/instructor/dashboard'
+            : '/student/dashboard'
+        "
+      >
         <mat-icon>person_outline</mat-icon>
         <span>My Profile</span>
       </a>
+
       <button mat-menu-item (click)="logout()">
         <mat-icon>logout</mat-icon>
         <span>Logout</span>
@@ -33,6 +51,5 @@
 
   <ng-template #guestLinks>
     <a mat-stroked-button color="primary" routerLink="/login" class="nav-button">Login</a>
-    <!-- <a mat-flat-button color="primary" routerLink="/register" class="nav-button">Register Now</a> -->
   </ng-template>
 </mat-toolbar>

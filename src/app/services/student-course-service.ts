@@ -4,8 +4,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environment'; // Assuming standard environment file location
 
-import { UserProfile, UpdateBioRequest } from '../models/student.model'; 
+import { UserProfile, UpdateBioRequest, QuizSummary, StudentDashboardData } from '../models/student.model'; 
 import { EnrolledCourse } from '../models/student.model'; // Assuming EnrolledCourse is defined here
+import { DashboardSummary } from '../models/student.model';
 import { Category } from '../models/interfaces'; // Assuming Category model is defined here
 
 
@@ -58,6 +59,19 @@ export class StudentCourseService {
       formData
     );
   }
+  
+  getDashboardSummary(): Observable<StudentDashboardData> {
+    return this.http.get<StudentDashboardData>(
+      `${this.userManagementBaseUrl}/student/dashboardSummary`
+    );
+  }
+
+  getQuizSummary(): Observable<any> {
+    return this.http.get<QuizSummary[]>(
+      `${this.apiUrl}/Quiz/summary`
+    );
+  }
+
 }
 
 

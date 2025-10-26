@@ -1,0 +1,129 @@
+/* --- Top Instructors Card Styles --- */
+.instructor-card {
+    /* Inherits from .chart-panel for grid layout */
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.instructor-card mat-card-header {
+    margin-bottom: 15px;
+}
+
+.instructor-card mat-card-title {
+    font-size: 1.25em;
+    font-weight: 600;
+    color: #343a40;
+}
+
+.instructor-content-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center items on empty/loading */
+}
+
+.instructor-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.instructor-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f1f1;
+    transition: background-color 0.2s;
+}
+
+.instructor-item:last-child {
+    border-bottom: none;
+}
+
+.instructor-item:hover {
+    background-color: #f7f9fc;
+    border-radius: 8px;
+}
+
+.profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary-color, #007bff);
+}
+
+.details {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.name-rank {
+    display: flex;
+    flex-direction: column;
+}
+
+.name-rank span {
+    font-size: 0.8em;
+    font-weight: 700;
+    color: var(--primary-color, #007bff);
+    margin-bottom: 2px;
+}
+
+.name-rank h4 {
+    margin: 0;
+    font-size: 1em;
+    font-weight: 500;
+    color: #343a40;
+}
+
+.stats {
+    text-align: right;
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    color: #ffc107; /* Yellow star */
+    margin-bottom: 2px;
+}
+
+.star-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+}
+
+.rating-value {
+    font-weight: 600;
+    color: #343a40;
+}
+
+.students {
+    font-size: 0.85em;
+    color: #6c757d;
+}
+
+/* Loading and Empty States */
+.loading-state, .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 0;
+    color: #6c757d;
+    text-align: center;
+}
+
+.empty-state mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+}

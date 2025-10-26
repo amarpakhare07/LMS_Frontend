@@ -11,7 +11,7 @@ import { Course } from '../../models/course.model';
 import { Category } from '../../models/interfaces'; // <-- Import Category
 
 // --- Components ---
-import { CourseCardComponent } from '../course-card/course-card';
+// import { CourseCardComponent } from '../course-card/course-card';
 
 // --- NEW MATERIAL IMPORTS ---
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,6 +19,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CourseCardComponent } from '../course-card/course-card';
 
 // This new interface helps us group the courses
 export interface CourseCategoryGroup {

@@ -1,10 +1,5 @@
 import { Course } from './course.model'; // Assumes Course interface is defined here
-
-// export interface EnrolledCourse extends Course {
-//   enrollmentId: number;
-//   progressPercentage: number; // 0-100
-//   lastAccessed: string; // ISO Date String
-// }
+import { Lesson } from './course.model'; // Assumes Lesson interface is defined here
 
 export interface QuizAttemptSummary {
   quizAttemptId: number;
@@ -16,21 +11,6 @@ export interface QuizAttemptSummary {
   isCompleted: boolean;
 }
 
-// export interface StudentDashboardSummary {
-//   totalCourses: number;
-//   completedCourses: number;
-//   lastActiveCourses: EnrolledCourse[];
-//   recentQuizAttempts: QuizAttemptSummary[];
-//   overallProgress: number; // Overall average progress %
-// }
-
-// Placeholder model for the Quiz component
-// export interface QuizQuestion {
-//   questionId: number;
-//   text: string;
-//   type: 'multiple-choice' | 'true-false' | 'multi-select';
-//   options: { id: number; text: string }[];
-// }
 
 export interface DashboardNavItem {
   label: string;
@@ -53,10 +33,7 @@ export interface UserProfile {
     isDeleted: boolean;
 }
 
-/**
- * Interface for the request body when updating the user's bio.
- * Maps to the UserUpdateProfileBioDto on the backend.
- */
+
 export interface UpdateBioRequest {
     bio: string;
 }
@@ -65,7 +42,7 @@ export interface UpdateBioRequest {
 export interface EnrolledCourse {
   courseID: number;
   title: string;
-  description?: string;
+  description: string;
   level?: string;
   language?: string;
   duration?: number;
@@ -78,11 +55,88 @@ export interface EnrolledCourse {
   progress: number; // A number between 0 and 100 (Assumed field for UI)
   instructor: string; // Instructor Name (Assumed field for UI/Search)
   rating: number; // For sorting by "Highest Rated" (from CourseDto.cs)
+  lessons: Lesson[];
 }
 
-// Based on CourseCategoryDto.cs
-// export interface Category {
-//   categoryID: number; //
-//   name: string; //
-//   description?: string;
-// }
+
+export interface CourseAvgScore {
+  courseTitle: string;
+   courseName: string;
+  averageScore: number; // The percentage score (0-100)
+}
+
+
+
+
+export interface DashboardSummary {
+  enrolledCoursesCount: number;
+  completedCoursesCount: number;
+  uniqueQuizzesAttempted : number; // Average progress percentage across all courses
+}
+
+export interface TopInstructorDto {
+    instructorID: number;
+    name: string;
+    profilePicture: string | null;
+    overallRating: number | null;
+    totalStudents: number;
+}
+
+// 🟢 NEW: Main Data Structure from the API
+export interface StudentDashboardData {
+    enrolledCoursesCount: number;
+    completedCoursesCount: number;
+    uniqueQuizzesAttempted: number;
+    courseAverageScores: CourseAvgScore[];
+    topInstructors: TopInstructorDto[]; // Array of the new instructor DTO
+}
+
+
+
+
+export interface SummaryCard {
+  title: string;
+  value: number | string; // Can be a number or formatted string
+  iconName: string; // Name of the Material Icon (e.g., 'school')
+  colorClass: string; // CSS class for background color (e.g., 'blue', 'green')
+  trend: string; // Trend string (e.g., '+5%')
+}
+
+// Basic structure for chart data
+export interface ChartData {
+  labels: string[];
+  datasets: {
+    label: string;
+    data: number[];
+    backgroundColor?: string | string[];
+    borderColor?: string | string[];
+    tension?: number;
+    fill?: boolean;
+    pointBackgroundColor?: string;
+  }[];
+}
+
+
+export interface QuizScoreSummary {
+  scoreID: number;
+  quizID: number;
+  quizTitle: string;
+  score: number; // The marks achieved in this attempt
+  attemptNumber: number;
+  totalMarks: number; // The maximum possible marks for the quiz
+  createdAt: string; // ISO Date string of the attempt
+}
+
+export interface QuizSummary {
+  srNo: number;
+  quizID: number;
+  quizTitle: string;
+  totalMarks: number;
+  highestScore: number | null;
+  attemptsAllowed: number;
+  attemptsLeft: number;
+  // Added fields to support filtering by course
+  courseID: number;
+  courseTitle: string;
+}
+

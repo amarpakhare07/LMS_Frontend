@@ -8,10 +8,11 @@
     <mat-form-field appearance="outline" class="search-field">
       <mat-label>Search my courses</mat-label>
       <mat-icon matPrefix>search</mat-icon>
+      <!-- The key binding combination: [(ngModel)] updates the property, (input) calls the filter function -->
       <input matInput [(ngModel)]="searchTerm" (input)="applyFilters()">
     </mat-form-field>
 
-    <div class="filters" style="margin-bottom: 20px;">
+    <div class="filters">
       <mat-form-field appearance="outline">
         <mat-label>Category</mat-label>
         <mat-select [(ngModel)]="categoryFilter" (selectionChange)="applyFilters()">
@@ -19,17 +20,7 @@
           <mat-option *ngFor="let cat of allCategories" [value]="cat.categoryID">{{ cat.name }}</mat-option>
         </mat-select>
       </mat-form-field>
-
-      <!-- <mat-form-field appearance="outline">
-        <mat-label>Sort By</mat-label>
-        <mat-select [(ngModel)]="sortFilter" (selectionChange)="applyFilters()">
-          <mat-option *ngFor="let option of sortOptions" [value]="option.value">
-            {{ option.viewValue }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field> -->
-
-      </div>
+    </div>
   </mat-toolbar>
   
   <div *ngIf="isLoading" class="loading-container">
@@ -40,42 +31,11 @@
   <div *ngIf="!isLoading" class="content-area">
     <div *ngIf="filteredCourses.length > 0; else noCourses" class="course-grid">
       
-      <mat-card *ngFor="let course of filteredCourses" class="course-card">
-        <img mat-card-image [src]="course.thumbnailURL || 'assets/placeholder.png'" [alt]="course.title">
-        
-        <mat-card-header>
-          <mat-card-subtitle>{{ getCategoryName(course.categoryID) }}</mat-card-subtitle>
-          <mat-card-title>{{ course.title }}</mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content>
-            <!-- <div class="instructor-text">By {{ course.instructor }}</div> -->
-             <div class="instructor-text">By Mark Spencer</div>
-
-            <div class="rating-row" [matTooltip]="(course.rating || 0).toFixed(1) + ' out of 5 stars'">
-                <mat-icon *ngFor="let i of [1,2,3,4,5]" 
-                          [class.filled]="i <= course.rating" 
-                          class="star-icon">
-                    star
-                </mat-icon>
-                <span class="rating-value">{{ (course.rating || 0).toFixed(1) }}</span>
-            </div>
-
-            <!-- <div class="progress-container">
-                <div class="progress-bar-outline">
-                    <div class="progress-fill" [style.width.%]="course.progress"></div>
-                </div>
-                <span class="progress-text">{{ course.progress }}% complete</span>
-            </div> -->
-        </mat-card-content>
-
-        <mat-card-actions class="course-actions">
-          <button mat-flat-button color="primary" [routerLink]="['/student/course', course.courseID]">
-            <mat-icon>play_arrow</mat-icon>
-            Go to Course
-          </button>
-        </mat-card-actions>
-      </mat-card>
+      <!-- Loop over filtered courses and use the CourseCardComponent -->
+      <div *ngFor="let course of filteredCourses" class="course-card-wrapper">
+        <!-- The course card component handles the display details (title, rating, chips) -->
+        <app-course-card [course]="course"></app-course-card>
+      </div>
 
     </div>
 

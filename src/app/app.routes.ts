@@ -4,11 +4,10 @@ import { authGuard } from './services/auth-guard';
 import { Register } from './components/auth/register/register';
 import { ManageCourses } from './components/admin/manage-courses/manage-courses';
 import { ManageUsers } from './components/admin/manage-users/manage-users';
-import { Profile } from './components/admin/profile/profile';
 import { RegisterInstructor } from './components/auth/register-instructor/register-instructor';
 import { AdminDashboard } from './components/admin/dashboard/dashboard';
 import { AdminLayout } from './components/admin/layout/layout';
-import { HomeComponent } from './components/home/home';
+import { HomeComponent } from './components/home/home'; 
 import { InstructorLayout } from './components/instructor/instructor';
 import { Unauthorized } from './components/shared/unauthorized/unauthorized';
 import { InstructorDashboardComponent } from './components/instructor/instructor-dashboard/instructor-dashboard';
@@ -20,18 +19,24 @@ import { InstructorCoursesComponent } from './components/instructor/instructor-c
 import { InstructorCreateCourseComponent } from './components/instructor/instructor-createcourse/instructor-createcourse';
 
 
-import { StudentLayout } from './components/student/layout/student-layout/student-layout';
-import { DashboardComponent } from './components/student/dashboard/student-dashboard/student-dashboard';
+import { StudentLayout } from './components/student/student';
+import {  StudentDashboardComponent as DashboardComponent } from './components/student/student-dashboard/student-dashboard/student-dashboard';
 import { MyCoursesComponent } from './components/student/my-courses/student-my-courses/student-my-courses';
-import { ProfileComponent } from './components/student/my-profile/my-profile/my-profile';
 
-// Import Quiz Components
-import { QuizListComponent } from './components/quiz/quiz-list/quiz-list';
-import { QuizAttemptComponent } from './components/quiz/quiz-attempt/quiz-attempt';
-import { QuizResultsComponent } from './components/quiz/quiz-result/quiz-result';
-import { quizEnrolledGuard } from './services/quiz-enrolled.guard';
+
+//import { StudentDashboardComponent } from './components/student/student-dashboard/student-dashboard/student-dashboard';
+import { ProfileComponent } from './components/profile/user-profile/user-profile';
+import { PublicProfileComponent } from './components/profile/public-profile/public-profile';
+import { PhotoProfileComponent } from './components/profile/photo-profile/photo-profile';
+import { QuizSummaryComponent } from './components/student/quiz-summary/quiz-summary';
 import { About } from './components/shared/about/about';
 import { ContactUs } from './components/shared/contact-us/contact-us';
+import { QuizListComponent } from './components/quiz/quiz-list/quiz-list';
+import { quizEnrolledGuard } from './services/quiz-enrolled.guard';
+import { QuizAttemptComponent } from './components/quiz/quiz-attempt/quiz-attempt';
+import { QuizResultsComponent } from './components/quiz/quiz-result/quiz-result';
+
+
 
 export const routes: Routes = [
   // Public Routes
@@ -64,7 +69,16 @@ export const routes: Routes = [
       { path: 'dashboard', component: AdminDashboard },
       { path: 'users', component: ManageUsers },
       { path: 'courses', component: ManageCourses },
-      { path: 'profile', component: Profile },
+      // { path: 'profile', component: Profile },
+      {
+        path: 'profile', // When '/student/profile' is accessed
+        component: ProfileComponent, // Load the profile wrapper
+        children: [
+          { path: '', redirectTo: 'public-profile', pathMatch: 'full' }, // Default sub-route
+          { path: 'public-profile', component: PublicProfileComponent },
+          { path: 'photo', component: PhotoProfileComponent },
+        ]
+      },
     ],
   },
 
@@ -126,7 +140,19 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'my-courses', component: MyCoursesComponent },
-      { path: 'profile', component: ProfileComponent },
+      { path: 'quizzes', component: QuizSummaryComponent },
+      // { path: 'profile', component: ProfileComponent },
+
+      {
+        path: 'profile', // When '/student/profile' is accessed
+        component: ProfileComponent, // Load the profile wrapper
+        children: [
+          { path: '', redirectTo: 'public-profile', pathMatch: 'full' }, // Default sub-route
+          { path: 'public-profile', component: PublicProfileComponent },
+          { path: 'photo', component: PhotoProfileComponent },
+        ]
+      },
+
     ]
   },
   // Redirect to home by default if logged in, otherwise guard will redirect to login

@@ -1,0 +1,126 @@
+/* ✅ Import Poppins globally & lock font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+:host,
+.navbar,
+.navbar * {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+/* Toolbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
+  color: #eaeaea;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+/* Logo */
+.logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: #ffffff;
+  letter-spacing: 0.8px;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #bb86fc;
+  }
+}
+
+/* Spacer */
+.spacer {
+  flex: 1 1 auto;
+}
+
+/* Navigation Links */
+.nav-links a {
+  margin: 0 10px;
+  font-weight: 600;
+  color: #cccccc;
+  border-radius: 8px;
+  padding: 6px 14px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: rgba(187, 134, 252, 0.15);
+    color: #ffffff;
+  }
+}
+
+.profile-image {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Buttons */
+.nav-button {
+  margin-left: 12px;
+  font-weight: 600;
+  border-color: #bb86fc;
+  color: #bb86fc;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: rgba(187, 134, 252, 0.1);
+  }
+}
+
+.nav-button.mat-flat-button {
+  background-color: #bb86fc;
+  color: #121212;
+
+  &:hover {
+    background-color: #9a6efb;
+  }
+}
+
+/* Profile menu header */
+.profile-menu-header {
+  padding: 8px 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  background: #1f1f1f;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ensure profile icon/button is clearly visible */
+.profile-button {
+  width: 40px;
+  height: 40px;
+}
+
+.profile-icon {
+  font-size: 28px; /* larger icon */
+  color: #bb86fc !important; /* visible violet accent */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Menu icons */
+[mat-menu-item] mat-icon {
+  margin-right: 12px;
+  color: #bb86fc;
+}
+
+/* Hover states */
+.nav-links a:hover,
+.nav-button:hover {
+  background-color: rgba(216, 27, 96, 0.07);
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+}
