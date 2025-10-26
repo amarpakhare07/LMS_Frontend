@@ -1,1 +1,89 @@
-<p>profile works!</p>
+<mat-card class="up-card" *ngIf="!isLoading(); else loading">
+  <div class="up-header">
+    <div class="up-avatar">
+      <img *ngIf="previewUrl(); else initials" [src]="previewUrl()" alt="Profile picture" />
+      <ng-template #initials>
+        <div class="avatar-fallback">
+          {{ (user?.name || 'U').slice(0,1).toUpperCase() }}
+        </div>
+      </ng-template>
+
+      <label class="upload-btn" *ngIf="isEditing()">
+        <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+        <button mat-stroked-button color="primary" type="button">
+          <mat-icon>photo_camera</mat-icon> Change
+        </button>
+      </label>
+    </div>
+
+    <div class="up-title">
+      <h2>{{ user?.name }}</h2>
+      <div class="chips">
+        <mat-chip [color]="'primary'" selected>{{ roleLabel() }}</mat-chip>
+        <mat-chip [ngClass]="{'success': user?.isActive, 'warn': !user?.isActive}" selected>
+          {{ statusLabel() }}
+        </mat-chip>
+      </div>
+      <div class="meta">
+        <span><mat-icon inline>mail</mat-icon> {{ user?.email }}</span>
+        <span><mat-icon inline>schedule</mat-icon> Last login: {{ user?.lastLogin | date:'medium' }}</span>
+        <span><mat-icon inline>update</mat-icon> Updated: {{ user?.updatedAt | date:'medium' }}</span>
+      </div>
+    </div>
+
+    <div class="up-actions">
+      <button mat-stroked-button color="primary" *ngIf="!isEditing()" (click)="toggleEdit()">
+        <mat-icon>edit</mat-icon> Edit
+      </button>
+      <div *ngIf="isEditing()" class="edit-cta">
+        <button mat-raised-button color="accent" (click)="onSave()" [disabled]="isSaving() || form.invalid || form.pristine">
+          <mat-icon>save</mat-icon> Save
+        </button>
+        <button mat-button type="button" (click)="toggleEdit()" [disabled]="isSaving()">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="up-body">
+    <form [formGroup]="form" class="up-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Full name</mat-label>
+        <input matInput formControlName="name" [readonly]="!isEditing()" />
+        <mat-error *ngIf="form.controls.name.touched && form.controls.name.errors?.['required']">
+          Name is required
+        </mat-error>
+        <mat-error *ngIf="form.controls.name.touched && form.controls.name.errors?.['minlength']">
+          Minimum 2 characters
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" readonly />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Bio</mat-label>
+        <textarea matInput formControlName="bio" rows="4" [readonly]="!isEditing()" placeholder="Tell others a bit about you..."></textarea>
+      </mat-form-field>
+    </form>
+  </div>
+
+  <div class="up-footer" *ngIf="isEditing()">
+    <small>Tip: Profile picture is previewed locally and saved on update.</small>
+  </div>
+
+  <div class="error" *ngIf="errorMsg()">{{ errorMsg() }}</div>
+</mat-card>
+
+<ng-template #loading>
+  <mat-card class="up-card">
+    <div class="skeleton header"></div>
+    <div class="skeleton line"></div>
+    <div class="skeleton line"></div>
+  </mat-card>
+</ng-template>
