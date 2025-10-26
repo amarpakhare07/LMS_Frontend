@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SummaryCard } from '../../models/widget-module';
+import { SummaryCard } from '../../models/student.model';
 import { MatIcon } from "@angular/material/icon";
 
 @Component({
