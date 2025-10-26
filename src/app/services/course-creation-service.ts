@@ -28,11 +28,14 @@ export interface Course extends CourseDetail {
 }
 
 export interface Lesson {
-  id?: number; // optional for creation
-  courseId: number;
-  title: string;
-  duration: number; // in minutes
-  orderIndex: number;
+  id: number; // ID is required for update
+  CourseID: number; // 👈 CRITICAL FIX: Match DTO
+  Title: string; // 👈 CRITICAL FIX: Match DTO
+  Content?: string;
+  VideoURL?: string;
+  OrderIndex: number; // 👈 CRITICAL FIX: Match DTO
+  LessonType?: string;
+  EstimatedTime: number | null; // 👈 CRITICAL FIX: Match DTO (replaces 'duration')
 }
 
 // --- COURSE INSTRUCTOR SERVICE ---
@@ -177,7 +180,7 @@ export class CourseInstructorService {
    */
   createLesson(lesson: Omit<Lesson, 'id'>): Observable<Lesson> {
     const endpoint = `${this.apiUrl}/Lesson`;
-    console.log('➡️ API CHECK: Sending POST request to create new lesson:', lesson.title);
+    console.log('➡️ API CHECK: Sending POST request to create new lesson:', lesson.Title);
 
     return this.http.post<Lesson>(endpoint, lesson).pipe(
       tap((newLesson) => {
