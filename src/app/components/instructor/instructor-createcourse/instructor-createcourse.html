@@ -41,7 +41,7 @@
 
 
         <div *ngIf="activeStep === 'category' || isFieldDisabled('category')" class="step-content">
-            <h2 class="step-title">1. Define Category</h2>
+            <h2 *ngIf="activeStep === 'category'" class="step-title">1. Define Category</h2>
 
             <div *ngIf="activeStep === 'category' && !completedSteps.category" class="category-search">
 
@@ -112,7 +112,7 @@
                 </div>
             </div>
 
-            <div *ngIf="completedSteps.category" class="read-only-step-display mat-elevation-z1">
+            <div *ngIf="activeStep === 'category' && completedSteps.category" class="read-only-step-display mat-elevation-z1">
                 <div class="read-only-content">
                     <div class="info-item">
                         <mat-icon color="primary">category</mat-icon>
@@ -142,7 +142,7 @@
 
 
         <div *ngIf="activeStep === 'details' || isFieldDisabled('details')" class="step-content">
-            <h2 class="step-title">2. Core Course Metadata</h2>
+            <h2 *ngIf="activeStep === 'details'" class="step-title">2. Core Course Metadata</h2>
 
             <div *ngIf="activeStep === 'details' && !completedSteps.details" class="course-details-form">
                 <mat-form-field appearance="outline" class="full-width">
@@ -250,7 +250,7 @@
         </div>
 
 
-        <div *ngIf="activeStep === 'lessons'" class="step-content">
+        <div *ngIf="activeStep === 'lessons'"  class="step-content">
             <h2 class="step-title">3. Structure and Add Lessons</h2>
 
             <mat-card *ngIf="lessons.length > 0" class="lesson-list-summary mat-elevation-z3">
@@ -428,7 +428,7 @@
                     [disabled]="lessons.length === 0">
                     <mat-icon>save</mat-icon> Save Lesson Structure
                 </button>
-                <button mat-flat-button color="primary" class="next-step-button" (click)="saveLessonsStep(true)"
+                <button mat-flat-button color="primary" class="next-step-button" (click)="setActiveStep('preview')"
                     [disabled]="lessons.length === 0">
                     <mat-icon>arrow_forward</mat-icon> Next: Preview
                 </button>
