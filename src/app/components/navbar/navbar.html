@@ -19,7 +19,7 @@
       <!-- <mat-icon class="profile-icon">account_circle</mat-icon> -->
        <img *ngIf="imagePreviewUrl; else defaultUserIcon" [src]="imagePreviewUrl" alt="" class="profile-image">
           <ng-template #defaultUserIcon>
-            <mat-icon class="default-icon">person</mat-icon>
+            <mat-icon class="profile-icon">account_circle</mat-icon>
           </ng-template>
     </button>
 

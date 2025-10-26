@@ -37,8 +37,8 @@ export class AdminLayout {
 
   navItems: DashboardNavItem[] = [
       { label: 'Dashboard', path: 'dashboard', icon: 'dashboard' },
-      { label: 'Manage Users', path: 'users', icon: 'book' },
-      { label: 'Manage Courses', path: 'courses', icon: 'quiz' },
+      { label: 'Manage Users', path: 'users', icon: 'person' },
+      { label: 'Manage Courses', path: 'courses', icon: 'book' },
       { label: 'Profile', path: 'profile', icon: 'account_circle' }
     ];
 }
