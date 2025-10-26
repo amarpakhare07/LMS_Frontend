@@ -1,4 +1,6 @@
+/* src/app/components/student/my-courses/student-my-courses.css */
 
+/* --- General Page Layout --- */
 .page-container {
   padding: 2rem;
   background-color: #f8f9fa;
@@ -9,14 +11,19 @@
   margin-bottom: 1.5rem;
 }
 
+/* --- Filter Toolbar (Styled to blend with the page) --- */
 .filter-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1.5rem; 
+  gap: 1.5rem;
+  
+  /* Make it blend with the page */
   background: transparent;
   box-shadow: none;
+  
+  /* Adjust spacing */
   padding: 0;
   margin-bottom: 2rem;
 }
@@ -34,18 +41,32 @@
 
 .filters .mat-mdc-form-field {
   width: 180px;
-  /* Keep the form field from adding extra space at the bottom */
+}
+
+/* NEW RULE: This removes the extra bottom spacing
+ * from form fields when they are in our new transparent toolbar.
+*/
+.filter-toolbar .mat-mdc-form-field {
   margin-bottom: -1.25em;
 }
 
-.loading-container,
-.empty-state {
+/* --- Loading & Empty State --- */
+.loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 5rem 0;
   gap: 1rem;
+  color: #6c757d;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 0;
   color: #6c757d;
   text-align: center;
 }
@@ -57,123 +78,69 @@
     margin-bottom: 1rem;
 }
 
-/* Course Grid */
+/* --- Course Grid --- */
 .course-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  /* CHANGED: Reduced min size from 320px to 280px to make cards smaller */
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
   gap: 2rem;
 }
 
-/* Course Card (Reusing admin card styles for look & feel) */
-.course-card {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
+/* * --- STUDENT CARD WRAPPER STYLES (The Critical Section) --- */
 
-.course-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-}
-
-.mat-mdc-card-header {
-  padding-bottom: 0;
-}
-
-.mat-mdc-card-image {
-    height: 180px;
-    object-fit: cover;
-}
-
-.mat-mdc-card-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  line-height: 1.4;
-  margin-top: 5px; /* Added spacing after subtitle */
-}
-
-.mat-mdc-card-subtitle {
-  color: #00BCD4; /* Cyan */
-  font-weight: 500;
-  font-size: 0.85rem;
-}
-
-/* Student-specific card content */
-.course-card .mat-mdc-card-content {
-    padding-top: 8px; /* Reduce space after title group */
-    padding-bottom: 8px; /* Allow space for actions */
-    flex-grow: 1; /* Pushes the actions to the bottom */
-}
-
-.course-card .instructor-text {
-    font-size: 0.85rem;
-    color: #6c757d;
-    margin-bottom: 10px;
-}
-
-/* --- RATING STYLES (NEW) --- */
-.rating-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.rating-row .star-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  color: #ddd; /* Unfilled star color */
-}
-
-.rating-row .star-icon.filled {
-  color: #FFB300; /* Filled star color (Gold) */
-}
-
-.rating-row .rating-value {
-    margin-left: 8px;
-    font-weight: 600;
-    color: #333;
-    font-size: 0.9rem;
-}
-
-
-/* --- PROGRESS INDICATOR STYLES (NEW) --- */
-.progress-container {
+/* 1. The Wrapper (controls the unified visual block: shadow, border, hover) */
+.course-card-wrapper {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 10px;
+    flex-direction: column;
+    height: 100%; /* Ensure all wrappers in a row are same height */
+    
+    /* Apply initial card styling to the wrapper */
+    border-radius: 12px; 
+    overflow: hidden; /* Contains the rounded corners */
+    border: 1px solid rgba(0, 0, 0, 0.08); /* Subtle border */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04); /* Subtle initial shadow */
+
+    /* Smooth transition for the lift effect */
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
 }
 
-.progress-bar-outline {
-    flex-grow: 1;
-    height: 8px;
-    background-color: #e0e0e0;
-    border-radius: 4px;
-    overflow: hidden;
+/* Apply the hover effect (lifting the entire block) */
+.course-card-wrapper:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); 
+    border-color: transparent; /* Cleaner look on hover */
 }
 
-.progress-fill {
-    height: 100%;
-    background-color: #512DA8; /* Purple for progress */
-    transition: width 0.3s;
-    border-radius: 4px;
+/* 2. Strip default Material Card styles from the inner component (app-course-card)
+ * so the WRAPPER controls the shadow/border/radius.
+ */
+.course-card-wrapper > * {
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
 }
 
-.progress-text {
-    font-size: 0.8rem;
-    color: #555;
-    flex-shrink: 0;
-}
-
-
-/* --- ACTION BUTTON --- */
-.course-card-actions.course-actions {
-    padding-top: 0;
-    padding-bottom: 16px;
-    justify-content: flex-end;
+/* 3. FIX: Now that the progress card is gone, ensure the inner mat-card takes the full 12px radius. */
+app-course-card ::ng-deep .course-card {
+    border-radius: 12px !important;
 }
 
 
-
+@media (max-width: 768px) {
+  .page-container {
+    padding: 1rem;
+  }
+  .filter-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .search-field,
+  .filters .mat-mdc-form-field {
+    width: 100%;
+  }
+  
+  /* Fix spacing on mobile */
+  .filter-toolbar .mat-mdc-form-field {
+    margin-bottom: 0;
+  }
+} 

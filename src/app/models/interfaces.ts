@@ -15,20 +15,6 @@ export interface User {
 }
 
 
-// export interface Course {
-//   courseID: number;
-//   title: string;
-//   description: string;
-//   syllabus: string;
-//   level: string;
-//   language: string;
-//   duration: number;
-//   thumbnailURL: string;
-//   categoryID: number;
-//   published: boolean;
-//   rating: number;
-//   reviewCount: number;
-// }
 
 export interface DashboardSummary {
   totalUsers: number;
@@ -51,4 +37,13 @@ export interface Category {
   courses: Course[] | null;
 }
 
+export interface UserProfile {
+  name : string;
+  email: string;
+  bio: string;
+  profilePicture: string | null; 
+}
 
+export interface UserPhoto {
+  photoURL: string | null;
+}
