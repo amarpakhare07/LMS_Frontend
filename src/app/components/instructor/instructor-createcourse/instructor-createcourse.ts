@@ -26,25 +26,6 @@ import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
-// @NgModule({
-//   imports: [
-//     CommonModule,
-//     FormsModule,
-//     RouterModule,
-//     // Angular Material:
-//     MatCardModule,
-//     MatIconModule,
-//     MatButtonModule,
-//     MatFormFieldModule,
-//     MatInputModule,
-//     MatSelectModule,
-//     MatCheckboxModule,
-//     MatListModule,
-//     MatDividerModule,
-//     MatTooltipModule,
-//   ]
-// })
-
 // --- LOCAL INTERFACES (AUGMENTED from Service) ---
 
 // Extend Service's CourseCategory for local state management
@@ -157,6 +138,7 @@ export class InstructorCreateCourseComponent implements OnInit {
 
   // --- Step 3: Lesson Data ---
   lessons: Lesson[] = [];
+  // Initialize lessonData using the template to set defaults
   lessonData: Lesson = this.getNewLessonTemplate();
   lessonToEditIndex: number | null = null;
   expandedLessonId: number | null | undefined = null;
@@ -217,17 +199,18 @@ export class InstructorCreateCourseComponent implements OnInit {
           this.updateStateFromCourseData(courseDetails as CourseData);
         }
 
+        // Map service lessons to local augmented Lesson interface
         this.lessons = lessons.map(l => ({
           id: (l.id === undefined ? null : l.id) as number | null,
           courseId: this.courseId,
           title: l.Title,
           orderIndex: l.OrderIndex,
           estimatedTime: l.EstimatedTime,
-          content: 'Loaded content...',
+          content: 'Loaded content...', // Placeholder for content fetching
           lessonType: 'Video',
-          videoURL: 'https://video.link/loaded',
-          includeDocument: false,
-          attachmentFileUrl: null
+          videoURL: 'https://video.link/loaded', // Placeholder for video fetching
+          includeDocument: false, // Placeholder for attachment state
+          attachmentFileUrl: null // Placeholder for attachment URL
         }));
 
         this.completedSteps.lessons = this.lessons.length > 0;
@@ -278,7 +261,7 @@ export class InstructorCreateCourseComponent implements OnInit {
       title: '',
       content: '',
       lessonType: 'Video',
-      estimatedTime: null,
+      estimatedTime: 10, // 👈 CHANGE: Set default duration to 10 minutes
       orderIndex: this.lessons.length + 1,
       videoURL: '',
       includeDocument: false,
@@ -287,8 +270,18 @@ export class InstructorCreateCourseComponent implements OnInit {
     } as Lesson;
   }
 
+  // New helper function to reset the form after save or cancel
+  private resetLessonForm(): void {
+    this.lessonToEditIndex = null;
+    this.lessonData = this.getNewLessonTemplate();
+    this.lessonData.orderIndex = this.lessons.length + 1; // Correct order index for the next new lesson
+    this.expandedLessonId = null; // Collapse any expanded lesson on form reset
+    console.log('Lesson form reset to Add New Lesson mode.');
+  }
+
   // =========================================================================
   //                             STEP 1: CATEGORY ACTIONS
+  // (No changes needed here based on the lesson section request)
   // =========================================================================
 
   onCategorySearch() {
@@ -356,23 +349,6 @@ export class InstructorCreateCourseComponent implements OnInit {
       category$ = of(this.selectedCategory!);
     }
 
-    // 2. Perform Category Action and ONLY update local state
-    // category$.subscribe({
-    //     next: (cat) => { 
-    //         this.courseData.categoryId = cat.id;
-    //         this.courseData.categoryName = cat.name;
-    //         this.courseData.categoryDescription = cat.description;
-
-    //         this.completedSteps.category = true;
-    //         console.log('Category saved/selected successfully.');
-
-    //         // 💡 2a. Set loading to false on success
-    //         this.isLoading = false; 
-
-    //         if (next) {
-    //             this.setActiveStep('details'); 
-    //         }
-    //     },
     category$.subscribe({
       next: (cat) => {
         const categoryIdFromApi = cat.categoryID; // 👈 FIX: Read from categoryID
@@ -394,9 +370,7 @@ export class InstructorCreateCourseComponent implements OnInit {
 
         this.isLoading = false;
 
-        // if (next) {
-        //   this.setActiveStep('details');
-        // }
+        
       },
       error: (err) => {
         console.error('API Error: Category save failed', err);
@@ -408,23 +382,21 @@ export class InstructorCreateCourseComponent implements OnInit {
 
   // =========================================================================
   //                             STEP 2: DETAILS ACTIONS
+  // (No changes needed here based on the lesson section request)
   // =========================================================================
 
   isCourseDetailsValid(): boolean {
     const data = this.courseData;
 
     // 1. Core Metadata Validation: Ensure the result of the expression is explicitly a boolean.
-    // The issue occurs in the variables that start with `data.field && ...`
     const isTitleValid: boolean = !!(data.title && data.title.trim().length >= 5);
     const isDescriptionValid: boolean = !!(data.description && data.description.trim().length >= 10);
     const isSyllabusValid: boolean = !!(data.syllabus && data.syllabus.trim().length >= 10);
 
     // 2. Selection/Numeric Validation:
-    // !! is already the correct way to cast truthiness to boolean.
     const isLevelValid: boolean = !!data.level;
     const isLanguageValid: boolean = !!(data.language && data.language.trim().length >= 2);
 
-    // This was already correct, as it produces a strict boolean result.
     const isDurationValid: boolean = typeof data.duration === 'number' && data.duration > 0;
 
     // 3. Final Return: The combination of strict boolean variables is now safe.
@@ -438,12 +410,6 @@ export class InstructorCreateCourseComponent implements OnInit {
     );
   }
 
-  // instructor-createcourse.ts
-
-  // instructor-createcourse.ts
-
-  // instructor-createcourse.ts (REPLACEMENT for saveDetailsStep - Only handles POST/Create)
-
   saveDetailsStep(next: boolean = false) {
     this.isLoading = true;
 
@@ -453,20 +419,6 @@ export class InstructorCreateCourseComponent implements OnInit {
       this.isLoading = false;
       return;
     }
-
-    // CRITICAL CHECK: If courseId already exists, it means the course was created 
-    // in a previous session or by ngOnInit. We skip the POST call entirely 
-    // and rely on the initial course load to populate the data.
-    // if (this.courseId) {
-    //     console.log('Course already created (ID:', this.courseId, '). Skipping API POST call.');
-    //     this.completedSteps.details = true;
-    //     this.isLoading = false;
-
-    //     if (next) {
-    //         this.setActiveStep('lessons');
-    //     }
-    //     return;
-    // }
 
     // CRITICAL PRE-REQUISITE: The category ID MUST be available from the previous step.
     if (!this.courseData.categoryId) { // Local state uses camelCase 'categoryId'
@@ -505,11 +457,11 @@ export class InstructorCreateCourseComponent implements OnInit {
         this.completedSteps.details = true;
         this.isLoading = false;
 
-        // if (next) {
-        //   this.setActiveStep('lessons');
-        // } else {
+        if (next) {
+          this.setActiveStep('lessons');
+        } else {
           console.log('New Course created successfully with ID:', this.courseId);
-        // }
+        }
       },
       error: (err) => {
         console.error('API Error: Course creation failed', err);
@@ -528,13 +480,13 @@ export class InstructorCreateCourseComponent implements OnInit {
       this.lessonData.estimatedTime! > 0 &&
       !!this.lessonData.videoURL; // Require video for simplicity
 
+    // Validate attachment only if the checkbox is checked
     const isAttachmentValid = !this.lessonData.includeDocument || !!this.lessonData.attachmentFile;
 
     return isBaseValid && isAttachmentValid;
   }
 
   onFileChange(event: Event) {
-    // ... (logic remains the same - handles local file object)
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length) {
       const file = input.files[0];
@@ -552,80 +504,156 @@ export class InstructorCreateCourseComponent implements OnInit {
       return;
     }
 
-    // 1. Prepare Service Lesson Payload
+    this.isLoading = true;
+
+    // NOTE ON ATTACHMENT: In a real app, you would upload the file here
+    // and wait for the permanent URL before continuing with the lesson metadata save.
+    // 
+    // // TODO: Implement file upload logic here:
+    // let attachmentUpload$ = of(this.lessonData.attachmentFileUrl); // Default to current URL or null
+    // if (this.lessonData.includeDocument && this.lessonData.attachmentFile) {
+    //   attachmentUpload$ = this.courseService.uploadAttachment(this.lessonData.attachmentFile).pipe(
+    //     tap(url => this.lessonData.attachmentFileUrl = url)
+    //   );
+    // }
+
+    // attachmentUpload$.pipe(
+    //   switchMap(() => {
+    //     // 1. Prepare Service Lesson Payload
+    //     const lessonPayload = {
+    //       CourseID: this.courseId!,
+    //       Title: this.lessonData.title,
+    //       Content: this.lessonData.content,
+    //       VideoURL: this.lessonData.videoURL,
+    //       OrderIndex: this.lessonData.orderIndex,
+    //       LessonType: this.lessonData.lessonType,
+    //       EstimatedTime: this.lessonData.estimatedTime!,
+    //       AttachmentURL: this.lessonData.attachmentFileUrl // Include final URL
+    //     };
+
+    //     let lessonAction$: Observable<ServiceLesson>;
+    //     // ... rest of the logic
+    //   })
+    // ).subscribe({...});
+
+
+    // Using the current structure for simplicity in this example:
     const lessonPayload = {
       CourseID: this.courseId!, // Should map to CourseID
-      Title: this.lessonData.title, // 👈 FIX: Use local camelCase property
-      Content: this.lessonData.content, // 👈 FIX: Use local camelCase property
-      VideoURL: this.lessonData.videoURL, // 👈 FIX: Use local camelCase property
-      OrderIndex: this.lessonData.orderIndex, // 👈 FIX: Use local camelCase property
-      LessonType: this.lessonData.lessonType, // 👈 FIX: Use local camelCase property
-      EstimatedTime: this.lessonData.estimatedTime!, // 👈 FIX: Use local camelCase property
+      Title: this.lessonData.title,
+      Content: this.lessonData.content,
+      VideoURL: this.lessonData.videoURL,
+      OrderIndex: this.lessonData.orderIndex,
+      LessonType: this.lessonData.lessonType,
+      EstimatedTime: this.lessonData.estimatedTime!,
+      // Assuming ServiceLesson doesn't strictly need all local fields:
     };
 
     let lessonAction$: Observable<ServiceLesson>;
 
     if (this.lessonData.id) {
-      // Update existing lesson (fullLesson will now correctly match the ServiceLesson interface)
+      // Update existing lesson
       const fullLesson: ServiceLesson = { ...lessonPayload, id: this.lessonData.id };
-      lessonAction$ = this.courseService.updateLesson(fullLesson); // 👈 RED LINE GONE
+      lessonAction$ = this.courseService.updateLesson(fullLesson);
     } else {
       // Create new lesson
-      // Omit 'id' and cast to the exact type expected by the service
       lessonAction$ = this.courseService.createLesson(lessonPayload as Omit<ServiceLesson, 'id'>);
     }
 
     lessonAction$.subscribe({
       next: (savedServiceLesson) => {
+        // Map saved service lesson back to local Lesson interface
         const savedLesson: Lesson = {
-          ...this.lessonData,
+          ...this.lessonData, // Keep all local fields (content, attachmentFile, etc.)
           id: savedServiceLesson.id,
           orderIndex: savedServiceLesson.OrderIndex,
           estimatedTime: savedServiceLesson.EstimatedTime,
           courseId: savedServiceLesson.CourseID
-          // NOTE: Local fields like videoURL, content need explicit saving if not in ServiceLesson.
         };
 
         const index = this.lessons.findIndex(l => l.id === savedLesson.id);
 
         if (index !== -1) {
           this.lessons[index] = savedLesson;
+          console.log('Lesson updated successfully:', savedLesson.title);
         } else {
           this.lessons.push(savedLesson);
+          console.log('New Lesson created successfully:', savedLesson.title);
         }
 
+        // 💡 REQUIRED CHANGE: Reset the form after save/update
+        this.resetLessonForm();
+
         this.completedSteps.lessons = this.lessons.length > 0;
-        this.lessons.forEach((l, i) => l.orderIndex = i + 1);
-        // this.resetLessonForm();
-        console.log('Lesson saved successfully:', savedLesson.title);
+        this.lessons.forEach((l, i) => l.orderIndex = i + 1); // Re-index all lessons
+        this.isLoading = false;
       },
-      error: (err) => console.error('API Error: Lesson save failed', err)
+      error: (err) => {
+        console.error('API Error: Lesson save failed', err);
+        this.isLoading = false;
+      }
     });
   }
 
   editLesson(lesson: Lesson, index: number) {
+    // 💡 REQUIRED CHANGE: Ensure we copy all fields including the file object placeholders
     this.lessonToEditIndex = index;
     this.lessonData = { ...lesson };
+    // Collapse all other lessons when editing one
+    this.expandedLessonId = null;
   }
 
-  removeLesson(index: number) {
-    const lessonId = this.lessons[index].id;
-    if (!lessonId || !confirm('Are you sure you want to remove this lesson?')) {
-      return;
+  // New method for the Cancel Edit button
+  cancelEdit(): void {
+    this.resetLessonForm();
+  }
+
+private finalizeRemove(index: number) {
+    this.lessons.splice(index, 1); // Remove from the local array
+    this.lessons.forEach((l, i) => l.orderIndex = i + 1); // Re-index all lessons
+    this.completedSteps.lessons = this.lessons.length > 0;
+    this.resetLessonForm(); // Reset form back to "Add New Lesson" mode
+    this.isLoading = false;
+    console.log('Lesson deleted/removed successfully.');
+}
+
+/**
+ * Handles the removal of a lesson.
+ * - If lesson has an ID, it calls the API to delete from the database.
+ * - If lesson has no ID (unsaved), it removes it only from the local list.
+ */
+removeLesson(index: number) {
+    const lesson = this.lessons[index];
+    const lessonId = lesson.id;
+    
+    // 1. Confirmation Pop-up
+    if (!confirm(`Are you sure you want to remove lesson #${lesson.orderIndex}: ${lesson.title}?`)) {
+        return; // User canceled the removal
     }
-
-    this.courseService.deleteLesson(lessonId).subscribe({
-      next: () => {
-        this.lessons.splice(index, 1);
-        this.lessons.forEach((l, i) => l.orderIndex = i + 1);
-        this.completedSteps.lessons = this.lessons.length > 0;
-        // this.resetLessonForm();
-        this.expandedLessonId = null;
-        console.log('Lesson deleted successfully.');
-      },
-      error: (err) => console.error('API Error: Lesson delete failed', err)
-    });
-  }
+    
+    // 2. CHECK: If the lesson is SAVED (has an ID)
+    if (lessonId) {
+        this.isLoading = true;
+        
+        // --- DATABASE DELETION VIA API CALL ---
+        this.courseService.deleteLesson(lessonId).subscribe({
+            next: () => {
+                console.log(`✅ API Success: Lesson ID ${lessonId} deleted from database.`);
+                // Only proceed to update the UI if the API call was successful
+                this.finalizeRemove(index); 
+            },
+            error: (err) => {
+                console.error('❌ API Error: Lesson delete failed', err);
+                this.isLoading = false;
+            }
+        });
+    } else {
+        // 3. ALTERNATE: Lesson is UNSAVED (no ID)
+        console.warn('⚠️ Lesson has no ID. Removing from local list only.');
+        // Remove locally without an API call
+        this.finalizeRemove(index); 
+    }
+}
 
   saveLessonsStep(next: boolean = false) {
     if (this.lessons.length === 0) {
@@ -682,6 +710,7 @@ export class InstructorCreateCourseComponent implements OnInit {
   }
 
   viewLessonDetails(lesson: Lesson) {
+    // Toggle the expanded state for the clicked lesson
     this.expandedLessonId = this.expandedLessonId === lesson.id ? null : lesson.id;
   }
 }

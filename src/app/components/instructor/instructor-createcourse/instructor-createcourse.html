@@ -57,9 +57,11 @@
                     <div *ngIf="categoryStatus === 'none' && categorySearchText.trim()"
                         class="category-list mat-elevation-z1">
 
-                        <div *ngFor="let cat of filteredCategories" [class.selected]="selectedCategory?.categoryID === cat.categoryID"
+                        <div *ngFor="let cat of filteredCategories"
+                            [class.selected]="selectedCategory?.categoryID === cat.categoryID"
                             (click)="selectCategory(cat)">
-                            <mat-icon class="icon-small">{{ selectedCategory?.categoryID === cat.categoryID ? 'folder_open' : 'folder'
+                            <mat-icon class="icon-small">{{ selectedCategory?.categoryID === cat.categoryID ?
+                                'folder_open' : 'folder'
                                 }}</mat-icon>
                             {{ cat.name }}
                         </div>
@@ -112,7 +114,8 @@
                 </div>
             </div>
 
-            <div *ngIf="activeStep === 'category' && completedSteps.category" class="read-only-step-display mat-elevation-z1">
+            <div *ngIf="activeStep === 'category' && completedSteps.category"
+                class="read-only-step-display mat-elevation-z1">
                 <div class="read-only-content">
                     <div class="info-item">
                         <mat-icon color="primary">category</mat-icon>
@@ -211,8 +214,9 @@
                 </div>
             </div>
 
-            <div *ngIf="activeStep === 'details' && completedSteps.details" class="read-only-step-display mat-elevation-z1">
-                <div class="read-only-content details-read-only " style = "flex-direction: column;">
+            <div *ngIf="activeStep === 'details' && completedSteps.details"
+                class="read-only-step-display mat-elevation-z1">
+                <div class="read-only-content details-read-only " style="flex-direction: column;">
                     <div class="info-item full-row">
                         <mat-icon color="primary">title</mat-icon>
                         <p>Title: <strong>{{ courseData.title }}</strong></p>
@@ -235,22 +239,21 @@
                     </div>
                 </div>
                 <!-- <div *ngIf="isFieldDisabled('details')" class="read-only-step-display mat-elevation-z1"> -->
-                    <div class="step-actions-read-only" >
-                        <button mat-stroked-button color="primary" [disabled]="true" style="margin-right: 10px;">
-                            <mat-icon>check</mat-icon> Details Saved
-                        </button>
-                        <button mat-flat-button color="primary" class="next-step-button"
-                            (click)="setActiveStep('lessons')">
-                            <mat-icon>arrow_forward</mat-icon> Continue to Lessons
-                        </button>
-                    </div>
+                <div class="step-actions-read-only">
+                    <button mat-stroked-button color="primary" [disabled]="true" style="margin-right: 10px;">
+                        <mat-icon>check</mat-icon> Details Saved
+                    </button>
+                    <button mat-flat-button color="primary" class="next-step-button" (click)="setActiveStep('lessons')">
+                        <mat-icon>arrow_forward</mat-icon> Continue to Lessons
+                    </button>
+                </div>
                 <!-- </div> -->
-                
+
             </div>
         </div>
 
 
-        <div *ngIf="activeStep === 'lessons'"  class="step-content">
+        <div *ngIf="activeStep === 'lessons'" class="step-content">
             <h2 class="step-title">3. Structure and Add Lessons</h2>
 
             <mat-card *ngIf="lessons.length > 0" class="lesson-list-summary mat-elevation-z3">
@@ -414,7 +417,7 @@
                         <mat-icon>{{ lessonToEditIndex !== null ? 'save' : 'add_circle' }}</mat-icon> {{
                         lessonToEditIndex !== null ? 'Save Changes' : 'Add Lesson' }}
                     </button>
-                    <button *ngIf="lessonToEditIndex !== null" mat-button>
+                    <button *ngIf="lessonToEditIndex !== null" mat-button (click)="cancelEdit()">
                         <mat-icon>cancel</mat-icon> Cancel Edit
                     </button>
                 </div>
