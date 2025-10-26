@@ -394,9 +394,9 @@ export class InstructorCreateCourseComponent implements OnInit {
 
         this.isLoading = false;
 
-        if (next) {
-          this.setActiveStep('details');
-        }
+        // if (next) {
+        //   this.setActiveStep('details');
+        // }
       },
       error: (err) => {
         console.error('API Error: Category save failed', err);
@@ -490,27 +490,27 @@ export class InstructorCreateCourseComponent implements OnInit {
 
     // 3. Execute Course Creation (POST)
     this.courseService.createCourse(createPayload).subscribe({
-    next: (newCourse) => {
-        // 👈 CRITICAL FIX: Robustly check for ID property, assuming the API might return 'ID' or 'CourseID'.
+      next: (newCourse) => {
+        // 👈 CRITICAL FIX: Robustly check for ID property, assuming the API might return 'ID' or 'CourseID'.
         const courseIdFromApi = (newCourse as any).courseID || (newCourse as any).CourseID || (newCourse as any).ID || newCourse.id;
 
         if (typeof courseIdFromApi !== 'number' || courseIdFromApi <= 0) {
-            console.error('API returned success but failed to provide a valid Course ID.', newCourse);
-            this.isLoading = false;
-            return;
+          console.error('API returned success but failed to provide a valid Course ID.', newCourse);
+          this.isLoading = false;
+          return;
         }
 
-        this.courseId = courseIdFromApi; // 👈 This will now correctly store the ID.
-        this.courseData = { ...this.courseData, ...newCourse };
-        this.completedSteps.details = true;
-        this.isLoading = false;
+        this.courseId = courseIdFromApi; // 👈 This will now correctly store the ID.
+        this.courseData = { ...this.courseData, ...newCourse };
+        this.completedSteps.details = true;
+        this.isLoading = false;
 
-        if (next) {
-          this.setActiveStep('lessons');
-        } else {
-          console.log('New Course created successfully with ID:', this.courseId);
-        }
-    },
+        if (next) {
+          this.setActiveStep('lessons');
+        } else {
+          console.log('New Course created successfully with ID:', this.courseId);
+        }
+      },
       error: (err) => {
         console.error('API Error: Course creation failed', err);
         this.isLoading = false;
@@ -554,26 +554,26 @@ export class InstructorCreateCourseComponent implements OnInit {
 
     // 1. Prepare Service Lesson Payload
     const lessonPayload = {
-        CourseID: this.courseId!, // Should map to CourseID
-        Title: this.lessonData.title, // 👈 FIX: Use local camelCase property
-        Content: this.lessonData.content, // 👈 FIX: Use local camelCase property
-        VideoURL: this.lessonData.videoURL, // 👈 FIX: Use local camelCase property
-        OrderIndex: this.lessonData.orderIndex, // 👈 FIX: Use local camelCase property
-        LessonType: this.lessonData.lessonType, // 👈 FIX: Use local camelCase property
-        EstimatedTime: this.lessonData.estimatedTime!, // 👈 FIX: Use local camelCase property
-    };
+      CourseID: this.courseId!, // Should map to CourseID
+      Title: this.lessonData.title, // 👈 FIX: Use local camelCase property
+      Content: this.lessonData.content, // 👈 FIX: Use local camelCase property
+      VideoURL: this.lessonData.videoURL, // 👈 FIX: Use local camelCase property
+      OrderIndex: this.lessonData.orderIndex, // 👈 FIX: Use local camelCase property
+      LessonType: this.lessonData.lessonType, // 👈 FIX: Use local camelCase property
+      EstimatedTime: this.lessonData.estimatedTime!, // 👈 FIX: Use local camelCase property
+    };
 
-    let lessonAction$: Observable<ServiceLesson>;
+    let lessonAction$: Observable<ServiceLesson>;
 
-    if (this.lessonData.id) {
-      // Update existing lesson (fullLesson will now correctly match the ServiceLesson interface)
-      const fullLesson: ServiceLesson = { ...lessonPayload, id: this.lessonData.id };
-      lessonAction$ = this.courseService.updateLesson(fullLesson); // 👈 RED LINE GONE
-    } else {
-      // Create new lesson
-      // Omit 'id' and cast to the exact type expected by the service
-      lessonAction$ = this.courseService.createLesson(lessonPayload as Omit<ServiceLesson, 'id'>);
-    }
+    if (this.lessonData.id) {
+      // Update existing lesson (fullLesson will now correctly match the ServiceLesson interface)
+      const fullLesson: ServiceLesson = { ...lessonPayload, id: this.lessonData.id };
+      lessonAction$ = this.courseService.updateLesson(fullLesson); // 👈 RED LINE GONE
+    } else {
+      // Create new lesson
+      // Omit 'id' and cast to the exact type expected by the service
+      lessonAction$ = this.courseService.createLesson(lessonPayload as Omit<ServiceLesson, 'id'>);
+    }
 
     lessonAction$.subscribe({
       next: (savedServiceLesson) => {
