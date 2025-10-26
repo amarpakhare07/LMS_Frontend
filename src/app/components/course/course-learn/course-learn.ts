@@ -1,13 +1,10 @@
-// src/app/features/course-learn/course-learn.component.ts
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router'; // ✅ Added Router
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-
-import { MatCardModule } from '@angular/material/card'; // ✅ add this
-
+import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { CourseService } from '../../../services/course-service';
@@ -17,12 +14,20 @@ import { switchMap, of, catchError } from 'rxjs';
 @Component({
   selector: 'app-course-learn',
   standalone: true,
-  imports: [CommonModule, MatSidenavModule, MatListModule, MatIconModule, MatButtonModule, MatCardModule],
+  imports: [
+    CommonModule,
+    MatSidenavModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule,
+    MatCardModule
+  ],
   templateUrl: './course-learn.html',
   styleUrls: ['./course-learn.css']
 })
 export class CourseLearn {
   private route = inject(ActivatedRoute);
+  private router = inject(Router); // ✅ Added Router
   private courseService = inject(CourseService);
   private sanitizer = inject(DomSanitizer);
 
@@ -54,9 +59,16 @@ export class CourseLearn {
     });
   }
 
+  // ✅ NEW: Navigate to Quiz List for this course
+  navigateToQuizzes() {
+    const c = this.course();
+    if (c?.courseID) {
+      this.router.navigate([`/course/${c.courseID}/quiz/list`]);
+    }
+  }
+
   selectLesson(l: Lesson) {
     this.currentLesson.set(l);
-    // Close sidebar on mobile after selecting
     this.sidebarOpen = false;
   }
 
@@ -65,7 +77,7 @@ export class CourseLearn {
   }
 
   isYouTube(url: string | null | undefined): boolean {
-    return !!url && /(?:youtube\.com|youtu\.be)/i.test(url);
+    return !!url && /(?:youtube.com|youtu.be)/i.test(url);
   }
 
   youtubeEmbedUrl(url: string): string {
@@ -78,7 +90,6 @@ export class CourseLearn {
     return this.sanitizer.bypassSecurityTrustResourceUrl(this.youtubeEmbedUrl(url));
   }
 
-  // Navigation helpers
   private lessonIndex(): number {
     const c = this.course();
     const cur = this.currentLesson();

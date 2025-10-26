@@ -8,6 +8,7 @@ import { DomSanitizer } from '@angular/platform-browser'; // <-- Import DomSanit
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
+import { AuthService } from '../../services/auth-service';
 // --- END NEW IMPORTS ---
 
 // --- SVG icon strings for social media ---
@@ -24,17 +25,22 @@ const LINKEDIN_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 2
     // --- ADDED MODULES ---
     MatToolbarModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    RouterLink
   ],
   standalone: true,
   templateUrl: './footer.html',
   styleUrl: './footer.css'
 })
 export class Footer {
+  private authService = inject(AuthService);
+  userRole$: string | null;
+
   // --- NEW: Register the custom SVG icons ---
   constructor(iconRegistry: MatIconRegistry, sanitizer: DomSanitizer) {
     iconRegistry.addSvgIconLiteral('twitter', sanitizer.bypassSecurityTrustHtml(TWITTER_ICON));
     iconRegistry.addSvgIconLiteral('facebook', sanitizer.bypassSecurityTrustHtml(FACEBOOK_ICON));
     iconRegistry.addSvgIconLiteral('linkedin', sanitizer.bypassSecurityTrustHtml(LINKEDIN_ICON));
+    this.userRole$ = this.authService.getUserRole();
   }
 }

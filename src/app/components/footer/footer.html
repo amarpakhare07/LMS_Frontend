@@ -12,23 +12,14 @@
     <div class="footer-section footer-links">
       <div class="link-column">
         <h4>Platform</h4>
-        <a mat-button routerLink="/dashboard">Dashboard</a>
-        <a mat-button routerLink="/mentors">Mentors</a>
+        <a mat-button [routerLink]="userRole$ === 'Admin' ? '/admin/dashboard' : userRole$ === 'Instructor' ? '/instructor/dashboard' : '/student/dashboard'">Dashboard</a>
       </div>
       <div class="link-column">
         <h4>Company</h4>
         <a mat-button routerLink="/about">About</a>
       </div>
-      <div class="link-column">
-        <h4>Contact Us</h4>
-        <a mat-button routerLink="/blog">Blog</a>
-        <a mat-button routerLink="/careers">Careers</a>
-      </div>
-      <div class="link-column">
-        <h4>Help Center</h4>
-        <a mat-button routerLink="/help">Help Center</a>
-        <a mat-button routerLink="/privacy">Privacy</a>
-      </div>
+     
+     
     </div>
 
     <!-- Right Section: Social & Copyright -->

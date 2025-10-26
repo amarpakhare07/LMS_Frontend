@@ -1,5 +1,3 @@
-/* src/app/components/navbar/navbar.css */
-
 /* Toolbar */
 .navbar {
   position: sticky;
@@ -8,17 +6,18 @@
   display: flex;
   align-items: center;
   padding: 0 16px;
-  background-color: #8e24aa; /* Deep violet */
+  background: linear-gradient(135deg, #8e24aa, #d81b60); /* Violet → Magenta gradient */
   color: #fff;
-  box-shadow: 0 2px 6px rgba(142, 36, 170, 0.3);
+  box-shadow: 0 4px 12px rgba(142, 36, 170, 0.3);
 }
 
 /* Logo */
 .logo {
-  font-size: 1.6rem;
-  font-weight: 700;
+  font-size: 1.8rem;
+  font-weight: 800;
   text-decoration: none;
   color: #fff;
+  letter-spacing: 0.5px;
 }
 
 /* Spacer */
@@ -28,15 +27,17 @@
 
 /* Navigation links */
 .nav-links a {
-  margin: 0 8px;
-  font-weight: 500;
+  margin: 0 10px;
+  font-weight: 600;
   color: #f3e5f5; /* Light violet */
   transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 6px;
+  padding: 6px 12px;
 }
 
 /* Buttons */
 .nav-button {
-  margin-left: 10px;
+  margin-left: 12px;
   font-weight: 600;
   border-color: #f3e5f5;
   color: #f3e5f5;
@@ -65,7 +66,7 @@
 /* Hover states */
 .nav-links a:hover,
 .nav-button:hover {
-  background-color: rgba(216, 27, 96, 0.15); /* Magenta hover */
+  background-color: rgba(216, 27, 96, 0.2); /* Magenta hover */
   color: #fff;
 }
 
