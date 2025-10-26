@@ -144,7 +144,7 @@
         <div *ngIf="activeStep === 'details' || isFieldDisabled('details')" class="step-content">
             <h2 class="step-title">2. Core Course Metadata</h2>
 
-            <div *ngIf="activeStep === 'details'">
+            <div *ngIf="activeStep === 'details' && !completedSteps.details" class="course-details-form">
                 <mat-form-field appearance="outline" class="full-width">
                     <mat-label>Course Title</mat-label>
                     <input matInput [(ngModel)]="courseData.title"
@@ -199,7 +199,7 @@
 
                 <div *ngIf="activeStep === 'details'">
                     <div class="step-actions">
-                        <button mat-stroked-button color="primary" (click)="saveDetailsStep(true)"
+                        <button mat-stroked-button color="primary" (click)="saveDetailsStep()"
                             [disabled]="!isCourseDetailsValid()">
                             <mat-icon>save</mat-icon> Save Details
                         </button>
@@ -211,7 +211,7 @@
                 </div>
             </div>
 
-            <div *ngIf="isFieldDisabled('details')" class="read-only-step-display mat-elevation-z1">
+            <div *ngIf="activeStep === 'details' && completedSteps.details" class="read-only-step-display mat-elevation-z1">
                 <div class="read-only-content details-read-only " style = "flex-direction: column;">
                     <div class="info-item full-row">
                         <mat-icon color="primary">title</mat-icon>
@@ -234,7 +234,7 @@
                         <p>Duration: <strong>{{ courseData.duration }} mins</strong></p>
                     </div>
                 </div>
-                <div *ngIf="isFieldDisabled('details')" class="read-only-step-display mat-elevation-z1">
+                <!-- <div *ngIf="isFieldDisabled('details')" class="read-only-step-display mat-elevation-z1"> -->
                     <div class="step-actions-read-only" >
                         <button mat-stroked-button color="primary" [disabled]="true" style="margin-right: 10px;">
                             <mat-icon>check</mat-icon> Details Saved
@@ -244,7 +244,7 @@
                             <mat-icon>arrow_forward</mat-icon> Continue to Lessons
                         </button>
                     </div>
-                </div>
+                <!-- </div> -->
                 
             </div>
         </div>

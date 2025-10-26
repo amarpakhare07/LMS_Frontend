@@ -93,6 +93,15 @@ export const routes: Routes = [
     { path: 'dashboard', component: InstructorDashboardComponent },
     { path: 'courses', component: InstructorCoursesComponent },
     { path: 'createcourse', component: InstructorCreateCourseComponent },
+    {
+        path: 'profile', // When '/student/profile' is accessed
+        component: ProfileComponent, // Load the profile wrapper
+        children: [
+          { path: '', redirectTo: 'public-profile', pathMatch: 'full' }, // Default sub-route
+          { path: 'public-profile', component: PublicProfileComponent },
+          { path: 'photo', component: PhotoProfileComponent },
+        ]
+      },
     // { path: 'profile', component: Profile }
   ]
   },

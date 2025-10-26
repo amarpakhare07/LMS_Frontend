@@ -505,11 +505,11 @@ export class InstructorCreateCourseComponent implements OnInit {
         this.completedSteps.details = true;
         this.isLoading = false;
 
-        if (next) {
-          this.setActiveStep('lessons');
-        } else {
+        // if (next) {
+        //   this.setActiveStep('lessons');
+        // } else {
           console.log('New Course created successfully with ID:', this.courseId);
-        }
+        // }
       },
       error: (err) => {
         console.error('API Error: Course creation failed', err);
