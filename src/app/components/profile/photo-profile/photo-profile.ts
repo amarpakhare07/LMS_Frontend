@@ -12,6 +12,8 @@ import { UserService } from '../../../services/user-service'
 import { UserProfile, UserPhoto } from '../../../models/interfaces'; // Assuming UserPhoto is { photoURL: string | null }
 
 
+
+
 @Component({
   selector: 'app-photo-profile',
   standalone: true,
@@ -122,7 +124,6 @@ export class PhotoProfileComponent implements OnInit {
     });
   }
 }
-
 
 
 

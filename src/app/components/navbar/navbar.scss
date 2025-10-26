@@ -54,6 +54,11 @@
   }
 }
 
+.profile-image {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 /* Buttons */
 .nav-button {
   margin-left: 12px;

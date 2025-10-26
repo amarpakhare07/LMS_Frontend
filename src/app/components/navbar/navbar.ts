@@ -27,12 +27,17 @@ import { UserService } from '../../services/user-service';
 export class Navbar implements OnInit {
   private authService = inject(AuthService);
     private userService = inject(UserService);
-  
-  imagePreviewUrl: string | ArrayBuffer | null = null;
+    readonly BASE_IMAGE_URL = 'https://localhost:7049/Uploads/';
+
+  imagePreviewUrl: string | null = null;
 
   ngOnInit(): void {
-    this.userService.getUserPhoto().subscribe((image) => {
-      this.imagePreviewUrl = image.photoURL;
+    this.userService.getUserProfile().subscribe({
+      next: (profile) => {
+        if (profile.profilePicture) {
+          this.imagePreviewUrl = this.BASE_IMAGE_URL + profile.profilePicture;
+        }
+      }
     });
   }
 
