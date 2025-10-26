@@ -16,7 +16,11 @@
     <!-- profile icon button (visible) -->
     <button mat-icon-button [matMenuTriggerFor]="profileMenu" aria-label="Profile menu" class="profile-button">
       <!-- explicit class so CSS can force visible color/size -->
-      <mat-icon class="profile-icon">account_circle</mat-icon>
+      <!-- <mat-icon class="profile-icon">account_circle</mat-icon> -->
+       <img *ngIf="imagePreviewUrl; else defaultUserIcon" [src]="imagePreviewUrl" alt="" class="profile-image">
+          <ng-template #defaultUserIcon>
+            <mat-icon class="default-icon">person</mat-icon>
+          </ng-template>
     </button>
 
     <mat-menu #profileMenu="matMenu">

@@ -4,7 +4,6 @@ import { authGuard } from './services/auth-guard';
 import { Register } from './components/auth/register/register';
 import { ManageCourses } from './components/admin/manage-courses/manage-courses';
 import { ManageUsers } from './components/admin/manage-users/manage-users';
-import { Profile } from './components/admin/profile/profile';
 import { RegisterInstructor } from './components/auth/register-instructor/register-instructor';
 import { AdminDashboard } from './components/admin/dashboard/dashboard';
 import { AdminLayout } from './components/admin/layout/layout';
@@ -28,20 +27,14 @@ import { ProfileComponent } from './components/profile/user-profile/user-profile
 import { PublicProfileComponent } from './components/profile/public-profile/public-profile';
 import { PhotoProfileComponent } from './components/profile/photo-profile/photo-profile';
 import { QuizSummaryComponent } from './components/student/quiz-summary/quiz-summary';
-
+import { About } from './components/shared/about/about';
+import { ContactUs } from './components/shared/contact-us/contact-us';
 import { QuizListComponent } from './components/quiz/quiz-list/quiz-list';
 import { quizEnrolledGuard } from './services/quiz-enrolled.guard';
 import { QuizAttemptComponent } from './components/quiz/quiz-attempt/quiz-attempt';
 import { QuizResultsComponent } from './components/quiz/quiz-result/quiz-result';
-import { About } from './components/shared/about/about';
-import { ContactUs } from './components/shared/contact-us/contact-us';
 
-import { About } from './components/shared/about/about';
-import { ContactUs } from './components/shared/contact-us/contact-us';
-import { QuizResultsComponent } from './components/quiz/quiz-result/quiz-result';
-import { quizEnrolledGuard } from './services/quiz-enrolled.guard';
-import { QuizAttemptComponent } from './components/quiz/quiz-attempt/quiz-attempt';
-import { QuizListComponent } from './components/quiz/quiz-list/quiz-list';
+
 
 export const routes: Routes = [
   // Public Routes
@@ -74,7 +67,16 @@ export const routes: Routes = [
       { path: 'dashboard', component: AdminDashboard },
       { path: 'users', component: ManageUsers },
       { path: 'courses', component: ManageCourses },
-      { path: 'profile', component: Profile },
+      // { path: 'profile', component: Profile },
+      {
+        path: 'profile', // When '/student/profile' is accessed
+        component: ProfileComponent, // Load the profile wrapper
+        children: [
+          { path: '', redirectTo: 'public-profile', pathMatch: 'full' }, // Default sub-route
+          { path: 'public-profile', component: PublicProfileComponent },
+          { path: 'photo', component: PhotoProfileComponent },
+        ]
+      },
     ],
   },
 

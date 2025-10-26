@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
@@ -8,6 +8,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { UserService } from '../../services/user-service';
 
 @Component({
   selector: 'app-navbar',
@@ -23,8 +24,17 @@ import { MatMenuModule } from '@angular/material/menu';
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.scss'],
 })
-export class Navbar {
+export class Navbar implements OnInit {
   private authService = inject(AuthService);
+    private userService = inject(UserService);
+  
+  imagePreviewUrl: string | ArrayBuffer | null = null;
+
+  ngOnInit(): void {
+    this.userService.getUserPhoto().subscribe((image) => {
+      this.imagePreviewUrl = image.photoURL;
+    });
+  }
 
   isLoggedIn$: Observable<boolean>;
   currentUser$: Observable<DecodedToken | null>;
