@@ -28,6 +28,12 @@ import { ProfileComponent } from './components/profile/user-profile/user-profile
 import { PublicProfileComponent } from './components/profile/public-profile/public-profile';
 import { PhotoProfileComponent } from './components/profile/photo-profile/photo-profile';
 import { QuizSummaryComponent } from './components/student/quiz-summary/quiz-summary';
+import { QuizListComponent } from './components/quiz/quiz-list/quiz-list';
+import { quizEnrolledGuard } from './services/quiz-enrolled.guard';
+import { QuizAttemptComponent } from './components/quiz/quiz-attempt/quiz-attempt';
+import { QuizResultsComponent } from './components/quiz/quiz-result/quiz-result';
+import { About } from './components/shared/about/about';
+import { ContactUs } from './components/shared/contact-us/contact-us';
 export const routes: Routes = [
   // Public Routes
   { path: 'login', component: LoginComponent, canActivate: [publicGuard] },
