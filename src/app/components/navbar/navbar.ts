@@ -1,4 +1,3 @@
-// src/app/components/navbar/navbar.component.ts
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -22,7 +21,7 @@ import { MatMenuModule } from '@angular/material/menu';
     MatMenuModule,
   ],
   templateUrl: './navbar.html',
-  styleUrls: ['./navbar.css']
+  styleUrls: ['./navbar.scss'],
 })
 export class Navbar {
   private authService = inject(AuthService);
