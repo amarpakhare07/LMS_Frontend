@@ -261,7 +261,7 @@
                 <mat-list role="list" class="lesson-list-content">
                     <ng-container *ngFor="let lesson of lessons; let i = index">
                         <mat-list-item role="listitem" (click)="viewLessonDetails(lesson)" class="lesson-item"
-                            [class.expanded]="expandedLessonId === lesson.id">
+                            [class.expanded]="expandedLessonId === lesson.lessonID">
 
                             <mat-icon matListItemIcon class="text-accent">play_circle_outline</mat-icon>
 
@@ -282,7 +282,7 @@
                                 <button mat-icon-button color="accent"
                                     (click)="viewLessonDetails(lesson); $event.stopPropagation()"
                                     matTooltip="View Lesson Details" class="action-button view-button">
-                                    <mat-icon>{{ expandedLessonId === lesson.id ? 'visibility_off' : 'visibility'
+                                    <mat-icon>{{ expandedLessonId === lesson.lessonID ? 'visibility_off' : 'visibility'
                                         }}</mat-icon>
                                 </button>
 
@@ -299,7 +299,7 @@
                         </mat-list-item>
                         <mat-divider></mat-divider>
 
-                        <div *ngIf="expandedLessonId === lesson.id" class="lesson-details-panel book-style">
+                        <div *ngIf="expandedLessonId === lesson.lessonID" class="lesson-details-panel book-style">
                             <div class="book-cover">
                                 <mat-icon>auto_stories</mat-icon>
                                 <h4>Lesson Details: {{ lesson.title }}</h4>

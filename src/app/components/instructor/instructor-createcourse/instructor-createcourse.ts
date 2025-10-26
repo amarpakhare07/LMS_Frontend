@@ -8,11 +8,14 @@ import { Observable, of, forkJoin } from 'rxjs';
 import { switchMap, tap, catchError } from 'rxjs/operators';
 import {
   CourseInstructorService,
-  CourseCategory,
-  CourseDetail,
-  Course,
-  Lesson as ServiceLesson // Renamed to avoid collision with local Lesson interface
 } from '../../../services/course-creation-service';
+import { 
+  Lesson, // Base DTO/Service type
+  CourseCategory,
+  CourseFormState, // Replaces local CourseData
+  LessonFormState, // Replaces local Lesson
+  CreateCourseDto
+} from '../../../models/course.model';
 
 // Angular Material Imports
 import { MatCardModule } from '@angular/material/card';
@@ -29,39 +32,39 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 // --- LOCAL INTERFACES (AUGMENTED from Service) ---
 
 // Extend Service's CourseCategory for local state management
-interface Category extends CourseCategory { }
+// interface Category extends CourseCategory { }
 
 // Local CourseData must hold all fields needed across the flow
-interface CourseData {
-  id: number | null;
-  instructorId: number | null;
-  title: string;
-  description: string;
-  syllabus: string; // Assuming this is part of the detail update in Step 2
-  thumbnailURL: string; // Assuming this is part of the detail update in Step 2
-  level: 'Beginner' | 'Intermediate' | 'Expert' | string; // Assuming this is part of the detail update in Step 2
-  language: string; // Assuming this is part of the detail update in Step 2
-  duration: number | null; // Total duration based on lessons (calculated) or initial estimate
-  categoryId: number | null;
-  categoryName: string | null;
-  categoryDescription: string | null;
-  status: 'Draft' | 'Published';
-}
+// interface CourseData {
+//   id: number | null;
+//   instructorId: number | null;
+//   title: string;
+//   description: string;
+//   syllabus: string; // Assuming this is part of the detail update in Step 2
+//   thumbnailURL: string; // Assuming this is part of the detail update in Step 2
+//   level: 'Beginner' | 'Intermediate' | 'Expert' | string; // Assuming this is part of the detail update in Step 2
+//   language: string; // Assuming this is part of the detail update in Step 2
+//   duration: number | null; // Total duration based on lessons (calculated) or initial estimate
+//   categoryId: number | null;
+//   categoryName: string | null;
+//   categoryDescription: string | null;
+//   status: 'Draft' | 'Published';
+// }
 
-// Local Lesson interface, augmented for UI/upload features
-interface Lesson {
-  id?: number | null;
-  courseId: number | null;
-  title: string;
-  content: string; // Detailed content (not in service, assumed local/extended detail)
-  lessonType: 'Video';
-  estimatedTime: number | null;
-  orderIndex: number; // For UI sorting
-  videoURL: string; // Assumed part of the lesson detail
-  includeDocument: boolean;
-  attachmentFileUrl: string | null; // URL after successful upload
-  attachmentFile?: File | null; // Client-side file object for upload
-}
+// // Local Lesson interface, augmented for UI/upload features
+// interface Lesson {
+//   id?: number | null;
+//   courseId: number | null;
+//   title: string;
+//   content: string; // Detailed content (not in service, assumed local/extended detail)
+//   lessonType: 'Video';
+//   estimatedTime: number | null;
+//   orderIndex: number; // For UI sorting
+//   videoURL: string; // Assumed part of the lesson detail
+//   includeDocument: boolean;
+//   attachmentFileUrl: string | null; // URL after successful upload
+//   attachmentFile?: File | null; // Client-side file object for upload
+// }
 
 // --- MAIN COMPONENT ---
 
@@ -112,16 +115,16 @@ export class InstructorCreateCourseComponent implements OnInit {
   instructorId: number | null = null;
 
   // --- Step 1: Category Data ---
-  allCategories: Category[] = [];
+  allCategories: CourseCategory[] = [];
   categorySearchText: string = '';
-  filteredCategories: Category[] = [];
-  selectedCategory: Category | null = null;
+  filteredCategories: CourseCategory[] = [];
+  selectedCategory: CourseCategory | null = null;
   categoryStatus: 'none' | 'existing' | 'new' = 'none';
   newCategoryDescription: string = '';
 
   // --- Step 2: Course Details Data ---
-  courseData: CourseData = {
-    id: null,
+  courseData: CourseFormState = {
+    courseID: null,
     instructorId: null,
     title: '',
     description: '',
@@ -130,16 +133,16 @@ export class InstructorCreateCourseComponent implements OnInit {
     level: 'Beginner',
     language: 'English',
     duration: 10,
-    categoryId: null,
+    categoryID: null,
     categoryName: null,
     categoryDescription: null,
     status: 'Draft',
   };
 
   // --- Step 3: Lesson Data ---
-  lessons: Lesson[] = [];
+  lessons: LessonFormState[] = [];
   // Initialize lessonData using the template to set defaults
-  lessonData: Lesson = this.getNewLessonTemplate();
+  lessonData: LessonFormState = this.getNewLessonTemplate();
   lessonToEditIndex: number | null = null;
   expandedLessonId: number | null | undefined = null;
 
@@ -188,7 +191,7 @@ export class InstructorCreateCourseComponent implements OnInit {
             courseDetails: of({
               title: "Loaded Title", description: "Loaded Description", categoryId: 1,
               categoryName: "Web Development", categoryDescription: "Learn to build...", status: 'Draft'
-            } as Partial<CourseData>)
+            } as Partial<CourseFormState>)
           });
         }
         return of({ lessons: [], courseDetails: null });
@@ -196,16 +199,16 @@ export class InstructorCreateCourseComponent implements OnInit {
       // 4. Update component state with loaded course data and lessons
       tap(({ lessons, courseDetails }) => {
         if (courseDetails) {
-          this.updateStateFromCourseData(courseDetails as CourseData);
+          this.updateStateFromCourseData(courseDetails as CourseFormState);
         }
 
         // Map service lessons to local augmented Lesson interface
         this.lessons = lessons.map(l => ({
-          id: (l.id === undefined ? null : l.id) as number | null,
-          courseId: this.courseId,
-          title: l.Title,
-          orderIndex: l.OrderIndex,
-          estimatedTime: l.EstimatedTime,
+          lessonID: (l.lessonID === undefined ? null : l.lessonID) as number | null,
+          courseID: this.courseId,
+          title: l.title,
+          orderIndex: l.orderIndex,
+          estimatedTime: l.estimatedTime,
           content: 'Loaded content...', // Placeholder for content fetching
           lessonType: 'Video',
           videoURL: 'https://video.link/loaded', // Placeholder for video fetching
@@ -225,13 +228,13 @@ export class InstructorCreateCourseComponent implements OnInit {
     ).subscribe();
   }
 
-  private updateStateFromCourseData(course: CourseData) {
+  private updateStateFromCourseData(course: CourseFormState) {
     // Merge the loaded course details into the local state
-    this.courseData = { ...this.courseData, ...course, id: course.id || this.courseId, instructorId: this.instructorId };
+    this.courseData = { ...this.courseData, ...course, courseID: course.courseID || this.courseId, instructorId: this.instructorId };
 
-    if (course.categoryId && course.categoryName) {
+    if (course.categoryID && course.categoryName) {
       this.completedSteps.category = true;
-      this.selectedCategory = this.allCategories.find(c => c.categoryID === course.categoryId) || { categoryID: course.categoryId, name: course.categoryName!, description: course.categoryDescription || '' };
+      this.selectedCategory = this.allCategories.find(c => c.categoryID === course.categoryID) || { categoryID: course.categoryID, name: course.categoryName!, description: course.categoryDescription || '' };
       this.categorySearchText = course.categoryName;
       this.categoryStatus = 'existing';
     }
@@ -254,20 +257,20 @@ export class InstructorCreateCourseComponent implements OnInit {
   }
 
 
-  private getNewLessonTemplate(): Lesson {
+  private getNewLessonTemplate(): LessonFormState {
     return {
-      id: null,
-      courseId: this.courseId,
-      title: '',
-      content: '',
-      lessonType: 'Video',
-      estimatedTime: 10, // 👈 CHANGE: Set default duration to 10 minutes
-      orderIndex: this.lessons.length + 1,
-      videoURL: '',
-      includeDocument: false,
-      attachmentFileUrl: null,
-      attachmentFile: null,
-    } as Lesson;
+      lessonID: null, // 👈 FIX: Use lessonID
+      courseID: this.courseId, // 👈 FIX: Use courseID
+      title: '',
+      content: '',
+      lessonType: 'Video',
+      estimatedTime: 10,
+      orderIndex: this.lessons.length + 1,
+      videoURL: '',
+      includeDocument: false,
+      attachmentFileUrl: null,
+      attachmentFile: null,
+    } as LessonFormState;
   }
 
   // New helper function to reset the form after save or cancel
@@ -312,7 +315,7 @@ export class InstructorCreateCourseComponent implements OnInit {
     this.categorySearchText = cat.name; // Keep the search text synchronized
     this.categoryStatus = 'existing'; // Mark status as existing
     // Ensure the course data is populated immediately for validation/display
-    this.courseData.categoryId = cat.categoryID;
+    this.courseData.categoryID = cat.categoryID;
     this.courseData.categoryName = cat.name;
     this.courseData.categoryDescription = cat.description;
   }
@@ -361,7 +364,7 @@ export class InstructorCreateCourseComponent implements OnInit {
         }
 
         // 2. Update the local state with the valid ID
-        this.courseData.categoryId = categoryIdFromApi;
+        this.courseData.categoryID = categoryIdFromApi;
         this.courseData.categoryName = cat.name;
         this.courseData.categoryDescription = cat.description;
 
@@ -421,14 +424,14 @@ export class InstructorCreateCourseComponent implements OnInit {
     }
 
     // CRITICAL PRE-REQUISITE: The category ID MUST be available from the previous step.
-    if (!this.courseData.categoryId) { // Local state uses camelCase 'categoryId'
+    if (!this.courseData.categoryID) { // Local state uses camelCase 'categoryId'
       console.error('Cannot create course: Category ID is required but missing.');
       this.isLoading = false;
       return;
     }
 
     // 2. Prepare Payload for Course Creation (POST API Call)
-    const createPayload = {
+    const createPayload: CreateCourseDto = {
       title: this.courseData.title,
       description: this.courseData.description,
       syllabus: this.courseData.syllabus,
@@ -436,7 +439,7 @@ export class InstructorCreateCourseComponent implements OnInit {
       language: this.courseData.language,
       thumbnailURL: this.courseData.thumbnailURL,
       duration: this.courseData.duration,
-      categoryID: this.courseData.categoryId, // PascalCase to match DTO
+      categoryID: this.courseData.categoryID, // PascalCase to match DTO
       published: false
     };
 
@@ -444,7 +447,7 @@ export class InstructorCreateCourseComponent implements OnInit {
     this.courseService.createCourse(createPayload).subscribe({
       next: (newCourse) => {
         // 👈 CRITICAL FIX: Robustly check for ID property, assuming the API might return 'ID' or 'CourseID'.
-        const courseIdFromApi = (newCourse as any).courseID || (newCourse as any).CourseID || (newCourse as any).ID || newCourse.id;
+        const courseIdFromApi = (newCourse as any).courseID || (newCourse as any).CourseID || (newCourse as any).ID;
 
         if (typeof courseIdFromApi !== 'number' || courseIdFromApi <= 0) {
           console.error('API returned success but failed to provide a valid Course ID.', newCourse);
@@ -539,39 +542,47 @@ export class InstructorCreateCourseComponent implements OnInit {
 
     // Using the current structure for simplicity in this example:
     const lessonPayload = {
-      CourseID: this.courseId!, // Should map to CourseID
-      Title: this.lessonData.title,
-      Content: this.lessonData.content,
-      VideoURL: this.lessonData.videoURL,
-      OrderIndex: this.lessonData.orderIndex,
-      LessonType: this.lessonData.lessonType,
-      EstimatedTime: this.lessonData.estimatedTime!,
+      courseID: this.courseId!, // 👈 FIX: Use courseID
+      title: this.lessonData.title, // 👈 Match DTO
+      content: this.lessonData.content,
+      videoURL: this.lessonData.videoURL,
+      orderIndex: this.lessonData.orderIndex,
+      lessonType: this.lessonData.lessonType,
+      estimatedTime: this.lessonData.estimatedTime!,
       // Assuming ServiceLesson doesn't strictly need all local fields:
     };
 
-    let lessonAction$: Observable<ServiceLesson>;
+    let lessonAction$: Observable<Lesson>;
 
-    if (this.lessonData.id) {
+    if (this.lessonData.lessonID) {
       // Update existing lesson
-      const fullLesson: ServiceLesson = { ...lessonPayload, id: this.lessonData.id };
+      const fullLesson: Lesson = { 
+        ...(lessonPayload as unknown as Lesson), // Spread DTO fields
+        lessonID: this.lessonData.lessonID, // 👈 Pass lessonID for update
+        // Add placeholders for server-generated fields that DTO requires
+
+//         createdAt: new Date().toISOString(), // Placeholder
+//         updatedAt: new Date().toISOString(), // Placeholder
+      };
       lessonAction$ = this.courseService.updateLesson(fullLesson);
     } else {
       // Create new lesson
-      lessonAction$ = this.courseService.createLesson(lessonPayload as Omit<ServiceLesson, 'id'>);
+      lessonAction$ = this.courseService.createLesson(lessonPayload as Omit<Lesson, 'lessonID'>);
     }
 
     lessonAction$.subscribe({
       next: (savedServiceLesson) => {
         // Map saved service lesson back to local Lesson interface
-        const savedLesson: Lesson = {
+        const savedLesson: LessonFormState = {
           ...this.lessonData, // Keep all local fields (content, attachmentFile, etc.)
-          id: savedServiceLesson.id,
-          orderIndex: savedServiceLesson.OrderIndex,
-          estimatedTime: savedServiceLesson.EstimatedTime,
-          courseId: savedServiceLesson.CourseID
+          lessonID: savedServiceLesson.lessonID,
+          orderIndex: savedServiceLesson.orderIndex,
+          estimatedTime: savedServiceLesson.estimatedTime,
+          courseID: savedServiceLesson.courseID
         };
+        console.log('✅ API CHECK: Saved Lesson ID:', savedLesson.lessonID);
 
-        const index = this.lessons.findIndex(l => l.id === savedLesson.id);
+        const index = this.lessons.findIndex(l => l.lessonID === savedLesson.lessonID);
 
         if (index !== -1) {
           this.lessons[index] = savedLesson;
@@ -595,7 +606,7 @@ export class InstructorCreateCourseComponent implements OnInit {
     });
   }
 
-  editLesson(lesson: Lesson, index: number) {
+  editLesson(lesson: LessonFormState, index: number) {
     // 💡 REQUIRED CHANGE: Ensure we copy all fields including the file object placeholders
     this.lessonToEditIndex = index;
     this.lessonData = { ...lesson };
@@ -612,7 +623,8 @@ private finalizeRemove(index: number) {
     this.lessons.splice(index, 1); // Remove from the local array
     this.lessons.forEach((l, i) => l.orderIndex = i + 1); // Re-index all lessons
     this.completedSteps.lessons = this.lessons.length > 0;
-    this.resetLessonForm(); // Reset form back to "Add New Lesson" mode
+    // this.resetLessonForm(); // Reset form back to "Add New Lesson" mode
+    this.expandedLessonId = null; // Collapse any expanded lesson
     this.isLoading = false;
     console.log('Lesson deleted/removed successfully.');
 }
@@ -624,34 +636,33 @@ private finalizeRemove(index: number) {
  */
 removeLesson(index: number) {
     const lesson = this.lessons[index];
-    const lessonId = lesson.id;
+    // This 'lessonId' is now correctly populated for saved lessons
+    const lessonId = lesson.lessonID; 
     
-    // 1. Confirmation Pop-up
-    if (!confirm(`Are you sure you want to remove lesson #${lesson.orderIndex}: ${lesson.title}?`)) {
-        return; // User canceled the removal
+    if (!confirm(`Are you sure you want to remove lesson: ${lesson.title}?`)) {
+        return; // User canceled
     }
-    
-    // 2. CHECK: If the lesson is SAVED (has an ID)
+
+    // SCENARIO 1: Lesson has an ID (Saved to DB)
     if (lessonId) {
-        this.isLoading = true;
-        
-        // --- DATABASE DELETION VIA API CALL ---
-        this.courseService.deleteLesson(lessonId).subscribe({
-            next: () => {
-                console.log(`✅ API Success: Lesson ID ${lessonId} deleted from database.`);
-                // Only proceed to update the UI if the API call was successful
-                this.finalizeRemove(index); 
-            },
-            error: (err) => {
-                console.error('❌ API Error: Lesson delete failed', err);
-                this.isLoading = false;
-            }
-        });
+        this.courseService.deleteLesson(lessonId).subscribe({ // <-- DELETES FROM DATABASE
+        next: () => {
+          this.lessons.splice(index, 1);
+          this.lessons.forEach((l, i) => l.orderIndex = i + 1);
+          this.completedSteps.lessons = this.lessons.length > 0;
+          this.expandedLessonId = null;
+          console.log(`✅ Lesson ID ${lessonId} deleted from database and front-end.`);
+        },
+        error: (err) => console.error('API Error: Lesson delete failed', err)
+      });
     } else {
-        // 3. ALTERNATE: Lesson is UNSAVED (no ID)
-        console.warn('⚠️ Lesson has no ID. Removing from local list only.');
-        // Remove locally without an API call
-        this.finalizeRemove(index); 
+      // SCENARIO 2: Lesson is UNSAVED (lessonId is falsy, which triggers the warning)
+      // FIX 7: Perform local removal immediately without API call.
+      this.lessons.splice(index, 1);
+      this.lessons.forEach((l, i) => l.orderIndex = i + 1);
+      this.completedSteps.lessons = this.lessons.length > 0;
+      this.expandedLessonId = null;
+      console.warn('⚠️ Lesson has no ID. Removing from local list only.');
     }
 }
 
@@ -709,8 +720,8 @@ removeLesson(index: number) {
     return this.completedSteps[step] && this.activeStep !== step;
   }
 
-  viewLessonDetails(lesson: Lesson) {
+  viewLessonDetails(lesson: LessonFormState) {
     // Toggle the expanded state for the clicked lesson
-    this.expandedLessonId = this.expandedLessonId === lesson.id ? null : lesson.id;
+    this.expandedLessonId = this.expandedLessonId === lesson.lessonID ? null : lesson.lessonID;
   }
 }

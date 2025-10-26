@@ -2,41 +2,47 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environment';
 import { Observable, tap, of, throwError } from 'rxjs';
+import { 
+    Lesson, 
+    Course, 
+    CourseCategory,
+    CreateCourseDto
+} from '../models/course.model';
 
 // --- INTERFACES (MODELS) ---
 
-export interface CourseCategory {
-  categoryID: number; // optional for creation
-  name: string;
-  description: string;
-}
+// export interface CourseCategory {
+//   categoryID: number; // optional for creation
+//   name: string;
+//   description: string;
+// }
 
-export interface CourseDetail {
-  // id is optional for creation/update body, mandatory for URL
-  id?: number; 
-  categoryID: number;
-  title: string;
-  description: string;
-}
+// export interface CourseDetail {
+//   // id is optional for creation/update body, mandatory for URL
+//   id?: number; 
+//   categoryID: number;
+//   title: string;
+//   description: string;
+// }
 
-export interface Course extends CourseDetail {
-  id: number;
-  instructorId: number;
-  status: 'Draft' | 'Published';
+// export interface Course extends CourseDetail {
+//   id: number;
+//   instructorId: number;
+//   status: 'Draft' | 'Published';
   
-  // Note: Assuming lessons are managed separately and not returned with Course GET
-}
+//   // Note: Assuming lessons are managed separately and not returned with Course GET
+// }
 
-export interface Lesson {
-  id: number; // ID is required for update
-  CourseID: number; // 👈 CRITICAL FIX: Match DTO
-  Title: string; // 👈 CRITICAL FIX: Match DTO
-  Content?: string;
-  VideoURL?: string;
-  OrderIndex: number; // 👈 CRITICAL FIX: Match DTO
-  LessonType?: string;
-  EstimatedTime: number | null; // 👈 CRITICAL FIX: Match DTO (replaces 'duration')
-}
+// export interface Lesson {
+//   lessonID: number; // ID is required for update
+//   courseID: number; // 👈 CRITICAL FIX: Match DTO
+//   title: string; // 👈 CRITICAL FIX: Match DTO
+//   content?: string;
+//   videoURL?: string;
+//   orderIndex: number; // 👈 CRITICAL FIX: Match DTO
+//   lessonType?: string;
+//   estimatedTime: number | null; // 👈 CRITICAL FIX: Match DTO (replaces 'duration')
+// }
 
 // --- COURSE INSTRUCTOR SERVICE ---
 
@@ -116,13 +122,13 @@ export class CourseInstructorService {
    * Creates a new course.
    * API: POST /api/Course
    */
-  createCourse(courseDetails: CourseDetail): Observable<Course> {
+  createCourse(courseDetails: CreateCourseDto): Observable<Course> {
     const endpoint = `${this.apiUrl}/Course`;
     console.log('➡️ API CHECK: Sending POST request to create new course:', courseDetails.title);
 
     return this.http.post<Course>(endpoint, courseDetails).pipe(
       tap((newCourse) => {
-        console.log(`✅ API CHECK: Course created successfully. Received ID: ${newCourse.id}`);
+        console.log(`✅ API CHECK: Course created successfully. Received ID: ${newCourse.courseID}`);
       })
     );
   }
@@ -131,7 +137,7 @@ export class CourseInstructorService {
    * Updates an existing course's details.
    * API: PUT /api/Course/{id}
    */
-  updateCourseDetails(courseId: number, updates: Partial<CourseDetail>): Observable<Course> {
+  updateCourseDetails(courseId: number, updates: Partial<Course>): Observable<Course> {
     const endpoint = `${this.apiUrl}/Course/${courseId}`;
     console.log(`➡️ API CHECK: Sending PUT request to update course ${courseId} with updates:`, updates);
 
@@ -178,13 +184,13 @@ export class CourseInstructorService {
    * Creates a new lesson.
    * API: POST /api/Lesson
    */
-  createLesson(lesson: Omit<Lesson, 'id'>): Observable<Lesson> {
+  createLesson(lesson: Omit<Lesson, 'lessonID'>): Observable<Lesson> {
     const endpoint = `${this.apiUrl}/Lesson`;
-    console.log('➡️ API CHECK: Sending POST request to create new lesson:', lesson.Title);
+    console.log('➡️ API CHECK: Sending POST request to create new lesson:', lesson.title);
 
     return this.http.post<Lesson>(endpoint, lesson).pipe(
       tap((newLesson) => {
-        console.log(`✅ API CHECK: Lesson created successfully! Received ID: ${newLesson.id}`);
+        console.log(`✅ API CHECK: Lesson created successfully! Received ID: ${newLesson.lessonID}`);
       })
     );
   }
@@ -194,12 +200,12 @@ export class CourseInstructorService {
    * API: PUT /api/Lesson/{id}
    */
   updateLesson(lesson: Lesson): Observable<Lesson> {
-    const endpoint = `${this.apiUrl}/Lesson/${lesson.id}`;
-    console.log(`➡️ API CHECK: Sending PUT request to update lesson ID: ${lesson.id}`);
+    const endpoint = `${this.apiUrl}/Lesson/${lesson.lessonID}`;
+    console.log(`➡️ API CHECK: Sending PUT request to update lesson ID: ${lesson.lessonID}`);
 
     return this.http.put<Lesson>(endpoint, lesson).pipe(
       tap((updatedLesson) => {
-        console.log(`✅ API CHECK: Lesson ${updatedLesson.id} updated successfully.`);
+        console.log(`✅ API CHECK: Lesson ${updatedLesson.lessonID} updated successfully.`);
       })
     );
   }
