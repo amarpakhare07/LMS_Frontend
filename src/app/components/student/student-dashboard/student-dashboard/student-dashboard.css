@@ -1,4 +1,4 @@
-/* General Layout */
+
 .dashboard-container {
     padding: 20px;
     background-color: #f8f9fa; 
@@ -148,4 +148,4 @@ table th {
     background-color: #fff3cd;
     color: #856404;
 }
-/* No need for progressChart styles, it was replaced */
+
