@@ -78,7 +78,7 @@ export class ManageUsers implements OnInit, AfterViewInit {
     this.isLoading = true;
     this.adminService.getUsers().subscribe({
       next: (data) => {
-        this.allUsers = data;
+        this.allUsers = data.filter((user) => user.role !== 3); // Exclude admins
         this.applyFilters(); // Apply initial filters
         // this.applyFiltersByRoles();
         this.isLoading = false;
