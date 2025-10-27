@@ -23,6 +23,7 @@ export class CourseService {
     }
 
     return {
+      courseID: dto.courseID,
       name: dto.title,
       instructor: instructorName, 
       lessons: dto.totalLessons,

@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { HttpClientModule } from '@angular/common/http'; 
 import { CourseService } from '../../../services/instructor-course-service'; 
-import { Router } from '@angular/router';
+import { Router} from '@angular/router';
 
 // Define the structure for a course object (component's expected data format)
 export interface Course {
+  courseID: number;
   name: string;
   instructor: string;
   lessons: number;
@@ -19,10 +20,11 @@ export interface Course {
   selector: 'app-instructor-courses',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     MatIconModule,
-    HttpClientModule 
-  ],
+    HttpClientModule,
+    
+],
   templateUrl: './instructor-courses.html',
   styleUrls: ['./instructor-courses.css']
 })
@@ -43,6 +45,7 @@ export class InstructorCoursesComponent implements OnInit {
     this.courseService.getInstructorCourses().subscribe({
       next: (data) => {
         this.courseList = data;
+        console.log('Fetched Courses:', data);
         this.isLoading = false;
         console.log('Courses fetched successfully from API.');
       },
@@ -74,7 +77,8 @@ export class InstructorCoursesComponent implements OnInit {
    }
   editCourse(course: Course): void { 
   }
-  deleteCourse(course: Course): void {
+  createQuiz(course: Course): void {
+    this.router.navigate([`/instructor/quiz-builder/${course.courseID}`]);
   }
   createCourse(): void {
     this.router.navigate(['/instructor/createcourse']);

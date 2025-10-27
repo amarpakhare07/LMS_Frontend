@@ -88,11 +88,10 @@ export const routes: Routes = [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     { path: 'dashboard', component: InstructorDashboardComponent },
     // { path: 'quizManagement', component: QuizListComponent },
-    { path: 'quiz-builder', component: CreateQuizQuestionsComponent },
-    // { path: 'courses', component: ManageCourses },
-    // { path: 'students', component: ManageUsers },
+    { path: 'quiz-builder/:courseId', component: CreateQuizQuestionsComponent },
     { path: 'courses', component: InstructorCoursesComponent },
     { path: 'createcourse', component: InstructorCreateCourseComponent },
+    { path: 'profile', component: ProfileComponent },
     {
         path: 'profile', // When '/student/profile' is accessed
         component: ProfileComponent, // Load the profile wrapper
@@ -102,7 +101,6 @@ export const routes: Routes = [
           { path: 'photo', component: PhotoProfileComponent },
         ]
       },
-    // { path: 'profile', component: Profile }
   ]
   },
 

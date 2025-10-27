@@ -45,6 +45,7 @@ export class CreateQuizQuestionsComponent {
   private snack = inject(MatSnackBar);
 
   private route = inject(ActivatedRoute);
+  courseId = this.route.snapshot.paramMap.get('courseId');
 
   loading = signal(false);
   quizId = signal<number | null>(null);
