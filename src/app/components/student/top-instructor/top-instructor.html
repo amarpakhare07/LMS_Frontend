@@ -1,18 +1,23 @@
+
+
 <mat-card class="instructor-card chart-panel">
     <mat-card-header>
-        <mat-card-title>Top Rated Instructors</mat-card-title>
+        <mat-card-title>Meet the Top Educators</mat-card-title>
     </mat-card-header>
     <mat-card-content class="instructor-content-container">
+        <!-- Loading State -->
         <div *ngIf="isLoading" class="loading-state">
             <mat-spinner diameter="30"></mat-spinner>
             <p>Loading instructors...</p>
         </div>
 
+        <!-- Empty State -->
         <div *ngIf="!isLoading && instructors.length === 0" class="empty-state">
-            <mat-icon color="warn">person_off</mat-icon>
-            <p>No instructors found.</p>
+            <mat-icon>person_off</mat-icon>
+            <p>No highly rated instructors found.</p>
         </div>
 
+        <!-- Instructor List -->
         <div *ngIf="!isLoading && instructors.length > 0" class="instructor-list">
             <div *ngFor="let instructor of instructors; let i = index" class="instructor-item">
                 <img 
@@ -23,15 +28,20 @@
                 >
                 <div class="details">
                     <div class="name-rank">
-                        <span>#{{i + 1}}</span>
+                        <!-- Rank -->
+                        <span>#{{i + 1}} TOP RATED</span>
+                        <!-- Name -->
                         <h4>{{instructor.name}}</h4>
                     </div>
                     <div class="stats">
                         <div class="rating">
-                            <mat-icon class="star-icon">star</mat-icon>
+                            <!-- Star Icon -->
+                            <mat-icon class="star-icon">star_rate</mat-icon>
+                            <!-- Rating Value, formatted to one decimal place -->
                             <span class="rating-value">{{instructor.overallRating | number: '1.1-1'}}</span>
                         </div>
-                        <span class="students">{{instructor.totalStudents}} Students</span>
+                        <!-- Student Count -->
+                        <span class="students">{{instructor.totalStudents | number}} Students</span>
                     </div>
                 </div>
             </div>
