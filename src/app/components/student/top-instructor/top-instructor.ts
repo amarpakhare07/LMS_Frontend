@@ -24,13 +24,16 @@ export class TopInstructorsComponent {
     @Input() isLoading: boolean = true; 
 
     // NOTE: This URL should ideally be in an environment file
-    private staticImageBaseUrl = 'http://localhost:7049/images/'; 
+    private staticImageBaseUrl = 'https://localhost:7049/Uploads/'; 
     // ❌ REMOVED: private defaultProfile = '...'; 
 
     /** * Returns the full URL for the profile picture or a default placeholder using the first initial.
      * The method now accepts the whole instructor DTO.
      */
     getInstructorProfile(instructor: TopInstructorDto): string {
+
+        console.log('Instructor Data:', instructor);
+
         const fileName = instructor.profilePicture;
         
         // 1. If a profile picture filename is provided, use the full image URL.
