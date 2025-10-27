@@ -22,9 +22,6 @@ import { InstructorCreateCourseComponent } from './components/instructor/instruc
 import { StudentLayout } from './components/student/student';
 import {  StudentDashboardComponent as DashboardComponent } from './components/student/student-dashboard/student-dashboard/student-dashboard';
 import { MyCoursesComponent } from './components/student/my-courses/student-my-courses/student-my-courses';
-
-
-//import { StudentDashboardComponent } from './components/student/student-dashboard/student-dashboard/student-dashboard';
 import { ProfileComponent } from './components/profile/user-profile/user-profile';
 import { PublicProfileComponent } from './components/profile/public-profile/public-profile';
 import { PhotoProfileComponent } from './components/profile/photo-profile/photo-profile';
@@ -35,8 +32,7 @@ import { QuizListComponent } from './components/quiz/quiz-list/quiz-list';
 import { quizEnrolledGuard } from './services/quiz-enrolled.guard';
 import { QuizAttemptComponent } from './components/quiz/quiz-attempt/quiz-attempt';
 import { QuizResultsComponent } from './components/quiz/quiz-result/quiz-result';
-
-
+import { CreateQuizQuestionsComponent } from './components/quiz/quiz-create/create-quiz-questions/create-quiz-questions';
 
 export const routes: Routes = [
   // Public Routes
@@ -91,6 +87,10 @@ export const routes: Routes = [
   children: [
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     { path: 'dashboard', component: InstructorDashboardComponent },
+    // { path: 'quizManagement', component: QuizListComponent },
+    { path: 'quiz-builder', component: CreateQuizQuestionsComponent },
+    // { path: 'courses', component: ManageCourses },
+    // { path: 'students', component: ManageUsers },
     { path: 'courses', component: InstructorCoursesComponent },
     { path: 'createcourse', component: InstructorCreateCourseComponent },
     {
@@ -150,7 +150,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'my-courses', component: MyCoursesComponent },
       { path: 'quizzes', component: QuizSummaryComponent },
-      // { path: 'profile', component: ProfileComponent },
+      { path: 'profile', component: ProfileComponent },
 
       {
         path: 'profile', // When '/student/profile' is accessed
