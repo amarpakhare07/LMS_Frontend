@@ -18,5 +18,7 @@ export class InstructorLayout {
     { label: 'Students', path: 'students', icon: 'people' },
     { label: 'Profile', path: 'profile', icon: 'account_circle' },
     { label: 'Manage Quizzes', path: 'quiz-builder', icon: 'quiz' }
+    // { label: 'Enrolled Students', path: 'students', icon: 'people' },
+    { label: 'Profile', path: 'profile', icon: 'account_circle' }
   ];
 }

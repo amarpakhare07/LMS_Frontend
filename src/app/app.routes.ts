@@ -15,6 +15,10 @@ import { CourseDetailComponent } from './components/course/course-detail/course-
 import { enrolledGuard } from './services/enrolled-guard';
 import { CourseLearn } from './components/course/course-learn/course-learn';
 import { publicGuard } from './services/public-guard';
+import { InstructorCoursesComponent } from './components/instructor/instructor-courses/instructor-courses';
+import { InstructorCreateCourseComponent } from './components/instructor/instructor-createcourse/instructor-createcourse';
+
+
 import { StudentLayout } from './components/student/student';
 import {  StudentDashboardComponent as DashboardComponent } from './components/student/student-dashboard/student-dashboard/student-dashboard';
 import { MyCoursesComponent } from './components/student/my-courses/student-my-courses/student-my-courses';
@@ -87,6 +91,17 @@ export const routes: Routes = [
     { path: 'quiz-builder', component: CreateQuizQuestionsComponent },
     // { path: 'courses', component: ManageCourses },
     // { path: 'students', component: ManageUsers },
+    { path: 'courses', component: InstructorCoursesComponent },
+    { path: 'createcourse', component: InstructorCreateCourseComponent },
+    {
+        path: 'profile', // When '/student/profile' is accessed
+        component: ProfileComponent, // Load the profile wrapper
+        children: [
+          { path: '', redirectTo: 'public-profile', pathMatch: 'full' }, // Default sub-route
+          { path: 'public-profile', component: PublicProfileComponent },
+          { path: 'photo', component: PhotoProfileComponent },
+        ]
+      },
     // { path: 'profile', component: Profile }
   ]
   },

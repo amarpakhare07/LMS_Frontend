@@ -3,11 +3,11 @@
         <div class="card-text">
           <p class="card-title">{{ cardData.title }}</p>
           <span class="card-value">{{ cardData.value }}</span>
-          <span class="card-trend" 
+          <!-- <span class="card-trend" 
                 [class.positive]="cardData.trend.startsWith('+')" 
                 [class.negative]="cardData.trend.startsWith('-')">
             {{ cardData.trend }}
-          </span>
+          </span> -->
         </div>
         <div [ngClass]="['icon-circle', cardData.colorClass]">
             <mat-icon>{{ cardData.iconName }}</mat-icon> 
