@@ -8,9 +8,11 @@ export interface Question {
   correctAnswer?: string;
 }
 
-export interface CreateQuestionDto {
+export type QuestionType = 'MCQ' | 'TRUE_FALSE' | 'SHORT_ANSWER';
+
+export interface CreateQuestionRequest {
   questionText: string;
-  questionType: string;
+  questionType: QuestionType | string;
   options: string[];
   marks: number;
   correctAnswer: string;

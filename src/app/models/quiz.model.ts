@@ -1,11 +1,14 @@
+import { Question } from "./question.model";
+
 export interface Quiz {
   quizID: number;
-  courseID: number;
-  title: string;
+  courseID: number | null;
+  title: string | null;
   totalMarks: number | null;
   timeLimit: number | null;
-  createdAt: Date;
   attemptsAllowed: number | null;
+  createdAt: Date | null;
+  questions: Question[] | null;
 }
 
 export interface StartQuizResponse {
@@ -19,10 +22,17 @@ export interface StartQuizResponse {
   remainingAttempts: number | null;
 }
 
-export interface CreateQuizDto {
+export interface CreateQuizRequest {
   courseID: number;
   title: string;
   totalMarks?: number;
   timeLimit?: number;
   attemptsAllowed?: number;
+}
+
+export interface CreateQuizResponse {
+  id?: number;
+  quizId?: number;
+  quizID?: number;
+  [key: string]: any;
 }

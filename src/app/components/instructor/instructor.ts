@@ -16,6 +16,7 @@ export class InstructorLayout {
     { label: 'Dashboard', path: 'dashboard', icon: 'dashboard' },
     { label: 'Courses', path: 'courses', icon: 'book' },
     { label: 'Students', path: 'students', icon: 'people' },
-    { label: 'Profile', path: 'profile', icon: 'account_circle' }
+    { label: 'Profile', path: 'profile', icon: 'account_circle' },
+    { label: 'Manage Quizzes', path: 'quiz-builder', icon: 'quiz' }
   ];
 }
