@@ -8,6 +8,7 @@ import {
     CourseCategory,
     CreateCourseDto
 } from '../models/course.model';
+import { AuthService } from './auth-service';
 
 // --- INTERFACES (MODELS) ---
 
@@ -52,11 +53,22 @@ export class CourseInstructorService {
   private http = inject(HttpClient);
   // Base URL is /api/
   private apiUrl = environment.apiUrl; 
+  private authService = inject(AuthService);
+
 
   getCurrentInstructorId(): Observable<number> {
-    // IMPORTANT: Change the number '2' below to any valid Instructor ID 
-    // you know exists in your backend database (e.g., 1, 3, 5).
-    return of(2); 
+    const userId = this.authService.getCurrentUserId();
+
+    if (userId !== null) {
+      // Return the actual user ID inside an Observable
+      console.log("this is you id ",userId);
+      return of(userId);
+    } else {
+      // If no user ID is available (not logged in), return an error or default 0
+      console.error("CRITICAL: User ID is null. Cannot proceed with course creation.");
+      // You can return of(0) for safety, or throw an error via an observable
+      return throwError(() => new Error('Instructor not authenticated.'));
+    } 
   }
 
   // --- COURSE CATEGORY APIs ---
