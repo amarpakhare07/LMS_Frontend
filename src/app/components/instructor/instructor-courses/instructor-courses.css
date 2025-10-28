@@ -175,6 +175,68 @@ table tbody tr:last-child td {
     color: #1890ff;
 }
 
+
+.lesson-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f3e5f5; /* Light violet background */
+  border: 1px solid #ce93d8; /* Soft magenta border */
+  border-radius: 8px;
+  margin-top: 0.5rem;
+}
+
+.lesson-form-grid input,
+.lesson-form-grid textarea,
+.lesson-form-grid select {
+  padding: 0.6rem;
+  font-size: 0.9rem;
+  border: 1px solid #ba68c8; /* Magenta border */
+  border-radius: 4px;
+  background-color: #fff;
+  color: #4a148c; /* Deep violet text */
+}
+
+.lesson-form-grid input:focus,
+.lesson-form-grid textarea:focus,
+.lesson-form-grid select:focus {
+  outline: none;
+  border-color: #ab47bc; /* Focus magenta */
+  box-shadow: 0 0 0 2px rgba(171, 71, 188, 0.2);
+}
+
+.lesson-form-grid label {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #6a1b9a;
+}
+
+.lesson-form-grid input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.lesson-form-grid input[type="file"] {
+  font-size: 0.85rem;
+  color: #4a148c;
+}
+
+.lesson-form-grid button[type="submit"] {
+  background-color: #ab47bc; /* Magenta */
+  color: white;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.lesson-form-grid button[type="submit"]:hover {
+  background-color: #ba68c8; /* Darker magenta */
+}
+
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
