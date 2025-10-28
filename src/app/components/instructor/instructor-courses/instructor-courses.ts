@@ -37,6 +37,7 @@ export class InstructorCoursesComponent implements OnInit {
 
   ngOnInit(): void {
     this.fetchCourses();
+    console.log(this.courseList)
   }
   
   fetchCourses(): void {
