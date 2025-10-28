@@ -19,7 +19,7 @@
       <mat-chip-listbox class="details-chips" aria-label="Course details">
         <mat-chip>
           <mat-icon matChipAvatar>schedule</mat-icon>
-          {{ getDuration(course.duration) }}
+          {{ course.duration | durationFormat }}
         </mat-chip>
         <mat-chip>
           <mat-icon matChipAvatar>signal_cellular_alt</mat-icon>

@@ -4,14 +4,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { HttpClientModule } from '@angular/common/http'; 
 import { CourseService } from '../../../services/instructor-course-service'; 
 import { Router} from '@angular/router';
-
+import { DurationFormatPipe } from '../../shared/pipes/duration-format-pipe';
 // Define the structure for a course object (component's expected data format)
 export interface Course {
   courseID: number;
   name: string;
   instructor: string;
   lessons: number;
-  totalTime: string;
+  totalTime: number;
   status: 'Published' | 'Upcoming' | 'Unlisted';
   category: string;
 }
@@ -23,8 +23,8 @@ export interface Course {
     CommonModule,
     MatIconModule,
     HttpClientModule,
-    
-],
+    DurationFormatPipe
+  ],
   templateUrl: './instructor-courses.html',
   styleUrls: ['./instructor-courses.css']
 })

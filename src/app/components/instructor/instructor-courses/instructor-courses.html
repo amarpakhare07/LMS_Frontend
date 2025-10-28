@@ -33,7 +33,7 @@
           <td>{{ course.category }}</td>
           <td>{{ course.name }}</td>
           <td>{{ course.lessons }}</td>
-          <td>{{ course.totalTime }}</td>
+          <td>{{ course.totalTime | durationFormat }}</td>
           <td> <span class="status-pill" [ngClass]="getStatusClass(course.status)"> {{ course.status }} </span> </td>
           
           <td class="action-buttons"> 

@@ -53,7 +53,7 @@
 
         <mat-card-content class="card-meta">
           <span>Level: {{ course.level }}</span>
-          <span>Duration: {{ course.duration }} hrs</span>
+          <span>Duration: {{ course.duration | durationFormat}} hrs</span>
         </mat-card-content>
 
         <mat-card-actions>

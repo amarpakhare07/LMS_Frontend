@@ -37,7 +37,7 @@ export interface CourseListDto {
     title: string;          // Maps to Course.name
     published: boolean;     // Maps to Course.status
     totalLessons: number;   // Maps to Course.lessons
-    totalDurationDisplay: string; // Maps to Course.totalTime
+    totalEstimatedTimeInMinutes: number; // Maps to Course.totalTime
     courseCategory: string;
 }
 

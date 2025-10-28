@@ -27,7 +27,7 @@ export class CourseService {
       name: dto.title,
       instructor: instructorName, 
       lessons: dto.totalLessons,
-      totalTime: dto.totalDurationDisplay,
+      totalTime: dto.totalEstimatedTimeInMinutes,
       status: status,
       category: dto.courseCategory
     }

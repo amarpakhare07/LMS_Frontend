@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { Course } from '../../../models/course.model';
 import { Category } from '../../../models/interfaces';
 import { AdminService } from '../../../services/admin-service';
+import { DurationFormatPipe } from '../../shared/pipes/duration-format-pipe';
 
 // --- NEW MATERIAL IMPORTS ---
 import { MatCardModule } from '@angular/material/card';
@@ -37,6 +38,7 @@ import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dial
     MatProgressSpinnerModule,
     MatChipsModule,
     MatDialogModule,
+    DurationFormatPipe
   ],
   templateUrl: './manage-courses.html',
   styleUrl: './manage-courses.css',

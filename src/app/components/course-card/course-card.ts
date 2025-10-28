@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common'; 
 import { RouterModule } from '@angular/router'; 
 import { Course } from '../../models/course.model';
-
+import { DurationFormatPipe} from '../shared/pipes/duration-format-pipe';
 // --- MATERIAL IMPORTS ---
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -20,7 +20,8 @@ import { MatTooltipModule } from '@angular/material/tooltip'; // <-- ADD THIS
     MatButtonModule,
     MatIconModule,
     MatChipsModule,
-    MatTooltipModule // <-- AND ADD IT HERE
+    MatTooltipModule, // <-- AND ADD IT HERE
+    DurationFormatPipe
   ],
   templateUrl: './course-card.html',
   styleUrls: ['./course-card.css']
@@ -33,14 +34,6 @@ export class CourseCardComponent {
   // No router or isHovered needed
   constructor() {} 
 
-  getDuration(duration?: number): string {
-    if (!duration) return '—';
-    if (duration < 60) return `${duration} min`;
-    const hours = Math.floor(duration / 60);
-    const minutes = duration % 60;
-    if (minutes === 0) return `${hours}h`; 
-    return `${hours}h ${minutes}m`;
-  }
 
   getRoundedRating(): number {
     return Math.round(this.course.rating ?? 0);
