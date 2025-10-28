@@ -202,6 +202,40 @@
 
                 <div *ngIf="activeStep === 'details'">
                     <div class="step-actions">
+                        <mat-card class="course-material-card mat-elevation-z1 mt-3">
+                            <mat-card-header>
+                                <mat-card-title>Course Material (Overall Document) 📚</mat-card-title>
+                                <mat-card-subtitle>A single, main document/resource for the entire
+                                    course.</mat-card-subtitle>
+                            </mat-card-header>
+                            <mat-card-content>
+                                <div class="file-upload-wrapper full-width">
+                                    <label for="courseMaterialFile" class="file-label">
+                                        <mat-icon>cloud_upload</mat-icon> Select Supplementary Course Material
+                                    </label>
+
+                                    <input type="file" id="courseMaterialFile"
+                                        (change)="onCourseMaterialFileChange($event)" accept=".pdf,.zip,.doc,.docx"
+                                        class="file-input">
+
+                                    <div class="file-display-name">
+                                        <mat-icon *ngIf="courseData.courseMaterialUrl || courseData.courseMaterialFile"
+                                            color="primary">
+                                            attach_file
+                                        </mat-icon>
+
+                                        {{ courseData.courseMaterialFile?.name ||
+                                        (courseData.courseMaterialUrl ? 'File already uploaded.' : 'No file selected.')
+                                        }}
+                                    </div>
+
+                                    <a *ngIf="courseData.courseMaterialUrl" [href]="courseData.courseMaterialUrl"
+                                        target="_blank" class="text-link view-link">
+                                        View Existing Material <mat-icon class="icon-tiny">open_in_new</mat-icon>
+                                    </a>
+                                </div>
+                            </mat-card-content>
+                        </mat-card>
                         <button mat-stroked-button color="primary" (click)="saveDetailsStep()"
                             [disabled]="!isCourseDetailsValid()">
                             <mat-icon>save</mat-icon> Save Details
@@ -274,7 +308,7 @@
                             </div>
 
                             <div matListItemMeta class="lesson-actions">
-                                <mat-icon *ngIf="lesson.includeDocument && lesson.attachmentFileUrl"
+                                <mat-icon *ngIf="lesson.includeDocument && lesson.lessonAttachmentUrl"
                                     matTooltip="Supplementary Document Included" class="attachment-present-icon">
                                     attach_file
                                 </mat-icon>
@@ -327,7 +361,7 @@
                                 <div *ngIf="lesson.includeDocument" class="details-row attachment-details">
                                     <div class="detail-item full-width">
                                         <mat-icon color="warn" class="icon-tiny">attach_file</mat-icon>
-                                        <a [href]="lesson.attachmentFileUrl" target="_blank" class="link-external">
+                                        <a [href]="lesson.lessonAttachmentUrl" target="_blank" class="link-external">
                                             View Attached Document: {{ lesson.attachmentFile?.name || 'Download File' }}
                                         </a>
                                         <mat-icon class="icon-tiny external-link">open_in_new</mat-icon>
