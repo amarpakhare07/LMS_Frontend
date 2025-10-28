@@ -56,23 +56,29 @@
                 <input type="hidden" [(ngModel)]="lesson.courseID" name="courseID" [value]="course.courseID" />
 
                 <div class="lesson-form-grid">
-                  <input [(ngModel)]="lesson.title" name="title" placeholder="Lesson Title" required />
-                  <textarea [(ngModel)]="lesson.content" name="content" placeholder="Lesson Content"></textarea>
+                  <div class="form-group">
 
-                  <input [(ngModel)]="lesson.lessonType" name="lessonType" placeholder="Lesson Type" readonly/>
-
-                  <input [(ngModel)]="lesson.estimatedTime" name="estimatedTime" type="number" placeholder="Estimated Time (min)" />
-
-                  <input [(ngModel)]="lesson.videoURL" name="videoURL" placeholder="Video URL" *ngIf="lesson.lessonType === 'Video'" />
-
-                  <label>
-                    <input type="checkbox" [(ngModel)]="lesson.includeDocument" name="includeDocument" />
-                    Include Document
-                  </label>
-
-                  <input type="file" (change)="onFileSelected($event)" *ngIf="lesson.includeDocument" />
-
-                  <button type="submit">Add Lesson</button>
+                    <input [(ngModel)]="lesson.title" name="title" placeholder="Lesson Title" required />
+                    <textarea [(ngModel)]="lesson.content" name="content" placeholder="Lesson Content"></textarea>
+                    
+                    <input [(ngModel)]="lesson.lessonType" name="lessonType" placeholder="Lesson Type" readonly/>
+                    
+                    <input [(ngModel)]="lesson.estimatedTime" name="estimatedTime" type="number" placeholder="Estimated Time (min)" />
+                    
+                    <input [(ngModel)]="lesson.videoURL" name="videoURL" placeholder="Video URL" *ngIf="lesson.lessonType === 'Video'" />
+                    
+                    <!-- <label>
+                      <input type="checkbox" [(ngModel)]="lesson.includeDocument" name="includeDocument" />
+                      Include Document
+                    </label>
+                    
+                    <input type="file" (change)="onFileSelected($event)" *ngIf="lesson.includeDocument" /> -->
+                  </div>
+                  <div class="form-buttons">
+                    
+                    <button type="button" (click)="closeLessonForm(course)">Cancel</button>
+                    <button type="submit">Add Lesson</button>
+                  </div>
                 </div>
               </form>
             </td>

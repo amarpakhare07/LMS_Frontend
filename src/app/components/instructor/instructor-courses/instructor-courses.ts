@@ -64,6 +64,11 @@ toggleLessonForm(course: any) {
   this.lesson.courseID = course.courseID;
 }
 
+closeLessonForm(course: any) {
+  console.log('Closing lesson form for course:', course);
+  this.selectedCourse = null;
+}
+
 
 onFileSelected(event: any) {
   const file = event.target.files[0];
