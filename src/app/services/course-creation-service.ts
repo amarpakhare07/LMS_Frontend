@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environment';
-import { Observable, tap, of, throwError } from 'rxjs';
+import { Observable, tap, of, throwError, map } from 'rxjs';
 import { 
     Lesson, 
     Course, 
@@ -61,7 +61,7 @@ export class CourseInstructorService {
 
     if (userId !== null) {
       // Return the actual user ID inside an Observable
-      console.log("this is you id ",userId);
+      console.log("this is you id ",userId)
       return of(userId);
     } else {
       // If no user ID is available (not logged in), return an error or default 0
@@ -206,6 +206,37 @@ export class CourseInstructorService {
       })
     );
   }
+
+  uploadFile(lessonId: number, file: File): Observable<{url: string, fileName: string}> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    const apiUrl = `/api/Lesson/${lessonId}/document`;
+    return this.http.post<any>(apiUrl, formData).pipe(
+        map((response: any) => {
+            // Ensure you return the URL and FileName if the component needs it
+            return {
+                url: response.url || response.Url, // Use 'Url' for C# convention
+                fileName: response.fileName || response.FileName 
+            };
+        })
+    );
+}
+uploadLessonAttachment(lessonId: number, file: File): Observable<{ url: string, fileName: string }> {
+        const formData = new FormData();
+        // The backend action expects the file to be named 'file' in the form data
+        formData.append('file', file, file.name);
+
+        // The correct backend URL for your API controller
+        const apiUrlLesson = `/Lesson/${lessonId}/document`;
+
+        // The backend returns an object { Url: string, FileName: string, Message: string }
+        return this.http.post<any>(this.apiUrl+apiUrlLesson, formData).pipe(
+            map((response: any) => ({
+                url: response.Url || response.url, // Handle C# PascalCase 'Url' or TypeScript camelCase 'url'
+                fileName: response.FileName || response.fileName 
+            }))
+        );
+    }
   
   /**
    * Updates an existing lesson.
@@ -236,4 +267,44 @@ export class CourseInstructorService {
       })
     );
   }
+
+
+
+uploadCourseMaterial(courseId: number, file: File): Observable<{ Url: string, FileName: string, Message: string }> {
+    const endpoint = `${this.apiUrl}/Course/${courseId}/document`;
+    console.log(`➡️ API CHECK: Sending POST request to upload course material for ID: ${courseId}`);
+
+    const formData = new FormData();
+    // 'file' must match the IFormFile parameter name in your C# controller
+    formData.append('file', file); 
+
+    // The API returns the URL and FileName upon success
+    return this.http.post<{ Url: string, FileName: string, Message: string }>(endpoint, formData).pipe(
+        tap((response) => {
+            console.log('✅ API CHECK: Course material uploaded successfully.', response);
+        })
+    );
+}
+
+    /**
+     * Updates the CourseMaterial URL field in the CourseInstructors table.
+     * API: PUT /api/Course/material/{courseId} (Assumed new, dedicated endpoint)
+     * @param courseId The ID of the course.
+     * @param materialUrl The permanent URL of the uploaded material.
+     * @returns An Observable indicating success.
+     */
+    updateCourseMaterial(courseId: number, materialUrl: string | null): Observable<void> {
+        if (!courseId) {
+            return throwError(() => new Error('Course ID is required to update course material.'));
+        }
+        const endpoint = `${this.apiUrl}/Course/material/${courseId}`;
+        console.log(`➡️ API CHECK: Sending PUT request to update course ${courseId} material.`);
+        
+        // Assuming the API expects a simple JSON body like { courseMaterial: url }
+        return this.http.put<void>(endpoint, { courseMaterial: materialUrl }).pipe(
+            tap(() => {
+                console.log(`✅ API CHECK: Course ${courseId} material updated to: ${materialUrl}`);
+            })
+        );
+    }
 }

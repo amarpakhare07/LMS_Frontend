@@ -12,6 +12,7 @@ export interface Course {
   rating?: number;
   reviewCount?: number;
   lessons: Lesson[];
+  attachmentURL?: string | null;
 }
 
 export interface Lesson {
@@ -25,6 +26,9 @@ export interface Lesson {
   estimatedTime: number;
   createdAt: string;
   updatedAt: string | null;
+  attachmentURL?: string | null;
+  lessonAttachmentUrl?: string | null;     // Replaced attachmentURL
+  lessonAttachmentFileName?: string | null; // Added file name field  
 }
 
 // Matches the structure of the C# CourseListDto sent by the backend API
@@ -57,6 +61,9 @@ export interface CourseFormState {
   categoryName: string | null;
   categoryDescription: string | null;
   status: 'Draft' | 'Published'; // Local UI state
+courseMaterialFile?: File | null;
+courseMaterialUrl?: string | null;
+
 }
 
 /**
@@ -74,8 +81,10 @@ export interface LessonFormState {
   orderIndex: number; 
   videoURL: string; 
   includeDocument: boolean;
-  attachmentFileUrl: string | null; 
+//   attachmentFileUrl: string | null; 
   attachmentFile?: File | null; // Client-side file object
+  lessonAttachmentUrl?: string | null;     // Replaced attachmentURL
+  lessonAttachmentFileName?: string | null; // Added file name field  
 }
 
 export interface CreateCourseDto {
