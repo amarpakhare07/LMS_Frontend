@@ -49,7 +49,7 @@ export class LoginComponent {
   onSubmit(): void {
     if (this.loginForm.valid) {
       this.authService.login(this.loginForm.value as any).subscribe({
-        error: (err) => this.errorMessage = 'Login failed. Please check your credentials.'
+        error: (err) => this.errorMessage = 'Login failed. Please check your credentials. | Deactivated User'
       });
     }
   }

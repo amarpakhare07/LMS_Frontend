@@ -247,10 +247,7 @@
                                 <mat-icon>save</mat-icon> Save Details
                             </button>
                         </div>
-                        <!-- <button mat-flat-button color="primary" class="next-step-button" (click)="saveDetailsStep(true)"
-                            [disabled]="!isCourseDetailsValid()">
-                            <mat-icon>arrow_forward</mat-icon> Next: Lessons Content
-                        </button> -->
+                        
                     </div>
                 </div>
             </div>
@@ -289,7 +286,6 @@
                         </p>
                     </div>
                 </div>
-                <!-- <div *ngIf="isFieldDisabled('details')" class="read-only-step-display mat-elevation-z1"> -->
                 <div class="step-actions-read-only">
                     <button mat-stroked-button color="primary" [disabled]="true" style="margin-right: 10px">
                         <mat-icon>check</mat-icon> Details Saved
@@ -298,7 +294,6 @@
                         <mat-icon>arrow_forward</mat-icon> Continue to Lessons
                     </button>
                 </div>
-                <!-- </div> -->
             </div>
         </div>
 
@@ -428,7 +423,7 @@
                     <mat-form-field appearance="outline" class="full-width">
                         <mat-label>Video URL</mat-label>
                         <input matInput type="url" [(ngModel)]="lessonData.videoURL"
-                            placeholder="Paste external video link here (e.g., Vimeo, YouTube)." />
+                            placeholder="Paste external video link here (e.g. YouTube)." />
                         <mat-icon matPrefix>videocam</mat-icon>
                     </mat-form-field>
                 </div>

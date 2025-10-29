@@ -94,6 +94,9 @@ submitLesson() {
   this.courseInstructorService.createLesson(metadataPayload).subscribe({
     next: (response) => {
       console.log('Lesson created successfully:', response);
+      var count = this.courseList.find(c => c.courseID == response.courseID)?.lessons!;
+      count  = count + 1;
+      this.courseList.find(c => c.courseID == response.courseID)!.lessons = count;
     },
     error: (error) => {
       console.error('Error creating lesson:', error);

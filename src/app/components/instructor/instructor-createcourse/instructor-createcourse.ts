@@ -4,17 +4,15 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // 👈 Essential for data binding
 import { RouterModule } from '@angular/router'; // 👈 Essential for navigation
 import { Router, ActivatedRoute } from '@angular/router';
-import { Observable, of, forkJoin, throwError,map } from 'rxjs';
+import { Observable, of, forkJoin, throwError, map } from 'rxjs';
 import { switchMap, tap, catchError } from 'rxjs/operators';
-import {
-  CourseInstructorService,
-} from '../../../services/course-creation-service';
+import { CourseInstructorService } from '../../../services/course-creation-service';
 import {
   Lesson, // Base DTO/Service type
   CourseCategory,
   CourseFormState, // Replaces local CourseData
   LessonFormState, // Replaces local Lesson
-  CreateCourseDto
+  CreateCourseDto,
 } from '../../../models/course.model';
 
 // Angular Material Imports
@@ -28,45 +26,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
-// --- LOCAL INTERFACES (AUGMENTED from Service) ---
-
-// Extend Service's CourseCategory for local state management
-// interface Category extends CourseCategory { }
-
-// Local CourseData must hold all fields needed across the flow
-// interface CourseData {
-//   id: number | null;
-//   instructorId: number | null;
-//   title: string;
-//   description: string;
-//   syllabus: string; // Assuming this is part of the detail update in Step 2
-//   thumbnailURL: string; // Assuming this is part of the detail update in Step 2
-//   level: 'Beginner' | 'Intermediate' | 'Expert' | string; // Assuming this is part of the detail update in Step 2
-//   language: string; // Assuming this is part of the detail update in Step 2
-//   duration: number | null; // Total duration based on lessons (calculated) or initial estimate
-//   categoryId: number | null;
-//   categoryName: string | null;
-//   categoryDescription: string | null;
-//   status: 'Draft' | 'Published';
-// }
-
-// // Local Lesson interface, augmented for UI/upload features
-// interface Lesson {
-//   id?: number | null;
-//   courseId: number | null;
-//   title: string;
-//   content: string; // Detailed content (not in service, assumed local/extended detail)
-//   lessonType: 'Video';
-//   estimatedTime: number | null;
-//   orderIndex: number; // For UI sorting
-//   videoURL: string; // Assumed part of the lesson detail
-//   includeDocument: boolean;
-//   lessonAttachmentUrl: string | null; // URL after successful upload
-//   attachmentFile?: File | null; // Client-side file object for upload
-// }
-
-// --- MAIN COMPONENT ---
 
 @Component({
   selector: 'app-instructor-createcourse',
@@ -88,7 +47,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   ],
   templateUrl: './instructor-createcourse.html',
   styleUrls: ['./instructor-createcourse.css'],
-
 })
 export class InstructorCreateCourseComponent implements OnInit {
   // --- Services and Dependencies ---
@@ -96,20 +54,20 @@ export class InstructorCreateCourseComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private courseService: CourseInstructorService // Injected Service
-  ) { }
+  ) {}
 
   // --- Step Tracking & State ---
   activeStep: 'category' | 'details' | 'lessons' | 'preview' = 'category';
   completedSteps: {
-    category: boolean,
-    details: boolean,
-    lessons: boolean,
+    category: boolean;
+    details: boolean;
+    lessons: boolean;
     // Note: 'preview' is usually not here as it's the final action step
   } = {
-      category: false,
-      details: false,
-      lessons: false,
-    };
+    category: false,
+    details: false,
+    lessons: false,
+  };
   isLoading: boolean = true;
   courseId: number | null = null;
   instructorId: number | null = null;
@@ -153,89 +111,110 @@ export class InstructorCreateCourseComponent implements OnInit {
 
   ngOnInit(): void {
     // 1. Get instructor ID and course ID from route (if editing)
-    this.courseService.getCurrentInstructorId().pipe(
-      tap(instructorId => {
-        this.instructorId = instructorId; // Set the ID immediately
-        this.courseData.instructorId = instructorId;
-        if (!instructorId) {
-          // Critical failure: If the API returns 0 or null, we stop.
-          console.error("CRITICAL: Instructor ID could not be loaded from the service.");
+    this.courseService
+      .getCurrentInstructorId()
+      .pipe(
+        tap((instructorId) => {
+          this.instructorId = instructorId; // Set the ID immediately
+          this.courseData.instructorId = instructorId;
+          if (!instructorId) {
+            // Critical failure: If the API returns 0 or null, we stop.
+            console.error('CRITICAL: Instructor ID could not be loaded from the service.');
+            this.isLoading = false;
+            return;
+          }
+        }),
+        // 2. Load Course ID from route and All Categories
+        switchMap((instructorId) =>
+          forkJoin({
+            categories: this.courseService.getAllCategories(),
+            courseIdFromRoute: this.route.paramMap.pipe(
+              // Use distinctUntilChanged if you are worried about multiple param emissions
+              tap((params) => {
+                const id = params.get('courseId');
+                this.courseId = id ? +id : null;
+              }),
+              switchMap(() => of(this.courseId))
+            ),
+          })
+        ),
+        tap(({ categories }) => {
+          this.allCategories = categories;
+          this.filteredCategories = categories;
+        }),
+        // 3. Load existing course data if ID is present (Mock or Real API call)
+        switchMap(({ courseIdFromRoute }) => {
+          if (courseIdFromRoute) {
+            // MOCK: Replace with actual course data loading from API
+            return forkJoin({
+              lessons: this.courseService.getLessonsByCourse(courseIdFromRoute),
+              // You must ADD this method: getCourseById(id: number) to your service
+              // courseDetails: this.courseService.getCourseById(courseIdFromRoute)
+              // Using a mock observable until you add getCourseById:
+              courseDetails: of({
+                title: 'Loaded Title',
+                description: 'Loaded Description',
+                categoryId: 1,
+                categoryName: 'Web Development',
+                categoryDescription: 'Learn to build...',
+                status: 'Draft',
+              } as Partial<CourseFormState>),
+            });
+          }
+          return of({ lessons: [], courseDetails: null });
+        }),
+        // 4. Update component state with loaded course data and lessons
+        tap(({ lessons, courseDetails }) => {
+          if (courseDetails) {
+            this.updateStateFromCourseData(courseDetails as CourseFormState);
+          }
+
+          // Map service lessons to local augmented Lesson interface
+          this.lessons = lessons.map((l) => ({
+            lessonID: (l.lessonID === undefined ? null : l.lessonID) as number | null,
+            courseID: this.courseId,
+            title: l.title,
+            orderIndex: l.orderIndex,
+            estimatedTime: l.estimatedTime,
+            content: 'Loaded content...', // Placeholder for content fetching
+            lessonType: 'Video',
+            videoURL: 'https://video.link/loaded', // Placeholder for video fetching
+            includeDocument: false, // Placeholder for attachment state
+            lessonAttachmentUrl: null, // Placeholder for attachment URL
+          }));
+
+          this.completedSteps.lessons = this.lessons.length > 0;
+          this.setActiveStepInitial();
           this.isLoading = false;
-          return;
-        }
-      }),
-      // 2. Load Course ID from route and All Categories
-      switchMap(instructorId => forkJoin({
-        categories: this.courseService.getAllCategories(),
-        courseIdFromRoute: this.route.paramMap.pipe(
-          // Use distinctUntilChanged if you are worried about multiple param emissions
-          tap(params => {
-            const id = params.get('courseId');
-            this.courseId = id ? +id : null;
-          }),
-          switchMap(() => of(this.courseId))
-        )
-      })),
-      tap(({ categories }) => {
-        this.allCategories = categories;
-        this.filteredCategories = categories;
-      }),
-      // 3. Load existing course data if ID is present (Mock or Real API call)
-      switchMap(({ courseIdFromRoute }) => {
-        if (courseIdFromRoute) {
-          // MOCK: Replace with actual course data loading from API
-          return forkJoin({
-            lessons: this.courseService.getLessonsByCourse(courseIdFromRoute),
-            // You must ADD this method: getCourseById(id: number) to your service
-            // courseDetails: this.courseService.getCourseById(courseIdFromRoute) 
-            // Using a mock observable until you add getCourseById:
-            courseDetails: of({
-              title: "Loaded Title", description: "Loaded Description", categoryId: 1,
-              categoryName: "Web Development", categoryDescription: "Learn to build...", status: 'Draft'
-            } as Partial<CourseFormState>)
-          });
-        }
-        return of({ lessons: [], courseDetails: null });
-      }),
-      // 4. Update component state with loaded course data and lessons
-      tap(({ lessons, courseDetails }) => {
-        if (courseDetails) {
-          this.updateStateFromCourseData(courseDetails as CourseFormState);
-        }
-
-        // Map service lessons to local augmented Lesson interface
-        this.lessons = lessons.map(l => ({
-          lessonID: (l.lessonID === undefined ? null : l.lessonID) as number | null,
-          courseID: this.courseId,
-          title: l.title,
-          orderIndex: l.orderIndex,
-          estimatedTime: l.estimatedTime,
-          content: 'Loaded content...', // Placeholder for content fetching
-          lessonType: 'Video',
-          videoURL: 'https://video.link/loaded', // Placeholder for video fetching
-          includeDocument: false, // Placeholder for attachment state
-          lessonAttachmentUrl: null // Placeholder for attachment URL
-        }));
-
-        this.completedSteps.lessons = this.lessons.length > 0;
-        this.setActiveStepInitial();
-        this.isLoading = false;
-      }),
-      catchError(err => {
-        console.error('Failed to load initial course data:', err);
-        this.isLoading = false;
-        return of(null);
-      })
-    ).subscribe();
+        }),
+        catchError((err) => {
+          console.error('Failed to load initial course data:', err);
+          this.isLoading = false;
+          return of(null);
+        })
+      )
+      .subscribe();
   }
 
   private updateStateFromCourseData(course: CourseFormState) {
     // Merge the loaded course details into the local state
-    this.courseData = { ...this.courseData, ...course, courseID: course.courseID || this.courseId, instructorId: this.instructorId, courseMaterialUrl: course.courseMaterialUrl || null, };
+    this.courseData = {
+      ...this.courseData,
+      ...course,
+      courseID: course.courseID || this.courseId,
+      instructorId: this.instructorId,
+      courseMaterialUrl: course.courseMaterialUrl || null,
+    };
 
     if (course.categoryID && course.categoryName) {
       this.completedSteps.category = true;
-      this.selectedCategory = this.allCategories.find(c => c.categoryID === course.categoryID) || { categoryID: course.categoryID, name: course.categoryName!, description: course.categoryDescription || '' };
+      this.selectedCategory = this.allCategories.find(
+        (c) => c.categoryID === course.categoryID
+      ) || {
+        categoryID: course.categoryID,
+        name: course.categoryName!,
+        description: course.categoryDescription || '',
+      };
       this.categorySearchText = course.categoryName;
       this.categoryStatus = 'existing';
     }
@@ -256,7 +235,6 @@ export class InstructorCreateCourseComponent implements OnInit {
       this.activeStep = 'preview';
     }
   }
-
 
   private getNewLessonTemplate(): LessonFormState {
     return {
@@ -298,14 +276,14 @@ export class InstructorCreateCourseComponent implements OnInit {
     }
 
     const searchTextLower = this.categorySearchText.trim().toLowerCase();
-    const match = this.allCategories.find(cat => cat.name.toLowerCase() === searchTextLower);
+    const match = this.allCategories.find((cat) => cat.name.toLowerCase() === searchTextLower);
 
     if (match) {
       this.selectCategory(match);
       this.filteredCategories = [];
     } else {
       this.categoryStatus = 'new';
-      this.filteredCategories = this.allCategories.filter(cat =>
+      this.filteredCategories = this.allCategories.filter((cat) =>
         cat.name.toLowerCase().includes(searchTextLower)
       );
     }
@@ -322,11 +300,19 @@ export class InstructorCreateCourseComponent implements OnInit {
   }
 
   isCategoryStepValid(): boolean {
-    if (this.categoryStatus === 'existing' && this.selectedCategory && this.selectedCategory.categoryID > 0) {
+    if (
+      this.categoryStatus === 'existing' &&
+      this.selectedCategory &&
+      this.selectedCategory.categoryID > 0
+    ) {
       return true;
     }
 
-    if (this.categoryStatus === 'new' && this.categorySearchText.trim().length > 0 && this.newCategoryDescription.trim().length >= 10) {
+    if (
+      this.categoryStatus === 'new' &&
+      this.categorySearchText.trim().length > 0 &&
+      this.newCategoryDescription.trim().length >= 10
+    ) {
       return true;
     }
 
@@ -345,10 +331,14 @@ export class InstructorCreateCourseComponent implements OnInit {
 
     // 1. Determine Category Action (Create New or Use Existing)
     if (this.categoryStatus === 'new') {
-      const newCatDetails = { name: this.categorySearchText.trim(), description: this.newCategoryDescription.trim(), categoryID: 0 };
-      category$ = this.courseService.createCategory(newCatDetails).pipe(
-        tap(newCategory => this.allCategories.push(newCategory))
-      );
+      const newCatDetails = {
+        name: this.categorySearchText.trim(),
+        description: this.newCategoryDescription.trim(),
+        categoryID: 0,
+      };
+      category$ = this.courseService
+        .createCategory(newCatDetails)
+        .pipe(tap((newCategory) => this.allCategories.push(newCategory)));
     } else {
       category$ = of(this.selectedCategory!);
     }
@@ -373,14 +363,12 @@ export class InstructorCreateCourseComponent implements OnInit {
         console.log('Category saved/selected successfully. ID:', categoryIdFromApi);
 
         this.isLoading = false;
-
-
       },
       error: (err) => {
         console.error('API Error: Category save failed', err);
         // 💡 2b. Set loading to false on error
         this.isLoading = false;
-      }
+      },
     });
   }
 
@@ -401,13 +389,16 @@ export class InstructorCreateCourseComponent implements OnInit {
 
     // 1. Core Metadata Validation: Ensure the result of the expression is explicitly a boolean.
     const isTitleValid: boolean = !!(data.title && data.title.trim().length >= 5);
-    const isDescriptionValid: boolean = !!(data.description && data.description.trim().length >= 10);
+    const isDescriptionValid: boolean = !!(
+      data.description && data.description.trim().length >= 10
+    );
     const isSyllabusValid: boolean = !!(data.syllabus && data.syllabus.trim().length >= 10);
 
     // 2. Selection/Numeric Validation:
     const isLevelValid: boolean = !!data.level;
     const isLanguageValid: boolean = !!(data.language && data.language.trim().length >= 2);
-    const isMaterialValid: boolean = !this.courseData.courseMaterialFile || !!this.courseData.courseMaterialFile;
+    const isMaterialValid: boolean =
+      !this.courseData.courseMaterialFile || !!this.courseData.courseMaterialFile;
 
     const isDurationValid: boolean = typeof data.duration === 'number' && data.duration > 0;
 
@@ -462,80 +453,85 @@ export class InstructorCreateCourseComponent implements OnInit {
       thumbnailURL: this.courseData.thumbnailURL,
       duration: this.courseData.duration,
       categoryID: this.courseData.categoryID,
-      published: false
+      published: false,
     };
 
     // 3. Execute Course Creation and Chain File Upload
-    this.courseService.createCourse(createPayload).pipe(
-      // --- Step A: Save the new Course ID ---
-      tap((newCourse) => {
-        // Your existing logic to robustly extract the course ID
-        const courseIdFromApi = (newCourse as any).courseID || (newCourse as any).CourseID || (newCourse as any).ID;
+    this.courseService
+      .createCourse(createPayload)
+      .pipe(
+        // --- Step A: Save the new Course ID ---
+        tap((newCourse) => {
+          // Your existing logic to robustly extract the course ID
+          const courseIdFromApi =
+            (newCourse as any).courseID || (newCourse as any).CourseID || (newCourse as any).ID;
 
-        if (typeof courseIdFromApi !== 'number' || courseIdFromApi <= 0) {
-          // Throw error to be caught by the final 'catchError'
-          throw new Error('API returned success but failed to provide a valid Course ID.');
-        }
+          if (typeof courseIdFromApi !== 'number' || courseIdFromApi <= 0) {
+            // Throw error to be caught by the final 'catchError'
+            throw new Error('API returned success but failed to provide a valid Course ID.');
+          }
 
-        this.courseId = courseIdFromApi;
-        this.courseData = { ...this.courseData, ...newCourse };
-        console.log('New Course created successfully with ID:', this.courseId);
-      }),
+          this.courseId = courseIdFromApi;
+          this.courseData = { ...this.courseData, ...newCourse };
+          console.log('New Course created successfully with ID:', this.courseId);
+        }),
 
-      // --- Step B: Conditional File Upload ---
-      switchMap(() => {
-        // Check if a file object exists in our local state
-        if (this.courseId && this.courseData.courseMaterialFile) {
-          console.log(`➡️ Starting course material upload for Course ID: ${this.courseId}`);
-          // Call the new service method you created
-          return this.courseService.uploadCourseMaterial(this.courseId, this.courseData.courseMaterialFile);
-        }
-        // If no file, return an observable that completes immediately, allowing execution to continue
-        return of(void 0);
-      }),
+        // --- Step B: Conditional File Upload ---
+        switchMap(() => {
+          // Check if a file object exists in our local state
+          if (this.courseId && this.courseData.courseMaterialFile) {
+            console.log(`➡️ Starting course material upload for Course ID: ${this.courseId}`);
+            // Call the new service method you created
+            return this.courseService.uploadCourseMaterial(
+              this.courseId,
+              this.courseData.courseMaterialFile
+            );
+          }
+          // If no file, return an observable that completes immediately, allowing execution to continue
+          return of(void 0);
+        }),
 
-      // --- Step C: Process Upload Response (only if file was uploaded) ---
-      tap((uploadResponse) => {
-        if (uploadResponse) {
-          // Update the local data with the URL/Name returned from the API
-          this.courseData.courseMaterialUrl = uploadResponse.Url;
-          this.courseData.courseMaterialFile = null; // Clear temporary file reference
-          console.log('✅ Course material URL updated in database.');
-        }
-      }),
+        // --- Step C: Process Upload Response (only if file was uploaded) ---
+        tap((uploadResponse) => {
+          if (uploadResponse) {
+            // Update the local data with the URL/Name returned from the API
+            this.courseData.courseMaterialUrl = uploadResponse.Url;
+            this.courseData.courseMaterialFile = null; // Clear temporary file reference
+            console.log('✅ Course material URL updated in database.');
+          }
+        }),
 
-      // --- Step D: Centralized Error Handling ---
-      catchError(err => {
-        // Handle and re-throw an error from either creation or upload step
-        console.error('An error occurred during course save or material upload:', err);
-        return throwError(() => new Error('Course creation/upload failed.'));
-      })
+        // --- Step D: Centralized Error Handling ---
+        catchError((err) => {
+          // Handle and re-throw an error from either creation or upload step
+          console.error('An error occurred during course save or material upload:', err);
+          return throwError(() => new Error('Course creation/upload failed.'));
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.completedSteps.details = true;
+          this.isLoading = false;
 
-    ).subscribe({
-      next: () => {
-        // SUCCESS: Both course creation and file upload (if any) completed
-        this.completedSteps.details = true;
-        this.isLoading = false;
-
-        if (next) {
-          this.setActiveStep('lessons');
-        }
-      },
-      error: (err) => {
-        // Error will be from the catchError re-throw
-        console.error(err.message);
-        this.isLoading = false;
-      }
-    });
+          if (next) {
+            this.setActiveStep('lessons');
+          }
+        },
+        error: (err) => {
+          // Error will be from the catchError re-throw
+          console.error(err.message);
+          this.isLoading = false;
+        },
+      });
   }
-
 
   // =========================================================================
   //                             STEP 3: LESSON ACTIONS
   // =========================================================================
 
   get isLessonFormValid(): boolean {
-    const isBaseValid = this.lessonData.title.trim().length >= 3 &&
+    const isBaseValid =
+      this.lessonData.title.trim().length >= 3 &&
       this.lessonData.estimatedTime !== null &&
       this.lessonData.estimatedTime! > 0 &&
       !!this.lessonData.videoURL; // Require video for simplicity
@@ -558,158 +554,158 @@ export class InstructorCreateCourseComponent implements OnInit {
     }
   }
 
-// Add throwError to your imports if it's not already there:
-// import { Observable, of, forkJoin, throwError } from 'rxjs'; 
-// import { switchMap, tap, catchError } from 'rxjs/operators';
+  
 
-saveLesson() {
+  saveLesson() {
     if (!this.courseId || !this.isLessonFormValid) {
-        console.warn('Cannot save lesson. Course ID missing or form is invalid.');
-        return;
+      console.warn('Cannot save lesson. Course ID missing or form is invalid.');
+      return;
     }
 
     this.isLoading = true;
 
     // A. Prepare the Lesson Payload (Metadata only, for create/update API)
     // NOTE: We omit lessonAttachmentUrl/FileName from this payload as the dedicated upload API handles it.
-    const metadataPayload: Omit<Lesson, 'lessonID' | 'lessonAttachmentUrl' | 'lessonAttachmentFileName'> = {
-        courseID: this.courseId!,
-        title: this.lessonData.title,
-        content: this.lessonData.content,
-        videoURL: this.lessonData.videoURL,
-        orderIndex: this.lessonData.orderIndex,
-        lessonType: this.lessonData.lessonType,
-        estimatedTime: this.lessonData.estimatedTime!,
+    const metadataPayload: Omit<
+      Lesson,
+      'lessonID' | 'lessonAttachmentUrl' | 'lessonAttachmentFileName'
+    > = {
+      courseID: this.courseId!,
+      title: this.lessonData.title,
+      content: this.lessonData.content,
+      videoURL: this.lessonData.videoURL,
+      orderIndex: this.lessonData.orderIndex,
+      lessonType: this.lessonData.lessonType,
+      estimatedTime: this.lessonData.estimatedTime!,
     } as Omit<Lesson, 'lessonID' | 'lessonAttachmentUrl' | 'lessonAttachmentFileName'>;
 
     let finalAction$: Observable<Lesson>; // The final Observable chain to subscribe to
     const fileSelected = this.lessonData.includeDocument && this.lessonData.attachmentFile;
 
-
     // =========================================================================
     // SCENARIO 1: UPDATING an existing lesson (lessonID is present)
     // =========================================================================
     if (this.lessonData.lessonID) {
-        const lessonId = this.lessonData.lessonID;
-        
-        // Full Lesson object for the standard PUT/Update endpoint
-        const fullLessonToUpdate: Lesson = { 
-            ...(metadataPayload as unknown as Lesson),
-            lessonID: lessonId,
-            // Include existing URL/FileName for metadata-only updates
-            lessonAttachmentUrl: this.lessonData.lessonAttachmentUrl, 
-            lessonAttachmentFileName: this.lessonData.lessonAttachmentFileName,
-        };
+      const lessonId = this.lessonData.lessonID;
 
-        if (fileSelected) {
-            // Case 1A: Existing Lesson, New File -> Upload first, then update metadata (if needed)
-            finalAction$ = this.courseService.uploadLessonAttachment(
-                lessonId, 
-                this.lessonData.attachmentFile!
-            ).pipe(
-                // After successful upload, the file URL/Name is saved in the backend.
-                // We still need to call updateLesson to save title, content, etc.
-                switchMap(fileResponse => {
-                    // Update local state with the actual URL/FileName from the server response
-                    this.lessonData.lessonAttachmentUrl = fileResponse.url;
-                    this.lessonData.lessonAttachmentFileName = fileResponse.fileName;
+      // Full Lesson object for the standard PUT/Update endpoint
+      const fullLessonToUpdate: Lesson = {
+        ...(metadataPayload as unknown as Lesson),
+        lessonID: lessonId,
+        // Include existing URL/FileName for metadata-only updates
+        lessonAttachmentUrl: this.lessonData.lessonAttachmentUrl,
+        lessonAttachmentFileName: this.lessonData.lessonAttachmentFileName,
+      };
 
-                    // Update the full object for the subsequent metadata update call
-                    fullLessonToUpdate.lessonAttachmentUrl = fileResponse.url;
-                    fullLessonToUpdate.lessonAttachmentFileName = fileResponse.fileName;
+      if (fileSelected) {
+        // Case 1A: Existing Lesson, New File -> Upload first, then update metadata (if needed)
+        finalAction$ = this.courseService
+          .uploadLessonAttachment(lessonId, this.lessonData.attachmentFile!)
+          .pipe(
+            // After successful upload, the file URL/Name is saved in the backend.
+            // We still need to call updateLesson to save title, content, etc.
+            switchMap((fileResponse) => {
+              // Update local state with the actual URL/FileName from the server response
+              this.lessonData.lessonAttachmentUrl = fileResponse.url;
+              this.lessonData.lessonAttachmentFileName = fileResponse.fileName;
 
-                    // Call the standard metadata update API
-                    return this.courseService.updateLesson(fullLessonToUpdate);
-                })
-            );
+              // Update the full object for the subsequent metadata update call
+              fullLessonToUpdate.lessonAttachmentUrl = fileResponse.url;
+              fullLessonToUpdate.lessonAttachmentFileName = fileResponse.fileName;
 
-        } else {
-            // Case 1B: Existing Lesson, No New File -> Only update metadata (PUT /api/Lesson/{id})
-            finalAction$ = this.courseService.updateLesson(fullLessonToUpdate);
-        }
-    } 
+              // Call the standard metadata update API
+              return this.courseService.updateLesson(fullLessonToUpdate);
+            })
+          );
+      } else {
+        // Case 1B: Existing Lesson, No New File -> Only update metadata (PUT /api/Lesson/{id})
+        finalAction$ = this.courseService.updateLesson(fullLessonToUpdate);
+      }
+    }
     // =========================================================================
     // SCENARIO 2: CREATING a new lesson (lessonID is missing)
     // =========================================================================
     else {
-        // Step 1: Create the lesson first (without attachment URL)
-        const createAction$ = this.courseService.createLesson(metadataPayload);
+      // Step 1: Create the lesson first (without attachment URL)
+      const createAction$ = this.courseService.createLesson(metadataPayload);
 
-        if (fileSelected) {
-            // Case 2A: New Lesson, File Selected -> Create -> Upload Attachment
-            finalAction$ = createAction$.pipe(
-                // Get the lessonID from the creation response
-                switchMap(createdLesson => {
-                    this.lessonData.lessonID = createdLesson.lessonID; // Update local state with new ID
-                    
-                    // Now use the new ID to call the dedicated upload API
-                    return this.courseService.uploadLessonAttachment(
-                        createdLesson.lessonID, 
-                        this.lessonData.attachmentFile!
-                    ).pipe(
-                        // Map the result back to the created lesson object format
-                        map(fileResponse => {
-                            // Synchronize URL and FileName from the upload response to the final object
-                            createdLesson.lessonAttachmentUrl = fileResponse.url;
-                            createdLesson.lessonAttachmentFileName = fileResponse.fileName;
-                            return createdLesson; // Pass the fully updated lesson object forward
-                        })
-                    );
+      if (fileSelected) {
+        // Case 2A: New Lesson, File Selected -> Create -> Upload Attachment
+        finalAction$ = createAction$.pipe(
+          // Get the lessonID from the creation response
+          switchMap((createdLesson) => {
+            this.lessonData.lessonID = createdLesson.lessonID; // Update local state with new ID
+
+            // Now use the new ID to call the dedicated upload API
+            return this.courseService
+              .uploadLessonAttachment(createdLesson.lessonID, this.lessonData.attachmentFile!)
+              .pipe(
+                // Map the result back to the created lesson object format
+                map((fileResponse) => {
+                  // Synchronize URL and FileName from the upload response to the final object
+                  createdLesson.lessonAttachmentUrl = fileResponse.url;
+                  createdLesson.lessonAttachmentFileName = fileResponse.fileName;
+                  return createdLesson; // Pass the fully updated lesson object forward
                 })
-            );
-        } else {
-            // Case 2B: New Lesson, No File -> Only the create action
-            finalAction$ = createAction$;
-        }
+              );
+          })
+        );
+      } else {
+        // Case 2B: New Lesson, No File -> Only the create action
+        finalAction$ = createAction$;
+      }
     }
 
-
     // --- 3. Centralized Subscription (using the finalAction$ chain) ---
-    finalAction$.pipe(
+    finalAction$
+      .pipe(
         // Centralized Error Handling
         catchError((err) => {
-            console.error('API Error: Lesson save failed (including file upload)', err);
-            this.isLoading = false;
-            return throwError(() => new Error('Failed to save lesson or upload file. Please check server logs.'));
+          console.error('API Error: Lesson save failed (including file upload)', err);
+          this.isLoading = false;
+          return throwError(
+            () => new Error('Failed to save lesson or upload file. Please check server logs.')
+          );
         })
-    ).subscribe({
+      )
+      .subscribe({
         next: (savedServiceLesson: Lesson) => {
-            // --- SUCCESS HANDLER: Update the local array and UI state ---
+          // --- SUCCESS HANDLER: Update the local array and UI state ---
 
-            // Map saved service lesson back to local LessonFormState interface
-            const savedLesson: LessonFormState = {
-                ...this.lessonData,
-                lessonID: savedServiceLesson.lessonID,
-                orderIndex: savedServiceLesson.orderIndex,
-                estimatedTime: savedServiceLesson.estimatedTime,
-                courseID: savedServiceLesson.courseID,
-                // Ensure attachment URL/FileName are synchronized from the final response
-                lessonAttachmentUrl: savedServiceLesson.lessonAttachmentUrl || null,
-                lessonAttachmentFileName: savedServiceLesson.lessonAttachmentFileName || null
-            };
-            console.log('✅ API CHECK: Saved Lesson ID:', savedLesson.lessonID);
+          // Map saved service lesson back to local LessonFormState interface
+          const savedLesson: LessonFormState = {
+            ...this.lessonData,
+            lessonID: savedServiceLesson.lessonID,
+            orderIndex: savedServiceLesson.orderIndex,
+            estimatedTime: savedServiceLesson.estimatedTime,
+            courseID: savedServiceLesson.courseID,
+            // Ensure attachment URL/FileName are synchronized from the final response
+            lessonAttachmentUrl: savedServiceLesson.lessonAttachmentUrl || null,
+            lessonAttachmentFileName: savedServiceLesson.lessonAttachmentFileName || null,
+          };
+          console.log('✅ API CHECK: Saved Lesson ID:', savedLesson.lessonID);
 
-            const index = this.lessons.findIndex(l => l.lessonID === savedLesson.lessonID);
+          const index = this.lessons.findIndex((l) => l.lessonID === savedLesson.lessonID);
 
-            if (index !== -1) {
-                this.lessons[index] = savedLesson;
-                console.log('Lesson updated successfully:', savedLesson.title);
-            } else {
-                this.lessons.push(savedLesson);
-                console.log('New Lesson created successfully:', savedLesson.title);
-            }
+          if (index !== -1) {
+            this.lessons[index] = savedLesson;
+            console.log('Lesson updated successfully:', savedLesson.title);
+          } else {
+            this.lessons.push(savedLesson);
+            console.log('New Lesson created successfully:', savedLesson.title);
+          }
 
-            this.resetLessonForm();
-            this.completedSteps.lessons = this.lessons.length > 0;
-            this.lessons.forEach((l, i) => l.orderIndex = i + 1); 
-            this.isLoading = false;
+          this.resetLessonForm();
+          this.completedSteps.lessons = this.lessons.length > 0;
+          this.lessons.forEach((l, i) => (l.orderIndex = i + 1));
+          this.isLoading = false;
         },
         error: (err) => {
-            console.error(err.message);
-            this.isLoading = false;
-        }
-    });
-}
+          console.error(err.message);
+          this.isLoading = false;
+        },
+      });
+  }
 
   editLesson(lesson: LessonFormState, index: number) {
     // 💡 REQUIRED CHANGE: Ensure we copy all fields including the file object placeholders
@@ -726,7 +722,7 @@ saveLesson() {
 
   private finalizeRemove(index: number) {
     this.lessons.splice(index, 1); // Remove from the local array
-    this.lessons.forEach((l, i) => l.orderIndex = i + 1); // Re-index all lessons
+    this.lessons.forEach((l, i) => (l.orderIndex = i + 1)); // Re-index all lessons
     this.completedSteps.lessons = this.lessons.length > 0;
     // this.resetLessonForm(); // Reset form back to "Add New Lesson" mode
     this.expandedLessonId = null; // Collapse any expanded lesson
@@ -750,21 +746,22 @@ saveLesson() {
 
     // SCENARIO 1: Lesson has an ID (Saved to DB)
     if (lessonId) {
-      this.courseService.deleteLesson(lessonId).subscribe({ // <-- DELETES FROM DATABASE
+      this.courseService.deleteLesson(lessonId).subscribe({
+        // <-- DELETES FROM DATABASE
         next: () => {
           this.lessons.splice(index, 1);
-          this.lessons.forEach((l, i) => l.orderIndex = i + 1);
+          this.lessons.forEach((l, i) => (l.orderIndex = i + 1));
           this.completedSteps.lessons = this.lessons.length > 0;
           this.expandedLessonId = null;
           console.log(`✅ Lesson ID ${lessonId} deleted from database and front-end.`);
         },
-        error: (err) => console.error('API Error: Lesson delete failed', err)
+        error: (err) => console.error('API Error: Lesson delete failed', err),
       });
     } else {
       // SCENARIO 2: Lesson is UNSAVED (lessonId is falsy, which triggers the warning)
       // FIX 7: Perform local removal immediately without API call.
       this.lessons.splice(index, 1);
-      this.lessons.forEach((l, i) => l.orderIndex = i + 1);
+      this.lessons.forEach((l, i) => (l.orderIndex = i + 1));
       this.completedSteps.lessons = this.lessons.length > 0;
       this.expandedLessonId = null;
       console.warn('⚠️ Lesson has no ID. Removing from local list only.');
@@ -787,11 +784,6 @@ saveLesson() {
     }
   }
 
-
-
-
-
-
   // =========================================================================
   //                             STEP 4: PUBLISH ACTIONS
   // =========================================================================
@@ -809,7 +801,7 @@ saveLesson() {
         // Navigate back to the course list
         this.router.navigate(['/instructor/courses']);
       },
-      error: (err) => console.error('API Error: Publish failed', err)
+      error: (err) => console.error('API Error: Publish failed', err),
     });
   }
 
